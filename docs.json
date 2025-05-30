@@ -11,15 +11,14 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "User Guides",
-        "pages": Introduction to Reva 
+        "tab": "Guides",
         "groups": [
           {
-            "group": "Concepts",
+            "group": "Get Started",
             "pages": [
-              "Access Control Models: RBAC, ABAC, ReBAC",
-              "Authorization, Coarse-Grained & Fine-Grained Enforcement",
-              "Understanding Reva, AVP, and Cedar"
+              "index",
+              "quickstart",
+              "development"
             ]
           },
           {
