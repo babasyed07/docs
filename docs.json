@@ -1,83 +1,108 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "maple",
+  "name": "Reva.AI",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "User Guide",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Overview",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "index"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Concepts",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": [
-              "api-reference/introduction"
+              "Access Control Models: RBAC, ABAC, ReBAC",
+              "Authorization, Coarse-Grained & Fine-Grained Enforcement",
+              "Understanding Reva, AVP, and Cedar"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Getting Started",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "Logging into Reva",
+              "Landing Page",
+              "Platform Heirarchy",
+              "Configuring Settings and Permissions"
+            ]
+          },
+          {
+            "group": "Setting Up Policy Integration Points",
+            "pages": [
+              "Amazon Verified Permissions (AVP) – Policy Store Discovery & Management",
+              "Policy Orchestration via GitHub Repositories",
+              "Policy Orchestration via GitLab Repositories"
+            ]
+          },
+          {
+            "group": "Setting Up and Configuring an Application",
+            "pages": [
+              "Configure Application details",
+              "Create an Environment for the application",
+              "Onboard an Existing Policy Store (AVP)",
+              "Create a New Policy Store"
+            ]
+          },
+          {
+            "group": "Policy Design and Modeling",
+            "pages": [
+              "Understanding Policy Components",
+              "Designing Policies for RBAC, ABAC, and ReBAC Models",
+              "Building Authorization Policies"
+            ]
+          },
+          {
+            "group": "Policy Governance",
+            "pages": [
+              "Using Access Graph",
+              "Gaining Insights from Policies",
+              "Track and Manage Policy Versions",
+              "Reviewing and Approving Policies"
+            ]
+          },
+          {
+            "group": "Policy Testing and Impact Analysis",
+            "pages": [
+              "Policy Testing and Impact Analysis"
+            ]
+          },
+          {
+            "group": "Start Using Reva Library",
+            "pages": [
+              "Understanding Library and Their Components",
+              "Building Library Components"
+            ]
+          },
+          {
+            "group": "Platform Administration & Settings",
+            "pages": [
+              "User Management - Create and Manage Users",
+              "User Management - Create and Manage Groups",
+              "User Management - Create and Manage Authorizations",
+              "Notifications - Notify on Policy Approval  Workflow",
+              "Notifications - Notify on Policy Activation",
+              "Setting - Create and Manage Categories"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/RevaLight.svg",
+    "dark": "/logo/RevaDark.svg",
+    "height": "80px",
+    "width": "auto"
   },
   "navbar": {
     "links": [
@@ -90,13 +115,6 @@
       "type": "button",
       "label": "Dashboard",
       "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
     }
   }
 }
