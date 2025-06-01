@@ -22,7 +22,7 @@
           {
             "group": "Concepts",
             "pages": [
-              "Access Control Models: RBAC, ABAC, ReBAC",
+              "access_control_models",
               "Authorization, Coarse-Grained & Fine-Grained Enforcement",
               "Understanding Reva, AVP, and Cedar"
             ]
