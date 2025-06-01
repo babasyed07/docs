@@ -22,9 +22,9 @@
           {
             "group": "Concepts",
             "pages": [
-              "access_control_models",
-              "Authorization, Coarse-Grained & Fine-Grained Enforcement",
-              "Understanding Reva, AVP, and Cedar"
+              "access-control-models",
+              "authorization",
+              "understanding-reva-avp-cedar"
             ]
           },
           {

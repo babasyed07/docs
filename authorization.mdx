@@ -1,0 +1,31 @@
+---
+title: "Authorization, Coarse-Grained & Fine-Grained Enforcement"
+---
+
+At its core, authorization is about deciding who can access what and what actions they’re allowed to perform within a system. This is managed through a set of rules or policies that either allow or block access to resources. 
+
+Once these policies are defined, the system needs to enforce them. This means that every time a user tries to access something, the system checks the rules to decide whether the action is allowed. If the rules permit it, access is granted; if not, it’s denied. This check can happen at various points, like an Application, API gateway, or a proxy. 
+
+The level of detail at which you define and enforce these rules can differ. This is where coarse-grained and fine-grained authorization comes in, each representing a different approach to how specific or broad your access control policies are. 
+
+## Broader (often associated with "Coarse-Grained") Enforcement  
+
+This is when access decisions are based on more general criteria. For example, using RBAC (Role-Based Access Control) where access is granted or denied based solely on a user's assigned role. If you have the "Administrator" role, you might get broad access to many things. This approach is straightforward for managing user roles efficiently. 
+
+**Illustration as "Coarse-Grained":** It's like saying, "If you're a manager, you can enter the entire office floor." 
+
+## More Detailed (often associated with "Fine-Grained") Enforcement 
+
+Refers to making access decisions based on specific details and context, rather than broad categories. This approach enables precise control over who can access what, and under which conditions. 
+
+Two common models that support fine-grained control are: 
+
+**ABAC (Attribute-Based Access Control)**
+
+ This model uses user attributes (like department, role, or location), resource attributes (such as classification level or owner), and environmental context (like time of day or location) to determine access. ABAC enables context-rich authorization that reflects business logic and security needs. 
+
+**ReBAC (Relationship-Based Access Control)**
+
+ ReBAC makes decisions based on relationships between users and resources, such as "Owner", "Manager", or "Team Member". It is particularly useful for collaborative systems and hierarchical structures. 
+
+**Illustration as "Fine-Grained":** “You can access this document only if you are listed as an Editor, your access occurs during business hours, and your security clearance matches the document’s sensitivity level.” 

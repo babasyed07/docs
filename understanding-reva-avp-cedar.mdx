@@ -1,0 +1,75 @@
+---
+title: "Understanding Reva, AVP, and Cedar"
+---
+
+How core components work together for authorization
+
+Modern authorization relies on these key components: 
+
+🛠️ PAP: Policy design & management 
+
+📦 PIP: Data preparation for decisions 
+
+⚖️ PDP: Real-time decision evaluation 
+
+🛡️ PEP: Enforcement in your application 
+
+🔧 **How Components Work Together**
+
+✅ **Reva: Complete Authorization Platform**
+
+Serves all authorization roles with flexible deployment options: 
+
+| Role    | Capabilities                                                                 |
+|---------|------------------------------------------------------------------------------|
+| **PAP** | • No-code + AI policy design<br />• Natural language → Cedar conversion<br />• Governance workflows |
+| **PIP** | • Pre-built data integrations<br />• Centralized data modeling<br />• Java/Golang SDKs |
+| **PDP** | • Local Cedar policy evaluation<br />• Standalone decision engine<br />• Testing/development use |
+
+✅ **AVP: Managed Cloud PDP**
+
+Amazon Verified Permissions provides: 
+
+🔹 Enterprise-scale decision service 
+
+🔹 Cedar policy evaluation 
+
+🔹 Cloud-native deployment 
+
+🔹 Works with Reva's PAP/PIP 
+
+✅ **Cedar: Policy Language**
+
+Open-source language for: 
+
+🔹 Coarse-grained RBAC
+
+🔹 Fine-grained ABAC/ReBAC 
+
+🔹 Human-readable policies 
+
+🔹 Cloud-scale performance 
+
+## 🔁 Authorization Options 
+
+Option 1: Hybrid with AVP
+
+🔹 AVP as cloud PDP + Reva for policy/data management 
+
+🔹 Best for AWS-integrated environments 
+
+Option 2: Full Reva Implementation 
+
+🔹 Reva handles all authorization roles 
+
+🔹 Ideal for self-managed deployments 
+
+## 📊 Component Summary 
+
+| Component | Primary Role | Key Notes |
+|-----------|--------------|-----------|
+| **Reva**  | PAP + PIP + PDP | Complete authorization platform with local decision engine |
+| **AVP**   | Cloud PDP        | Managed AWS decision service |
+| **Cedar** | Policy Language  | Standard syntax for all policies |
+
+<Info>**Key Insight:** Reva provides flexible PDP options - use its built-in engine for local decisions or integrate with AVP for cloud-scale evaluation.</Info> 
