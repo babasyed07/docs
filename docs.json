@@ -30,10 +30,9 @@
           {
             "group": "Getting Started",
             "pages": [
-              "Logging into Reva",
-              "Landing Page",
-              "Platform Heirarchy",
-              "Configuring Settings and Permissions"
+              "login-reva",
+              "landing-page",
+              "platform-heirarchy"
             ]
           },
           {
@@ -99,10 +98,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/RevaLight.svg",
-    "dark": "/logo/RevaDark.svg",
-    "height": "80px",
-    "width": "auto"
+    "light": "/logo/svgviewer-output.svg",
+    "dark": "/logo/RevaDark.svg"
   },
   "navbar": {
     "links": [
