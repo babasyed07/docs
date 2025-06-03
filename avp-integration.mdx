@@ -1,0 +1,64 @@
+---
+title: "Amazon Verified Permissions (AVP): Policy Store Discovery & Management"
+---
+
+Integrate Reva's Policy Administration Point (PAP) with **Amazon Verified Permissions (AVP)** to centralize policy discovery, authoring, and enforcement. Policies created in Reva sync with AVP’s Cedar-based policy store, enabling:
+
+1. **Governance:** Approval of workflows and version history for policies.  
+2. **Discovery:** Visualize and audit policies across applications.  
+3. **Real-Time Enforcement:** AVP evaluates access requests using Reva-managed policies.  
+4. **Auditability:** Decision logs tracked in AWS CloudTrail.  
+
+### Key Benefits
+
+1. **Consistency:** Enforce Reva-authored policies across all applications via AVP.  
+2. **Scalability:** Handle high-volume authorization with AVP’s serverless architecture.  
+3. **Visibility:** Discover and manage policies from a single interface.
+
+## Prerequisites
+
+To run the CloudFormation Template (CFT), you need permissions for:  
+
+1. **CloudFormation** (deploy infrastructure)  
+2. **IAM** (create Reva roles/policies)  
+3. **CloudTrail & S3** (capture/store audit logs)  
+4. **EventBridge** (route log events)  
+5. **SQS** (temporarily store events for Reva)  
+6. **AVP** (full policy store access)  
+
+## Integration Steps
+
+1. **Start AWS Integration**  
+-  → In Reva: Integrations > "+ Integration" > Select "AWS"  
+
+2. **Configure Settings**  
+- **Name:** (e.g., "AVP Production")  
+- **AWS Account:** 12-digit ID (e.g., 214899999999)  
+- **Description:** (e.g., "AVP policy management")  
+- **Region:** (e.g., US East (N. Virginia))  
+- **Policy Type:** AVP  
+
+3. **Set Permissions**  
+- **Read/Write:** Manage policies and read logs  
+- **Read Only:** Discover/view policies and read logs  
+
+4. **Save Draft**  
+-  → Review settings before activating  
+
+5. **Deploy CloudFormation Template (CFT)**  
+- Enter your AWS Account and Region  
+- Select Permission Level  
+- Run CFT in your AWS account to:  
+   -  Create IAM roles for Reva  
+   -  Set up CloudTrail → S3 logging  
+   -  Configure EventBridge → SQS → Reva pipeline  
+   -  Grant AVP/SQS permissions  
+
+6. **Confirm successful deployment**  
+-  After running the CFT in your AWS account successfully, check the box to confirm that the CFT has been run successfully.
+
+7. **Activate Integration**  
+-  → Click "Activation"  
+-  → Status changes from Draft → Enabled  
+
+<Info>Tip: Use "Read Only" permissions to safely discover existing policies before enabling full management.</Info>

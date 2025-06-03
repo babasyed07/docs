@@ -38,9 +38,10 @@
           {
             "group": "Setting Up Policy Integration Points",
             "pages": [
-              "Amazon Verified Permissions (AVP) – Policy Store Discovery & Management",
-              "Policy Orchestration via GitHub Repositories",
-              "Policy Orchestration via GitLab Repositories"
+              "integration-overview",
+              "avp-integration",
+              "github-integration",
+              "gitlab-integration"
             ]
           },
           {

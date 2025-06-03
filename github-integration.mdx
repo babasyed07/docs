@@ -1,0 +1,44 @@
+---
+title: "GitHub Integration for Policy Orchestration"
+---
+
+Reva integrates with GitHub to automate policy lifecycle management. Policies authored in Reva are synced to your GitHub repository, enabling:
+
+### Key Benefits
+
+- **Version Control**: Track all changes via Git history
+- **Collaboration**: Enable team editing with merge controls
+- **Automation**: Enforce policies instantly after sync
+- **Audit Trails**: Link changes to commits/users
+- **Environment Promotion**: Move policies between stages (e.g., dev → prod)
+
+### Prerequisites
+
+- **GitHub Repository**
+  - Create a repo for policy files ([GitHub’s guide](https://docs.github.com/en/github))
+  
+- **Personal Access Token (PAT)**
+  - Generate a classic PAT with repo scope ([GitHub’s PAT guide](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token))
+
+### Integration Steps
+
+1. **Start Integration**
+   - Go to Reva: `Integrations > "+ Integration" > Select "GitHub"`
+
+2. **Configure Settings**
+   - **Integration Name***: Unique ID (e.g., prod-policies)
+   - **Description**: Purpose (e.g., "Core access policies")
+
+3. **Connect GitHub**
+   - **PAT***: Your github_pat_xxx token
+   - **Email***: PAT-linked email (e.g., user@domain.com)
+   - **Username***: GitHub username (e.g., johndoe)
+   - **Repository URL***: HTTPS link (e.g., https://github.com/yourteam/policies.git)
+
+4. **Select Branch**
+   - Choose sync branch (e.g., main or dev)
+
+5. **Activate**
+   - Click Activate (bottom-right corner)
+
+<Info>Tip: Use GitHub’s "Protected Branches" feature with Reva to prevent unauthorized policy changes.</Info>
