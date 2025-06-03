@@ -14,14 +14,9 @@
         "tab": "User Guide",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Overview and Concepts",
             "pages": [
-              "index"
-            ]
-          },
-          {
-            "group": "Concepts",
-            "pages": [
+              "index",
               "access-control-models",
               "authorization",
               "understanding-reva-avp-cedar"
