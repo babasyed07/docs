@@ -14,7 +14,7 @@
         "tab": "User Guide",
         "groups": [
           {
-            "group": "Overview and Concepts",
+            "group": "Reva Overview and Concepts",
             "pages": [
               "index",
               "access-control-models",
@@ -42,10 +42,11 @@
           {
             "group": "Setting Up and Configuring an Application",
             "pages": [
-              "Configure Application details",
-              "Create an Environment for the application",
-              "Onboard an Existing Policy Store (AVP)",
-              "Create a New Policy Store"
+              "application-onboarding-overview",
+              "application-information",
+              "create-environment",
+              "onboarding-existing-policy-store",
+              "onboarding-new-policy-store"
             ]
           },
           {

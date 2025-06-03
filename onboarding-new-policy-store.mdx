@@ -1,0 +1,108 @@
+---
+title: "Create a New Policy Store"
+---
+
+Create a new policy store for Amazon Verified Permissions (AVP), GitHub, or GitLab integrations to define and manage your security policies. This process allows you to set up the policy store with a unique name, description, and integration type for seamless policy management.
+
+1. **Enter Display Name**
+Provide a unique name for the Policy Store (e.g., "PetStore-PolicyStore") to identify it.
+
+2. **Write Description** 
+Add a brief description of the Policy Store’s purpose (e.g., managing retail access rules).
+
+3. **Select Policy Store Type** 
+Choose the appropriate type (e.g., "AVP") to define the structure of security policies.
+
+4. **Choose Integration**
+From the dropdown, select the integration type (e.g., Git) for version control and synchronization.
+
+---
+
+## Review Added Environment(s)
+
+1. **Confirm Environment Name**  
+   Ensure the environment name (e.g., "Prod") is listed and linked to the Policy Store.
+
+2. **Verify Policy Store Name**  
+   Confirm that the Policy Store name matches the environment’s needs.
+
+3. **Click Create**  
+   Proceed by clicking **'Create'** to create the new Policy Store.
+
+---
+
+## Configure the Policy Store
+
+1. **Check Configuration Status**  
+   Ensure the Policy Store status is **"Awaiting Configuration."**
+
+2. **Begin Schema Setup**  
+   Click the **Gear icon** under the Action column to start the schema setup.
+
+### Option 1: Define Policy Structure Manually
+
+Manually map the following components:
+
+- **Principal**: The entity (e.g., user, role, or system) requesting access. (e.g., "User")
+- **Action**: The operation the principal intends to perform. (e.g., "createOrder", "viewProduct", "editCart")
+- **Resource**: The object on which the action is performed. (e.g., "Order", "Product", "Cart")
+
+### Option 2: Add from Library or Upload Existing Schema
+
+- **Add from Library**: Select a prebuilt schema template for common application types.
+- **Upload Existing Schema**: Upload a JSON schema file to automatically create the mappings for principal, action, and resource.
+
+3. **Preview and Proceed**  
+   Click **Preview** to review the schema and return to the **Define Policy Structure** screen.  
+   Click **Next** to proceed to the **Define Attributes** section.
+
+---
+
+## Define Attributes for Entity Types
+
+1. **Configure Entity-Level Attributes**  
+   Define attributes like **User ID**, **Email**, or **Username** for fine-grained access control.
+
+2. **Add Run-Time Attributes**  
+   Define dynamic attributes (e.g., **Current Time**, **Access Location**) that are evaluated during real-time authorization decisions.
+
+---
+
+## Set Up Hierarchy for Entity Types and Actions
+
+1. **Organize Hierarchy**  
+   Arrange entity types and actions in a logical structure to simplify policy evaluation.
+
+---
+
+## Save and Activate the Policy Store
+
+1. **Save and Activate**  
+   Once the entity types, attributes, and hierarchies are defined, click **Save and Activate** to complete the configuration.
+
+---
+
+## Proceed After Activating the Policy Store
+
+1. **Activate Status**  
+   Once the Policy Store is marked as **"Active"**, click **Continue** to move to the next onboarding step: **Upload Test Data**.
+
+---
+
+## Upload Test Data Files
+
+1. **Upload Sample Files**  
+   Upload sample .zip files containing test data (e.g., .json or .csv files for users, roles, and permissions).
+
+2. **Confirm Upload Success**  
+   Ensure the upload is successful, indicated by a progress message or confirmation.
+
+---
+
+## Review Applications List
+
+1. **Navigate to Applications**  
+   Go to the **Manage Applications** screen to review all registered applications.
+
+2. **Track Progress**  
+   Use the **Progress** and **Status** columns to track onboarding completion for each application.
