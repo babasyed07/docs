@@ -8,7 +8,7 @@ Organizing your authorization environment from business domains to enforcement
 
 ## Hierarchy Levels 
 
-🔹 **Category**
+1. **Category**
 
 Business domain grouping 
 
@@ -18,7 +18,7 @@ Business domain grouping
 
 - **Governance:** Policies inherit category-level settings 
 
-🔹 **Application**
+2. **Application**
 
 Your software system 
 
@@ -32,7 +32,7 @@ Your software system
 
 - **Example:** Patient Portal App, Payment Service 
 
-🔹 **Environment** 
+3. **Environment** 
 
 Deployment stage 
 
@@ -42,7 +42,7 @@ Deployment stage
 
 - **Critical Link:** Connects to one Policy Store 
 
-🔹 **Policy Store**
+4. **Policy Store**
 
 Authorization policies container 
 
@@ -50,7 +50,7 @@ Authorization policies container
 
 **Two Configuration Paths:**
 
--  **🔄 AVP Policy Store:** For existing Amazon Verified Permissions setups 
+-  **AVP Policy Store:** For existing Amazon Verified Permissions setups 
 
    -  **Auto-imports:**
 
@@ -62,7 +62,7 @@ Authorization policies container
 
    -  **Benefits:** Zero manual setup, instant governance 
 
--  **🛠️ New Policy Store:** For new authorization implementations 
+-  ** New Policy Store:** For new authorization implementations 
 
    -  **Manual configuration:**
 
@@ -74,7 +74,7 @@ Authorization policies container
 
    - **Flexibility:** Full control over access model design 
 
-### 📘 Key Relationships
+### Key Relationships
 
 | **Level**       | **Parent**     | **Child**        | **Description**                              |
 |----------------|----------------|------------------|----------------------------------------------|

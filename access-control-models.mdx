@@ -9,11 +9,11 @@ This model focuses on the Role a user has. Permissions (what a user is allowed t
 
 **Example:** Imagine a simple website with different types of users. 
 
-🔹 A user with the role of "Administrator" might be allowed to create, edit, and delete any content on the site. 
+1. A user with the role of "Administrator" might be allowed to create, edit, and delete any content on the site. 
 
-🔹 A user with the role of "Moderator" might only be allowed to approve or remove user comments. 
+2. A user with the role of "Moderator" might only be allowed to approve or remove user comments. 
 
-🔹 A user with the role of "Registered User" might only be allowed to post comments. 
+3. A user with the role of "Registered User" might only be allowed to post comments. 
 
 <Info>In this example, the decision is simple: what is the user's role? The system checks the user's role and grants permissions accordingly.</Info>
 
@@ -23,7 +23,7 @@ With ABAC, access decisions are based on various attributes. These attributes ca
 
 **Example:** Let's consider a system for accessing employee records. 
 
-🔹 A policy might state: "A user can view an employee record IF the user's department attribute is the same as the employee record's department attribute AND the employee record's status attribute is not 'Archived'." 
+1. A policy might state: "A user can view an employee record IF the user's department attribute is the same as the employee record's department attribute AND the employee record's status attribute is not 'Archived'." 
 
 <Info>In this example, the decision depends on comparing specific details (attributes) about the user and the record they want to access. This model is very flexible because you can define fine-grained policies using many different characteristics.</Info>
 
@@ -33,9 +33,9 @@ This model looks at the relationships between users and resources. Access is det
 
 **Example:** Think about a project management tool where users collaborate on tasks and documents. 
 
-🔹 A policy might state: "A user can edit a document IF the user has an "Owner" relationship with that specific document." 
+2. A policy might state: "A user can edit a document IF the user has an "Owner" relationship with that specific document." 
 
-🔹 Another policy might be: "A user can see a task IF the user has a "Member" relationship with the project that the task belongs to." 
+3. Another policy might be: "A user can see a task IF the user has a "Member" relationship with the project that the task belongs to." 
 
 <Info>In this example, the decision is based on the defined connection (like 'Owner' or 'Member') between the user and the resource they want to access. This model is useful for systems where the structure of the data and how users are linked to it is important for access control.</Info>
 
