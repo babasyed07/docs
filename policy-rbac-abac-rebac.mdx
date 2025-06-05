@@ -1,0 +1,264 @@
+---
+title: "Designing Policies for RBAC, ABAC, and ReBAC Models"
+---
+
+Cedar enables flexible policy design across all three major access control models. Below is a breakdown of how to implement each pattern effectively:
+
+## Role-Based Access Control (RBAC)
+
+RBAC assigns permissions based on roles or groups, offering a clear and hierarchical access control mechanism. Policies are defined around group membership, ensuring users in specific roles (e.g., Admin, Editor) are allowed or denied actions on resources.
+
+### Key Components:
+
+- **Role entities**: Roles define the permissions a user can have, such as Admin, Editor, or Viewer. These roles are assigned to users to determine what actions they can perform.
+- **Group entities**: Groups represent collections of users, such as the "FinanceTeam" or "HR", which help organize access controls more effectively.
+- **Membership relationships**: These define the connection between users, their roles, and the groups they belong to. For example, a user in the "Admins" group may have permissions granted to perform administrative actions.
+
+### Policy Examples:
+
+1. **Grant Admins full access:**  
+   ```Cedar  Grant Admins full access
+   permit (   
+     principal in Group::"Admins",   
+     action,   
+     resource   
+   );
+   ```  
+   This policy allows any member of the "Admins" group to perform any action on any resource.
+
+2. **Allow Editors to edit documents:**  
+   ```Cedar Allow Editors to edit documents
+   permit (   
+      principal in Group::"Editors",   
+      action in [Action::"edit", Action::"review"],   
+      resource is Document   
+    );
+    ```
+    Editors are permitted to perform editing or reviewing actions on documents.
+
+3. **Forbid interns from deleting:**  
+   ```Cedar Forbid interns from deleting
+   forbid (   
+      principal in Group::"Interns",   
+      action == Action::"delete",   
+      resource   
+    );
+   ```
+     Interns are forbidden from deleting any resources.
+
+### Best Practices:
+
+1. **Use hierarchical roles:** 
+   ```Cedar
+   permit (principal in Group::"SeniorEditors", ...)   
+   when { principal in Group::"Editors" }; // Inheritance
+   ```
+ 
+   SeniorEditors inherit permissions from Editors, which simplifies the policy structure.
+
+2. **Limit wildcards:**   
+   Avoid broad actions like `action` or `resource` without constraints to prevent granting excessive permissions.
+
+3. **Add time-based conditions:**  
+   ```Cedar
+   permit (principal in Group::"Contractors", ...)   
+   unless { context.current_time > "2024-12-31T23:59" }
+   ```
+   You can limit permissions based on the time, ensuring access is restricted after a certain date.
+
+---
+
+## Attribute-Based Access Control (ABAC)
+
+ABAC enables more granular control by using entity and context attributes (e.g., department, time, IP address). It allows dynamic rules, such as enforcing multi-factor authentication or restricting access during certain times of the day, based on the attributes of users and resources.
+
+### Key Components:
+
+- **Entity attributes**: These are characteristics tied to the entity (e.g., user, resource). Examples include department, security_level, etc., which help define access based on the user's or resource’s attributes.
+- **Context attributes**: These reflect the environment or situation at the time of the request. Examples include ip_address and time, which provide more dynamic access conditions.
+- **Comparison operators**: ABAC policies often use comparison operators such as `>`, `in`, `contains` to define the relationship between an attribute and its value in the policy evaluation.
+
+### Policy Examples:
+
+1. **Require MFA for sensitive resources:**
+   ```cedar Require MFA for sensitive resources
+   permit (principal, action, resource)   
+   when { resource.sensitivity == "high" && context.mfa_authenticated == true };
+   ```
+This policy ensures that multifactor authentication (MFA) is required for accessing highly sensitive resources.
+
+2. **Restrict access to work hours:**
+   ```cedar Restrict access to work hours
+    forbid (principal, action, resource)   
+    unless {   
+      context.request_time >= "09:00" &&   
+      context.request_time <= "17:00"   
+    };
+    ```
+Access is restricted to work hours, ensuring that requests outside of the specified time range are denied.
+
+3. **Department-specific access:**
+   ```cedar Department-specific access
+    permit (   
+      principal,   
+      action == Action::"view",   
+      resource is Report   
+    ) when { resource.department == principal.department };
+    ```
+Users can only view reports in their own department, enforcing access based on department attributes.
+
+### Best Practices:
+
+1. **Validate attribute existence**:   
+   ```cedar
+   when { principal has clearance_level && ... }
+   ```
+Always validate that the necessary attributes exist (e.g., clearance level) before applying conditions.
+
+2. **Use sets for multi-value attributes**:   
+   ```cedar
+   when { context.allowed_countries.contains(resource.location) }
+   ```
+Use sets or collections for attributes that can have multiple values (e.g., countries) to easily manage conditions on a range of possibilities.
+
+3. **Combine with RBAC**:   
+   ```cedar
+   permit (principal in Group::"Managers", ...)   
+   when { principal.seniority > 3 }
+   ```
+You can combine ABAC with RBAC for more granular control, such as allowing senior managers to access certain resources.
+
+---
+
+## Relationship-Based Access Control (ReBAC)
+
+ReBAC grants permissions based on relationships between entities (e.g., document ownership, folder collaborators). This model ensures that users can access resources based on their roles in relational structures, with permission to inheritance and reciprocal relationships enhancing flexibility.
+
+### Key Components:
+
+- **Relationship attributes:** These define relationships between entities. Examples include attributes like owner, editors, or parent_folder, which govern the access based on how entities are connected.
+  
+- **Hierarchical structures:** The relationships can be structured hierarchically, such as parent-child relationships or group membership.
+  
+- **Group membership:** Entities (e.g., users or resources) can belong to specific groups (e.g., "Editors" or "Admins"), which influence the access permissions based on these groupings.
+
+### Policy Examples:
+
+1. **Document owner full control:**   
+   ```cedar Document owner full control
+   permit (   
+      principal,   
+      action,   
+      resource is Document   
+    ) when { principal == resource.owner };
+   ```
+  This policy grants full control over a document to its owner.
+
+2. **Shared folder access:**   
+   ```Cedar Shared folder access
+   permit (   
+      principal,   
+      action == Action::"view",   
+      resource is Folder   
+   ) when { principal in resource.collaborators };
+   ```
+  Users who are listed as collaborators on a folder can view the folder's contents.
+
+3. **Inherited permissions:**   
+   ```Cedar Inherited permissions
+   permit (   
+      principal,   
+      action,   
+      resource is File   
+   ) when { principal in resource.parent_folder.editors };
+   ```
+  A user with editor rights on a folder inherits permissions to edit files within that folder.
+
+### Best Practices:
+
+1. **Optimize hierarchy lookups:**  
+   ```cedar
+   when { resource in Album::"prod" }
+   ```
+  Avoid deep nesting in hierarchical relationships. Direct referencing, like resource in Album::"prod", is more efficient than long chains of nested lookups.
+
+2. **Limit transitive relationships:**   
+   ```cedar
+   when { resource.owner in Team::"Admins" }
+   ```  
+  Limit transitive relationships (i.e., the chain of relationships) to a single hop for efficiency and security. This ensures you’re only referencing direct relationships.
+
+3. **Use reciprocal relationships:** 
+   ```cedar
+   permit (...) when { principal in Group::"Editors" }
+   ```   
+  Reciprocal relationships, such as User ↔ Group membership, can simplify policies and ensure that entities like users are granted access based on their group membership (e.g., Editors group).
+
+---
+
+## Hybrid Model Design
+
+The Hybrid Model Design combines different access control models to address more complex authorization requirements by leveraging the strengths of each model.
+
+### ReBAC + ABAC:
+
+This policy example demonstrates how Relationship-Based Access Control (ReBAC) and Attribute-Based Access Control (ABAC) can be combined. A Team Lead is allowed to edit high-risk documents only if they are the owner (ReBAC) and the document has a risk level lower than 5 (ABAC).
+
+   ```cedar
+    permit (   
+      principal in Group::"TeamLeads",   
+      action == Action::"edit",   
+      resource is Document   
+    ) when {   
+      principal == resource.team_lead &&  // ReBAC   
+      resource.risk_level < 5            // ABAC   
+    };
+   ```
+
+### RBAC + ABAC:
+
+This policy combines Role-Based Access Control (RBAC) and ABAC to enforce Finance team access based on both their role in the organization (RBAC) and their access location (ABAC).
+  
+   ```cedar
+   forbid (   
+     principal in Group::"Finance",   
+     action,   
+     resource   
+    ) unless {   
+        context.ip_range in ["10.10.0.0/16"] && // ABAC   
+        resource has finance_record             // Attribute check   
+    };
+   ```
+
+---
+
+## Policy Optimization Tips
+
+### Order of Operations:
+
+In complex policies, prioritize evaluating cheaper conditions first, such as checking `ip_check` before diving into more computationally expensive operations, like deep hierarchy lookups. This reduces the overhead of the policy evaluation process.
+
+### Error Handling:
+
+Use conditional checks to handle errors more gracefully. For example, ensure that an attribute exists before accessing it:
+
+   ```cedar
+   when { principal has clearance_level ? false }
+   ```  
+
+This prevents errors related to missing attributes by returning false if the `clearance_level` attribute is not present.
+
+### Testing:
+
+Validate your policies by checking principal/resource attribute matrices. Also, ensure that edge cases, such as missing attributes or empty relationships, are tested. This ensures robustness in real-world scenarios.
+
+### Modularity:
+
+Make your policies modular by creating reusable conditions. For instance, define common conditions like `isWorkHours()` and apply them across multiple policies:
+
+   ```cedar
+   isWorkHours() : bool { ... }
+   permit (...) when { isWorkHours() };
+   ```  
+
+This keeps your policies clean, maintainable, and easy to update.

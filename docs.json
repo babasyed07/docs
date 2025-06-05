@@ -52,8 +52,8 @@
           {
             "group": "Policy Design and Modeling",
             "pages": [
-              "Understanding Policy Components",
-              "Designing Policies for RBAC, ABAC, and ReBAC Models",
+              "understanding-schema-policy",
+              "policy-rbac-abac-rebac",
               "Building Authorization Policies"
             ]
           },
