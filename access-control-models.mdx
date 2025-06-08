@@ -1,42 +1,33 @@
 ---
 title: "Access Control Models - RBAC, ABAC, ReBAC"
 ---
-Access control models help you define who can access what within your system. Think of them as different ways to design the policies (or rules) that determine what users are allowed to do. There are three types of models used when setting up authorization or access control policies: 
+Access control models help define who can access what within your system. Think of it as different approaches to designing the policies that determine what users are allowed to do. There are three primary models commonly used when setting up authorization or access control policies:  
 
-## RBAC (Role-Based Access Control) 
-
+## RBAC (Role-Based Access Control)  
 This model focuses on the Role a user has. Permissions (what a user is allowed to do) are granted or denied based on the specific role assigned to a user. This is a straightforward way to manage access by grouping users into roles and assigning permissions to those roles. Syncing users and identities and managing user roles efficiently. 
 
 **Example:** Imagine a simple website with different types of users. 
 
-1. A user with the role of "Administrator" might be allowed to create, edit, and delete any content on the site. 
+1. *A user with the role of **Administrator** might be allowed to create, edit, and delete any content on the site.*  
+2. *A user with the role of **Moderator** might only be allowed to approve or remove user comments.*
+3. *A user with the role of **Registered User** might only be allowed to post comments.*
+   <Info>*In this example, the decision is simple: what is the user's role? The system checks the user's role and grants permissions accordingly.*</Info>
 
-2. A user with the role of "Moderator" might only be allowed to approve or remove user comments. 
-
-3. A user with the role of "Registered User" might only be allowed to post comments. 
-
-<Info>In this example, the decision is simple: what is the user's role? The system checks the user's role and grants permissions accordingly.</Info>
-
-## ABAC (Attribute-Based Access Control) 
-
-With ABAC, access decisions are based on various attributes. These attributes can include details about the user (like their department or location), the resource being accessed (like its sensitivity level or project), or even the environment (like the time of day). Managing these Attributes is often part of identity management. Let’s talk about bringing "business context" or enabling "context-rich authorization" which often relies on attributes from systems like Identity Providers (IDP) or Systems of Record. 
+## ABAC (Attribute-Based Access Control)  
+With ABAC, access decisions are based on various attributes. These attributes can include details about the user (like their department or location), the resource being accessed (like its sensitivity level or project), or even the environment (like the time of day). Managing these Attributes is often part of identity management. Let’s talk about bringing "business context" or enabling "context-rich authorization" which often relies on attributes from systems like Identity Providers (IdP) or Systems of Record. 
 
 **Example:** Let's consider a system for accessing employee records. 
 
-1. A policy might state: "A user can view an employee record IF the user's department attribute is the same as the employee record's department attribute AND the employee record's status attribute is not 'Archived'." 
+1. A policy might state: *A user can view an employee record if the user's department is the same as the employee record's department and the employee record's status is not archived.* 
+   <Info>*In this example, the decision depends on comparing specific details (attributes) about the user and the record they want to access. This model is very flexible because you can define fine-grained policies using many different characteristics.*</Info>
 
-<Info>In this example, the decision depends on comparing specific details (attributes) about the user and the record they want to access. This model is very flexible because you can define fine-grained policies using many different characteristics.</Info>
-
-## ReBAC (Relationship-Based Access Control) 
-
+## ReBAC (Relationship-Based Access Control)  
 This model looks at the relationships between users and resources. Access is determined by how a user is connected to the data or resource they are trying to access. Access control based on relationships is listed as a policy modeling option, and "Ownership" is mentioned as a common policy pattern. 
 
 **Example:** Think about a project management tool where users collaborate on tasks and documents. 
 
-2. A policy might state: "A user can edit a document IF the user has an "Owner" relationship with that specific document." 
-
-3. Another policy might be: "A user can see a task IF the user has a "Member" relationship with the project that the task belongs to." 
-
-<Info>In this example, the decision is based on the defined connection (like 'Owner' or 'Member') between the user and the resource they want to access. This model is useful for systems where the structure of the data and how users are linked to it is important for access control.</Info>
+1. A policy might state: *A user can edit a document only if the user is the owner of that document.*
+2. Another policy might be: *A user can see a task if the user has a **Member** relationship with the project that the task belongs to.* 
+   <Info>*In this example, the decision is based on the defined connection (like **Owner** or **Member**) between the user and the resource they want to access. This model is useful for systems where the structure of the data and how users are linked to it is important for access control.*</Info>
 
 These models provide different ways to structure your access policies. Understanding which model or combination of models fits your needs is a basic part of setting up your policy system

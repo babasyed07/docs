@@ -1,30 +1,23 @@
 ---
 title: "Understanding Policy and Schema Components"
 ---
+## Cedar Policy Components  
+A Cedar policy is a structured text document that defines rules for authorization. It consists of several key components that determine when and how the policy applies to an access request. Each policy statement must end with a semicolon.  
+<Info>Reference: ([Cedar Policy](https://docs.cedarpolicy.com/policies/syntax-policy.html))</Info>  
 
-## Cedar Policy Components
-
-A Cedar policy is a structured text document that defines rules for authorization. It consists of several key components that determine when and how the policy applies to an access request. Each policy statement must end with a semicolon.
-
-<Info>Reference: ([Cedar Policy](https://docs.cedarpolicy.com/policies/syntax-policy.html))</Info>
-
-### Main Components of a Cedar Policy
-
+### Main Components of a Cedar Policy  
 1. **Effect**  
-   Specifies the intent of the policy: either **permit** or **forbid**.
-   - **Permit** effect indicates that if the policy matches a request, it results in **Allow**.
-   - **Forbid** effect indicates that if the policy matches, it results in **Deny**.
-
-   **Evaluation Rules**:
-   - The overall result is **Allow** if at least one matching policy produces an **Allow** and none produce a **Deny**.
-   - The result is **Deny** if at least one matching policy produces a **Deny**, or if no policies produce an **Allow**.
-
-   **Key principles**:
-   - Implicit **Deny** is the default when no policy permits a request.
-   - An **Explicit Deny** from any policy overrides any **Allow** result from others.
-
+Specifies the intent of the policy: either **permit** or **forbid**.  
+     - **Permit** effect indicates that if the policy matches a request, it results in **Allow**.  
+     - **Forbid** effect indicates that if the policy matches, it results in **Deny**.  
+   - Evaluation Rules:  
+     - The overall result is **Allow** if at least one matching policy produces an **Allow** and none produce a **Deny**.  
+     - The result is **Deny** if at least one matching policy produces a **Deny**, or if no policies produce an **Allow**.  
+   - Key principles:   
+     - Implicit **Deny** is the default when no policy permits a request.  
+     - An **Explicit Deny** from any policy overrides any **Allow** result from others.  
 2. **Scope**  
-   The scope is mandatory and defines the combination of principals, actions, and resources to which the policy applies. It acts as the first filter for determining policy relevance.
+The scope is mandatory and defines the combination of principals, actions, and resources to which the policy applies. It acts as the first filter for determining policy relevance.
    - **Principal**: The entity making the request.
      - Examples: 
        - Any principal: `principal`
@@ -40,81 +33,74 @@ A Cedar policy is a structured text document that defines rules for authorizatio
      - Examples:
        - Any resource: `resource`
        - Specific entity: `resource == Photo::"VacationPhoto94.jpg"`
-       - Nested resource: `resource in Album::"alice_vacation"`
-
+       - Nested resource: `resource in Album::"alice_vacation"`  
 3. **Conditions**  
-   Conditions are optional constraints defined using **when** and **unless** clauses. They allow fine-grained, Attribute-Based Access Control (ABAC).
-   - **when**: The policy matches only if the expression evaluates to true.
-   - **unless**: The policy matches only if the expression evaluates to false.
-
-   **Conditions can refer to**:
-   - Contextual request attributes (e.g., IP address, time)
-   - Principal or resource attributes (e.g., `resource.owner == principal`)
-
+Conditions are optional constraints defined using **when** and **unless** clauses. They allow fine-grained, Attribute-Based Access Control (ABAC).
+     - **when**: The policy matches only if the expression evaluates to true.
+     - **unless**: The policy matches only if the expression evaluates to false.  
+   - Conditions can refer to:  
+     - Contextual request attributes (e.g., IP address, time)
+     - Principal or resource attributes (e.g., `resource.owner == principal`)  
 4. **Annotations**  
-   Annotations are optional metadata key-value pairs attached to a policy. They do not affect policy evaluation and must appear before the effect statement.
-   - Format: `@annotationName("value")`
-   - Omitting the value is equivalent to an empty string.
+Annotations are optional metadata key-value pairs attached to a policy. They do not affect policy evaluation and must appear before the effect statement.
+     - Format: `@annotationName("value")`
+     - Omitting the value is equivalent to an empty string.  
+   - **Common example**: `@id`, used by tools like the Cedar CLI.  
 
-   **Common example**: `@id`, used by tools like the Cedar CLI.
+### Policy Patterns Enabled by Cedar  
+Cedar supports multiple authorization models:  
+1. **Discretionary Access Control**: Scoped to specific principals.  
+2. **Membership-Based (RBAC)**: e.g., `principal in Group::...`  
+3. **Relationship-Based (ReBAC)**: e.g., when `{ principal in resource.owners }`  
+4. **Attribute-Based (ABAC)**: Using **when/unless** with principal or resource attributes.  
+Policy templates use placeholders (e.g., `?principal`, `?resource`) in the scope to dynamically generate policies.   
 
-### Policy Patterns Enabled by Cedar
-
-Cedar supports multiple authorization models:
-
-- **Discretionary Access Control**: Scoped to specific principals.
-- **Membership-Based (RBAC)**: e.g., `principal in Group::...`
-- **Relationship-Based (ReBAC)**: e.g., when `{ principal in resource.owners }`
-- **ABAC**: Using **when/unless** with principal or resource attributes.
-
-Policy templates use placeholders (e.g., `?principal`, `?resource`) in the scope to dynamically generate policies.
-
----
-
-## Cedar Schema Elements
-
-Although schema components are not explicitly defined as policy components, policies depend on the schema to define the universe of entities, actions, and attributes they operate on.
-
+## Cedar Schema Elements  
+Although schema components are not explicitly defined as policy components, policies depend on the schema to define the universe of entities, actions, and attributes they operate on.   
 <Info>Reference: ([Cedar Policy](https://docs.cedarpolicy.com/schema/schema.html))</Info>
 
-### Key Schema Elements
-
+### Key Schema Elements  
 1. **Entity Types**  
    Defines the categories of entities that can serve as principals or resources.
-   - Examples: `User`, `Group`, `Photo`, `Album`, `Service`, `Role`, `Team`, `Account`
-   
+   - Examples: `User`, `Group`, `Photo`, `Album`, `Service`, `Role`, `Team`, `Account`  
    Policies reference these types to:
    - Constrain scope: `principal is User`
-   - Match specific entities: `resource == Photo::"VacationPhoto94.jpg"`
-
+   - Match specific entities: `resource == Photo::"VacationPhoto94.jpg"`  
 2. **Attributes**  
    Define properties of entities. These are vital for ABAC conditions.
    - Examples:
      - **Standard**: `owner`, `private`, `department`, `status`, `tags`, `fileType`
-     - **Relationship-related**: `owners`, `contributingUsers`, `admins`, `isTerminated`, `complianceOfficerCountries`
-
+     - **Relationship-related**: `owners`, `contributingUsers`, `admins`, `isTerminated`, `complianceOfficerCountries`  
    **Used in conditions like**:
    ```cedar
    when { resource.private == false }
-
+   ```  
 3. **Hierarchy and Relationships**  
-   Schemas can model relationships and hierarchies, such as:
-   - **Nested albums** (Album in Album)
-   - **Users in groups** (principal in Group::"engineering")
-   **Used with**:
-   - **Scope**: `resource in Album::"alice_vacation"`
-   - **Conditions**: `principal == resource.owner`
-
+   Schemas in Cedar can represent relationships and hierarchical structures between entities. These relationships are essential for enabling context-aware, relationship-driven access control.  
+   
+   Common Hierarchy Examples:  
+   - **Nested resources** – For example, albums nested within other albums (Album in Album)
+   - **Group membership** – Representing users within a group  
+     Example: principal in Group::"engineering"  
+   
+   How They Are Used:  
+   - **In Scope**: Define the resource's placement within a hierarchy  
+     ```cedar
+     resource in Album::"alice_vacation"
+     ```
+   - **In Conditions**: Enforce access based on relationships between principal and resource
+     ```cedar
+     principal == resource.owner
+     ```  
+   These hierarchical and relationship-based structures are particularly powerful in ReBAC (Relationship-Based Access Control) models, enabling fine-grained, intuitive permissions such as ownership, collaboration, and nested access.  
 4. **Actions and Action Groups**  
    Schemas define:
    - **Specific actions** (e.g., `Action::"view"`, `Action::"edit"`)
    - **Grouped actions** (e.g., `Action::"admin"`, `PhotoFlash::Action::"ReadOnlyPhotoAccess"`)
    **Context attributes for actions**:
-   - Resource types applicable to actions.
+   - Resource types applicable to actions.  
 
----
-
-## Summary
+## Summary  
 The schema provides the vocabulary (entity types, attributes, relationships, actions) used in policy expressions. Policies then define the effect, scope, and conditions based on this schema.
 
 
