@@ -54,7 +54,7 @@
             "pages": [
               "understanding-schema-policy",
               "policy-rbac-abac-rebac",
-              "Building Authorization Policies"
+              "authorization-policy"
             ]
           },
           {
@@ -82,12 +82,23 @@
           {
             "group": "Platform Administration & Settings",
             "pages": [
-              "User Management - Create and Manage Users",
-              "User Management - Create and Manage Groups",
-              "User Management - Create and Manage Authorizations",
-              "Notifications - Notify on Policy Approval  Workflow",
-              "Notifications - Notify on Policy Activation",
-              "Setting - Create and Manage Categories"
+              "create-manage-user",
+              "create-manage-group",
+              "platform-auhorization",
+              "notify-policy-aprroval-workflow",
+              "notify-policy-store-activation",
+              "category-create-manage"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Documentation",
+        "groups": [
+          {
+            "group": "Reva REST APIs",
+            "openapi": [
+              "/api-reference/pip-openapi.json"
             ]
           }
         ]
@@ -102,7 +113,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@reva.ai"
       }
     ],
     "primary": {

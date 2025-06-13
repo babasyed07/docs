@@ -1,0 +1,153 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Reva PDP – Access Evaluation API",
+    "description": "Authorize one or many access-control requests in a single call.\n\n* A client may send **either**\n  • a single JSON object of type **AuthZENRequest**, **or**\n  • a JSON array of **AuthZENRequest** objects.\n* The service returns a 200 response whose body mirrors the caller’s format\n  (single **AuthZENResponse** or an array of them).\n* `400` – input problems (empty payload, malformed JSON, missing env-vars, …)\n* `500` – server / AWS errors.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8300"
+    }
+  ],
+    "tags": [
+        {
+         "name": "Authorization APIs - AuthZEN Compliant",
+         "description": "These APIs are used to manage entities in Reva using the REST protocol. Any invalid records that result in errors should be retried by the caller."
+        }
+    ],
+  "paths": {
+    "/access/v1/evaluation": {
+      "post": {
+        "summary": "Evaluate access decisions for a request",
+        "tags": ["Authorization APIs"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  { "$ref": "#/components/schemas/AuthZENRequest" },
+                  {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/AuthZENRequest" }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mirrored list of decisions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    { "$ref": "#/components/schemas/AuthZENResponse" },
+                    {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/AuthZENResponse" }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthZENSubject": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Logical entity-type (e.g. \"User\")"
+          },
+          "id": {
+            "type": "string",
+            "description": "Entity identifier (e.g. \"alice\")"
+          }
+        }
+      },
+      "AuthZENAction": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Action ID (may be schema-qualified)"
+          }
+        }
+      },
+      "AuthZENResource": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": { "type": "string" },
+          "id": { "type": "string" },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Free-form resource attributes"
+          }
+        },
+        "description": "Target resource of the decision"
+      },
+      "AuthZENRequest": {
+        "type": "object",
+        "required": ["subject", "action", "resource"],
+        "properties": {
+          "subject": { "$ref": "#/components/schemas/AuthZENSubject" },
+          "action": { "$ref": "#/components/schemas/AuthZENAction" },
+          "resource": { "$ref": "#/components/schemas/AuthZENResource" },
+          "context": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional contextual attributes"
+          }
+        }
+      },
+      "AuthZENResponse": {
+        "type": "object",
+        "required": ["decision"],
+        "properties": {
+          "decision": {
+            "type": "boolean",
+            "description": "true → allow, false → deny"
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        }
+      }
+    }
+  }
+}

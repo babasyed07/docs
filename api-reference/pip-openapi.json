@@ -1,0 +1,1203 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Data Ingestion APIs",
+        "description": "Data Ingestion Rest APIs",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Tushar Agarwal",
+            "url": "http://www.reva.ai",
+            "email": "tushar.agarwal@reva.ai"
+        },
+        "license": {
+            "name": "Reva.ai License",
+            "url": "http://www.reva.ai/license"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:7501",
+            "description": "Customer Server"
+        },
+        {
+            "url": "http://localhost:8300"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Authorization APIs - AuthZEN Complaint",
+            "description": "These APIs are used to entities in Reva using the REST protocol. Any invalid records that result in errors should be retried by the caller."
+        },
+        {
+            "name": "Access Map APIs",
+            "description": "These APIs are used to manage and synchronize access maps in Reva."
+        },
+        {
+            "name": "Data Ingestion APIs",
+            "description": "These APIs are used to manage and synchronize entities in Reva using the REST protocol. Any invalid records that result in errors should be retried by the caller."
+        }
+    ],
+    "security": [
+    {
+      "bearerAuth": []
+    }
+    ],
+    "paths": {
+        "/access/v1/evaluation": {
+        "servers": [
+           {
+               "url": "http://localhost:8300"
+            }
+        ],
+        "post": {
+        "summary": "Evaluate Entity",
+        "description": "Used to evaluate a access decision request. Each request contains one subject-action-resource tuple to determine whether access is permitted or denied.",
+        "tags": ["Authorization APIs - AuthZEN Complaint"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  { "$ref": "#/components/schemas/AuthZENRequest" },
+                  {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/AuthZENRequest" }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mirrored list of decisions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    { "$ref": "#/components/schemas/AuthZENResponse" },
+                    {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/AuthZENResponse" }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                }
+               }
+             }
+           }
+         }
+        },
+        "/v1/entity/{entityTypeId}/bulk": {
+            "servers": [
+            {
+               "url": "http://localhost:7501"
+            }
+            ],
+            "put": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Replace Entities",
+                "description": "Performs a bulk replacement of existing entities in Reva using the provided data. This operation completely overwrites existing records.",
+                "operationId": "replaceEntities",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/RevaEntity"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Create Entities",
+                "description": "Creates new entities in bulk in Reva",
+                "operationId": "createEntities",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/RevaEntity"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.ALREADY.EXISTS",
+                                    "message": "Entity already exists for the provided entity type ID and entity ID",
+                                    "data": "abcd123"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Delete All Entities",
+                "description": "Delete all Entities in Reva for a given entity type id",
+                "operationId": "deleteAllEntities",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Update Entities",
+                "description": "Performs a bulk update of specific attributes or parent relationships of existing entities in Reva without fully overwriting them",
+                "operationId": "updateEntities",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/UpdateRevaEntityDto"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/entity/{entityTypeId}": {
+            "servers": [
+            {
+               "url": "http://localhost:7501"
+            }
+            ],
+            "put": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Replace Entity",
+                "description": "Replaces an existing entity in Reva with the provided data. This is a full overwrite operation",
+                "operationId": "replaceEntity",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevaEntity"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Create Entity",
+                "description": "Creates a new entity record in Reva",
+                "operationId": "createEntity",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevaEntity"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.ALREADY.EXISTS",
+                                    "message": "Entity already exists for the provided entity type ID and entity ID",
+                                    "data": "abcd123"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Update Entity",
+                "description": "Updates specific attributes or parents of an existing entity in Reva without overwriting the full entity",
+                "operationId": "updateEntity",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateRevaEntityDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap": {
+            "servers": [
+            {
+               "url": "http://localhost:7501"
+            }
+            ],
+            "put": {
+                "tags": [
+                    "Access Map APIs"
+                ],
+                "summary": "Refresh Access Map",
+                "description": "This API is used to refresh access map for active policy store version and drafts.",
+                "operationId": "refreshAccessMap",
+                "parameters": [
+                    {
+                        "name": "applicationName",
+                        "in": "path",
+                        "description": "Application name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "app_01"
+                    },
+                    {
+                        "name": "policyStoreName",
+                        "in": "path",
+                        "description": "Policy store name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Reva Policy store"
+                    },
+                    {
+                        "name": "env",
+                        "in": "query",
+                        "description": "Environment name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Dev"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevaEntityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Env must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Policy store",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/entity/{entityTypeId}/{entityId}": {
+            "delete": {
+                "tags": [
+                    "Data Ingestion APIs"
+                ],
+                "summary": "Delete Entity",
+                "description": "Deletes an Entity in Reva",
+                "operationId": "deleteEntity",
+                "parameters": [
+                    {
+                        "name": "entityTypeId",
+                        "in": "path",
+                        "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "abcde-1234"
+                    },
+                    {
+                        "name": "entityId",
+                        "in": "path",
+                        "description": "Unique identifier of the entity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 123
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "BAD.REQUEST",
+                                    "message": "Entity ID must not be blank",
+                                    "data": "entityId"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "RESOURCE.NOT.FOUND",
+                                    "message": "Invalid Entity type ID",
+                                    "data": "abcd-1234"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "key": "INTERNAL.SERVER.ERROR",
+                                    "message": "Some error has occured, Please contact administrator"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+       "securitySchemes": {
+           "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "schemas": {
+      "AuthZENSubject": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Logical entity-type (e.g. \"User\")"
+          },
+          "id": {
+            "type": "string",
+            "description": "Entity identifier (e.g. \"alice\")"
+          }
+        }
+      },
+      "AuthZENAction": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Action ID (may be schema-qualified)"
+          }
+        }
+      },
+      "AuthZENResource": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": { "type": "string" },
+          "id": { "type": "string" },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Free-form resource attributes"
+          }
+        },
+        "description": "Target resource of the decision"
+      },
+      "AuthZENRequest": {
+        "type": "object",
+        "required": ["subject", "action", "resource"],
+        "properties": {
+          "subject": { "$ref": "#/components/schemas/AuthZENSubject" },
+          "action": { "$ref": "#/components/schemas/AuthZENAction" },
+          "resource": { "$ref": "#/components/schemas/AuthZENResource" },
+          "context": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional contextual attributes"
+          }
+        }
+      },
+      "AuthZENResponse": {
+        "type": "object",
+        "required": ["decision"],
+        "properties": {
+          "decision": {
+            "type": "boolean",
+            "description": "true → allow, false → deny"
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        }
+      },
+            "RevaAttribute": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the attribute.",
+                        "example": "color"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "Value of the attribute.",
+                        "example": "blue"
+                    }
+                },
+                "description": "Attribute of a Reva entity, represented as a name-value pair."
+            },
+            "RevaChild": {
+                "type": "object",
+                "properties": {
+                    "entityId": {
+                        "type": "string",
+                        "description": "Unique identifier of the child entity.",
+                        "example": "child-001"
+                    },
+                    "entityType": {
+                        "type": "string",
+                        "description": "Type of the child entity.",
+                        "example": "Team"
+                    }
+                },
+                "description": "Child entity related to a Reva entity."
+            },
+            "RevaEntity": {
+                "required": [
+                    "entityId"
+                ],
+                "type": "object",
+                "properties": {
+                    "entityId": {
+                        "type": "string",
+                        "description": "Unique identifier of the entity.",
+                        "example": "12345"
+                    },
+                    "attributes": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "description": "Set of attributes associated with the entity.",
+                        "items": {
+                            "$ref": "#/components/schemas/RevaAttribute"
+                        }
+                    },
+                    "parents": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "description": "Set of parent entities related to this entity.",
+                        "items": {
+                            "$ref": "#/components/schemas/RevaParent"
+                        }
+                    },
+                    "children": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "description": "Set of child entities related to this entity.",
+                        "items": {
+                            "$ref": "#/components/schemas/RevaChild"
+                        }
+                    }
+                },
+                "description": "DTO representing a Reva entity with attributes, parents, and children."
+            },
+            "RevaParent": {
+                "type": "object",
+                "properties": {
+                    "entityId": {
+                        "type": "string",
+                        "description": "Unique identifier of the parent entity.",
+                        "example": "parent-001"
+                    },
+                    "entityType": {
+                        "type": "string",
+                        "description": "Type of the parent entity.",
+                        "example": "Department"
+                    }
+                },
+                "description": "Parent entity related to a Reva entity."
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RevaEntityResponse": {
+                "type": "object",
+                "properties": {
+                    "entityId": {
+                        "type": "string",
+                        "description": "Unique identifier of the entity",
+                        "example": "12345"
+                    },
+                    "entityTypeId": {
+                        "type": "string",
+                        "description": "Unique type identifier of the entity",
+                        "example": "abcde-1234"
+                    }
+                }
+            },
+            "AttributeValue": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the attribute to update",
+                        "example": "Salary"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "New value of the attribute",
+                        "example": "100000"
+                    }
+                },
+                "description": "Details about an attribute update, used when path is ATTRIBUTE"
+            },
+            "RelationValue": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier of the related entity",
+                        "example": "parent-entity-6789"
+                    },
+                    "typeId": {
+                        "type": "string",
+                        "description": "Type identifier of the relation",
+                        "example": "type-4567"
+                    }
+                },
+                "description": "Details about a relation update, used when path is PARENT or CHILD"
+            },
+            "UpdateRevaEntityDto": {
+                "required": [
+                    "entityId",
+                    "op",
+                    "path"
+                ],
+                "type": "object",
+                "properties": {
+                    "entityId": {
+                        "type": "string",
+                        "description": "Unique identifier of the entity to be updated",
+                        "example": "entity-12345"
+                    },
+                    "op": {
+                        "type": "string",
+                        "description": "Supported update operations",
+                        "example": "REPLACE",
+                        "enum": [
+                            "ADD",
+                            "REMOVE",
+                            "REPLACE"
+                        ]
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "Entity path to be updated",
+                        "example": "ATTRIBUTE",
+                        "enum": [
+                            "ATTRIBUTE",
+                            "PARENT",
+                            "CHILD"
+                        ]
+                    },
+                    "relationValue": {
+                        "$ref": "#/components/schemas/RelationValue"
+                    },
+                    "attributeValue": {
+                        "$ref": "#/components/schemas/AttributeValue"
+                    }
+                },
+                "description": "Request object to update an entities' attributes or relationships"
+            }
+        }
+    }
+}

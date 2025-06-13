@@ -1,0 +1,27 @@
+---
+title: "Building Authorization Policies"
+---
+Creating authorization policies in Reva follows a clear, step-by-step process. The platform operates within a structured hierarchy and provides a dedicated Policy Store interface to simplify policy management.
+
+## Access Policy components
+The Access Policy interface is designed for both business users and developers, offering an intuitive interface to define access policies.
+
+Users must configure the following components:
+
+1. **Principal:** Who is requesting access?
+   *(e.g., User, Role, Group)*
+2. **Action:** What operation is being performed?
+   *(e.g., view, edit, delete)*
+3. **Resource:** Which object or entity is being accessed?
+   *(e.g., PatientRecord, Invoice)*  
+4. **Condition (optional):** Additional logic defined using the Condition Builder
+   Set constraints based on attributes such as department, location, time, or user status, enabling fine-grained, context-aware access control.
+   <Info>Condition Builder: Allows users to create complex rules by selecting attributes and logic operators—without writing code</Info>
+
+### Business user
+
+
+
+### Advanced User
+For advanced users such as developers, policies can be written directly in Cedar language using the code panel on the right. This provides full control and flexibility to define complex authorization logic beyond the capabilities of the visual builder.
+

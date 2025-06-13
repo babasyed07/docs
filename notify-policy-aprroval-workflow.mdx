@@ -1,0 +1,68 @@
+---
+title: "Notification: Policy Approval Workflow"
+---
+Reva’s notification system ensures transparent and traceable policy management by delivering real-time alerts during the policy approval process. These notifications are critical in collaborative environments where multiple users interact with shared policy stores. 
+
+Whenever a user modifies a policy, they do not own or manage directly; Reva automatically initiates an Approval Workflow. This step helps prevent unauthorized or accidental changes, ensuring proper governance and security controls are followed. 
+
+## Accessing Notifications
+
+1. Click the Bell Icon on the left sidebar to open the Notifications center. 
+2. View a chronological list of key events, including policy activations, approval requests, accepted approvals, and rejections.  
+The notification center is organized into three tabs: 
+   - **All:** Displays all notifications. 
+   - **Action** Shows notifications related to policy actions, such as activations and rejections. 
+   - **Update** Displays update-related events, such as approval requests and accepted updates. 
+3. Each notification includes: 
+   - **Timestamp** 
+   - **Policy Name**
+   - **Application Name** 
+   - **Username** of the person who initiated the action
+
+## Notification States in Approval Workflow 
+
+### Sent For Approval 
+
+1. Triggered when a user updates a policy they do not own. 
+2. The update request is flagged and routed for review. 
+3. The status is marked as Pending Approval – Update. 
+4. Details provided: 
+   - **Policy Name**
+   - **Application Name**
+   - **Initiator’s Username**
+   - **Timestamp**
+
+### Activation
+
+1. Triggered when an approver approves the policy changes. 
+2. The policy is changed. 
+3. A Activation notification is issued. 
+4. Details provided: 
+   - **Approver’s Name** 
+   - **Activation Timestamp** 
+
+### Activation Rejected 
+
+1. Triggered when an approver rejects the policy update. 
+2. The policy remains unchanged. 
+3. A Rejected notification is issued. 
+4. Details provided: 
+   - **Rejector’s Name** 
+   - **Rejection Timestamp** 
+5. The initiator can modify the request and submit it again.
+
+## Example Scenario 
+
+Bob is the Manager and owner of the Policy Store named "PetStore-PolicyStore" for the application PetStore. 
+
+Alice, who is a Developer, is working on creating access policies. She creates a policy where John (the PetStore Owner) is granted access to the Get Inventory and List Orders. 
+
+Since Alice does not own the policy store, she clicks Send to Approval, which automatically triggers a notification for Bob to review. 
+
+1. Bob receives a request for approval from Alice in his notification center. 
+2. Bob reviews the proposed policy update. 
+3. He can either approve or reject the request: 
+   - If approved, Alice receives a notification stating the policy was activated. 
+   - If rejected, Alice receives a notification declining the changes. 
+
+This workflow ensures proper ownership, accountability, and governance over all policy changes made within shared policy stores.
