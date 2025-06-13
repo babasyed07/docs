@@ -95,7 +95,13 @@
       {
         "tab": "API Documentation",
         "groups": [
-          {
+        {
+         "group": "API Overview",
+          "pages": [
+          "api-reference/introduction"
+          ]
+         },
+         {
             "group": "Reva REST APIs",
             "openapi": [
               "/api-reference/pip-openapi.json"

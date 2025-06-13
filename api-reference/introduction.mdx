@@ -1,33 +1,22 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'Reva API Documentation Overview'
 ---
+The Reva API provides a complete set of services to manage fine-grained access control, policy evaluation, data ingestion, and access map management for authorization governance.  
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+The APIs are organized into the following functional categories:
+1. Authorization APIs - AuthZEN Compliant  
+Provides real-time access evaluation based on subject, action, resource, and context. This enables fine-grained, policy-based access decisions for applications.
+   - Evaluate access requests.
+   - Supports contextual data for dynamic decisions.
+   - Fully compatible with AuthZEN evaluation models.
+2. Data Ingestion APIs  
+Allows bulk management of entities, attributes, relationships, and parent-child hierarchies that are used during policy evaluation.
+   - Create, update, replace, and delete entities.
+   - Bulk ingestion support for efficient data synchronization.
+   - Entity models align with policy schemas.
+3. Access Map APIs  
+Manages and refreshes the Access Map, which represents the resolved permissions and relationships for optimized policy evaluations.
+   - Refresh Access Map for active policy versions.
+   - Keep authorization decisions performant by maintaining the latest entity relationships.
 
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+<Info>**Security:** All APIs are secured using Bearer Token authentication (Authorization: Bearer **token**), ensuring that only authorized clients can interact with the system.</Info>
