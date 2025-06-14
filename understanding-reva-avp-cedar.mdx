@@ -1,73 +1,85 @@
 ---
 title: "Understanding Reva, AVP, and Cedar"
 ---
+Modern authorization relies on these key components:Modern authorization systems follow a layered architecture to ensure secure, fine-grained access control across applications. Each layer plays a specific role in managing, evaluating, and enforcing policies.   
 
-How core components work together for authorization
+1. **PAP (Policy Administration Point)** — Policy Design & Management  
+The Policy Administration Point is where authorization policies are created, managed, and maintained. This is typically where business users, security administrators, or developers define:  
+   - Who can access what and under which conditions  
+   - Roles, permissions, and attributes for users and resources  
+   - Approval workflows and governance for policy changes  
 
-Modern authorization relies on these key components: 
+   In Reva, PAP is fully supported with both visual no-code policy designers and Cedar-based code editors, allowing flexible policy creation for both technical and non-technical users.  
+2. **PIP (Policy Information Point)** — Data Preparation for Decisions  
+The Policy Information Point supplies the necessary external data required to make informed authorization decisions. While policies define the logic, PIP provides:  
+    - User attributes (e.g., department, job title, clearance level) 
+    - Resource attributes (e.g., sensitivity, owner, location) 
+    - Contextual information (e.g., time of day, device, IP address) 
+3. **PDP (Policy Decision Point)** — Real-Time Decision Evaluation  
+The Policy Decision Point evaluates access requests in real time using: 
+   - The defined policy (from PAP)  
+   - The data provided (from PIP)  
+   - The runtime request context  
 
-1. **PAP:** Policy design & management 
+   The PDP determines whether to permit or deny access based on the combined inputs. Reva supports both local decision engines and integration with cloud-native engines like Amazon Verified Permissions (AVP). 
+4. **PEP (Policy Enforcement Point)** — Enforcement in Your Application
+The Policy Enforcement Point intercepts user actions at runtime and consults the PDP to enforce authorization decisions directly in the application. PEP is responsible for:
+   - Collecting the request information  
+   - Forwarding the request to PDP for evaluation  
+   - Applying the decision (allow/deny) within the application  
 
-2. **PIP:** Data preparation for decisions 
-
-3. **PDP:** Real-time decision evaluation 
-
-4. **PEP:** Enforcement in your application 
-
-## How Components Work Together
-
-### Reva: Complete Authorization Platform
-
+   Reva enables easy integration of PEPs via SDKs, APIs, and middleware to ensure consistent enforcement across web apps, APIs, microservices, and backend systems.
+## Reva: Complete Authorization Platform
 Serves all authorization roles with flexible deployment options: 
 
-| Role    | Capabilities                                                                 |
-|---------|------------------------------------------------------------------------------|
-| **PAP** | • No-code + AI policy design<br />• Natural language → Cedar conversion<br />• Governance workflows |
-| **PIP** | • Pre-built data integrations<br />• Centralized data modeling<br />• Java/Golang SDKs |
-| **PDP** | • Local Cedar policy evaluation<br />• Standalone decision engine<br />• Testing/development use |
+| Role            | Capabilities                                                                 |
+|:---------------:|:-----------------------------------------------------------------------------|
+| **PAP**         | • No-code + AI policy design<br />• Natural language → Cedar conversion<br />• Governance workflows |
+| **PIP**         | • Pre-built data integrations<br />• Centralized data modeling<br />• Java/Golang SDKs |
+| **PDP**         | • Local Cedar policy evaluation<br />• Standalone decision engine<br />• Testing/development use |
 
-### AVP: Managed Cloud PDP
+## AVP: Managed Cloud PDP
 
 Amazon Verified Permissions provides: 
 
-1. Enterprise-scale decision service 
+1. Enterprise-scale decision engine  
+   Designed to handle high-volume, real-time authorization decisions for mission-critical applications.  
+2. Cedar policy evaluation  
+   Fully supports Cedar, the standardized policy language for fine-grained access control, enabling consistent and expressive policy logic.
+3. Cloud-native deployment  
+   Fully managed by AWS, providing elastic scaling, high availability, and seamless integration with other AWS services.
+4. Works with Reva's PAP/PIP  
+   While Reva handles policy design (PAP) and data preparation (PIP), AVP evaluates these policies at runtime, ensuring robust, distributed authorization at scale.
 
-2. Cedar policy evaluation 
+## Cedar: Policy Language
 
-3. Cloud-native deployment 
+Cedar is an open-source language developed by AWS, purpose-built policy language designed for modern authorization use cases. It enables organizations to define precise access controls across applications and services.
 
-4. Works with Reva's PAP/PIP 
-
-### Cedar: Policy Language
-
-Open-source language for: 
-
-1. Coarse-grained RBAC
-
-2. Fine-grained ABAC/ReBAC 
-
-3. Human-readable policies 
-
-4. Cloud-scale performance 
+1. Coarse-grained  
+   Easily model role assignments (e.g., Admin, Manager, User) to enforce basic access rules.
+2. Fine-grained   
+   Support complex authorization logic using resource attributes (sensitivity, ownership, location) and entity relationships (manager-subordinate, group membership, organizational hierarchy).
+3. Human-readable policies  
+   Policies are written in a clear, declarative syntax that is easy for both developers and business stakeholders to read, review, and govern. 
+4. Cloud-scale performance  
+   Optimized for low-latency, real-time evaluations even at very high transaction volumes—suitable for enterprise-grade, distributed cloud applications.
 
 ## Authorization Options 
 
 **Option 1:** Hybrid with AVP
 
-1. AVP as cloud PDP + Reva for policy/data management 
-
-2. Best for AWS-integrated environments 
+1. AVP as cloud PDP + Reva for policy/data management  
+2. Best for AWS-integrated environments  
 
 **Option 2:** Full Reva Implementation 
 
-1. Reva handles all authorization roles 
-
-2. Ideal for self-managed deployments 
+1. Reva handles all authorization roles  
+2. Ideal for self-managed deployments  
 
 ## Component Summary 
 
 | Component | Primary Role | Key Notes |
-|-----------|--------------|-----------|
+|:-----------|:--------------|:-----------|
 | **Reva**  | PAP + PIP + PDP | Complete authorization platform with local decision engine |
 | **AVP**   | Cloud PDP        | Managed AWS decision service |
 | **Cedar** | Policy Language  | Standard syntax for all policies |
