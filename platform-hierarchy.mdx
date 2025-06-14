@@ -45,8 +45,8 @@ Organizing your authorization environment from business domains to enforcement
 ## Key Relationships
 
 | **Level**       | **Parent**     | **Child**        | **Description**                              |
-|----------------|----------------|------------------|----------------------------------------------|
-| **Category**     | None           | Application       | Groups applications by business domain        |
+|:---------------|:---------------|:-----------------|:---------------------------------------------|
+| **Category**     | Tenant       | Application       | Groups applications by business domain        |
 | **Application**  | Category       | Environment       | Represents a service or product               |
 | **Environment**  | Application    | Policy Store      | Defines deployment stages (e.g., dev, prod)   |
 | **Policy Store** | Environment    | None              | Stores and enforces rules                     |
