@@ -12,10 +12,10 @@ By using Access Map, teams can:
 To open Access Map:  
 1. Navigate to Policy Store (e.g., PetStore).  
 2. Click on the Policies tab.  
-3. Click on the Access Map button located next to the Edit button.
+3. Click on the Access Map button located next to the Edit button.  
    <img height="10" src="images/access-map.png" />  
 
-## Query Policies for Governance
+## Query Policies for Governance  
 <img height="10" src="images/test-policy.png" /> 
 
 <Note>
@@ -25,7 +25,7 @@ To open Access Map:
 <img height="10" src="images/access-map-query.png" /> 
 
 | Access | Principal  | Action                        | Resource           |
-| ------ | ---------- | ----------------------------- | ------------------ |
+|:------ |:---------- |:----------------------------- |:------------------ |
 | Permit | User::John | ListOrders, GetStoreInventory | Application::Order |
 
 This policy grants John permission to ListOrders and GetStoreInventory on Order resources in the application.
@@ -34,7 +34,7 @@ The Access Map will visually reflect this permission path to help you review and
 
 ## Benefits of Access Map
 | Benefit                        | Description                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------- |
+|:------------------------------ |:------------------------------------------------------------------------------- |
 | **Full Visibility**            | View actual access granted by active policies.                                  |
 | **Policy Simulation**          | Evaluate changes in a simulated environment before applying them to production. |
 | **Misconfiguration Detection** | Instantly identify unintended access paths and over-provisioned users.          |
@@ -42,7 +42,7 @@ The Access Map will visually reflect this permission path to help you review and
 
 ## Access Map Elements
 | Component           | Description                                                |
-| ------------------- | ---------------------------------------------------------- |
+|:------------------- |:---------------------------------------------------------- |
 | **Principal Nodes** | Represent users, roles, or groups.                         |
 | **Resource Nodes**  | Represent the resources or objects governed by the policy. |
 | **Actions**         | Operations permitted on each resource.                     |
