@@ -61,7 +61,7 @@
           {
             "group": "Policy Governance",
             "pages": [
-              "Using Access Graph",
+              "use-access-map",
               "Gaining Insights from Policies",
               "Track and Manage Policy Versions",
               "Reviewing and Approving Policies"
