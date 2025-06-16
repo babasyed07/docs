@@ -35,6 +35,7 @@
             "pages": [
               "integration-overview",
               "avp-integration",
+              "s3-integration",
               "github-integration",
               "gitlab-integration"
             ]
@@ -69,7 +70,9 @@
           {
             "group": "Policy Testing and Impact Analysis",
             "pages": [
-              "Policy Testing and Impact Analysis"
+              "policy-test",
+              "preparing-uploading-data",
+              "analyzing-impact"
             ]
           },
           {

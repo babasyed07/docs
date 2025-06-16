@@ -1,0 +1,32 @@
+---
+title: "Policy Testing Overview"
+---
+Policy Testing in Reva allows administrators to validate, simulate, and analyze authorization policies before deploying them into production. It helps ensure that policy changes enforce the intended access decisions, detect conflicts, prevent over-permissioning, and maintain governance across the system.  
+
+## Benefits of Policy Testing and Impact Analysis  
+1. Prevents accidental over-permissioning.  
+2. Prevents unintended access denials.  
+3. Validates policies against business scenarios.  
+4. Reduces risk during production deployments.  
+5. Supports governance and regulatory requirements.  
+
+## How Policy Testing Works
+1. Schema-driven entity types define the structure of test data.  
+2. Test data simulates real-world access requests.  
+3. Simulation mode runs policy evaluations against the test data.  
+4. Results show Allow/Deny decisions compared to expected outcomes.  
+5. Access Map visualizes evaluated permissions across principals, actions, and resources.  
+
+## When to Use Policy Testing
+1. Before introducing new policies.  
+2. After modifying existing policies.  
+3. After schema updates.  
+4. During onboarding of new applications.  
+
+## Simulation Modes
+| Mode               | Purpose                                        |
+|:-------------------|:-----------------------------------------------|
+| **Simulation Mode** | Isolated test runs using uploaded test data.   |
+| **Production Mode** | Active evaluation using live production data.  |
+
+Policy Testing forms a critical part of Reva secure policy governance lifecycle, ensuring every policy update is confidently validated before being applied to production systems.  
