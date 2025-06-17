@@ -63,8 +63,8 @@
             "pages": [
               "use-access-map",
               "policy-insights",
-              "Track and Manage Policy Versions",
-              "Reviewing and Approving Policies"
+              "policy-version",
+              "review-approve-policy"
             ]
           },
           {

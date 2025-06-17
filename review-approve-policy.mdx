@@ -1,0 +1,63 @@
+---
+title: "Reviewing and Approving Policies"
+---
+The Approval module in Reva allows authorized reviewers to validate, approve, or reject policy changes before they are activated in production. This ensures policy updates are governed, auditable, and comply with organizational standards.  
+
+## Approval Workflow Overview 
+Policy approvals in Reva follow a maker-checker workflow: 
+   - Developer (Maker): The person who drafts or modifies the policy (e.g., Alice).  
+   - Approver (Checker): The owner or architect who reviews and validates the change (e.g., Bob).  
+### Example Scenario  
+   - The Policy Store Owner for PetStore is Bob (Architect). 
+   - Alice (Developer) makes modifications to the PetStore policy. 
+   - After finalizing her changes, Alice submits the policy for approval. 
+   - Bob receives a notification for the approval request. 
+   - Bob reviews the proposed changes and decides to either: 
+     - Approve the changes.  
+     - Reject the changes.  
+       - In case of rejection, Bob is required to enter a comment explaining the reason for rejection.  
+   - The status of the policy is updated accordingly, and notifications are triggered to inform both parties.  
+
+## Notifications  
+The system automatically generates notifications at every critical step in the approval process:  
+1. Approval Request Submitted — Notifies the approver when a new policy version is submitted for approval.  
+2. Policy Approved — Notifies both the maker and other stakeholders upon successful approval.  
+3. Policy Rejected — Notifies the maker with the rejection reason provided by the approver.  
+This ensures transparency and timely communication between policy contributors and approvers.  
+
+## Approval Table Overview  
+The approval table lists all policy submissions with detailed metadata for each version under review. Below are the columns and their descriptions:   
+
+| Column                | Description |
+|:----------------------|:------------|
+| **Policy Store Name** | Displays the unique ID of the Policy Store associated with the submitted policy (e.g., `6fv4gSa9qj63he7YZYc59U`). |
+| **Application Name**  | The name of the application where the policy applies (e.g., `PetStore`). |
+| **Environment**       | The deployment environment for which the policy is applicable (e.g., `Prod`). |
+| **Active Version**    | The version number of the policy that is currently active in the environment (e.g., `v7`, `v6`, `v5`). |
+| **Based On Version**  | Indicates the base version on which the current draft is derived (e.g., `v5`, `v4`). |
+| **Editor**            | The user who submitted or modified the policy (e.g., `bob`). |
+| **Submission Date**   | The date and time when the policy was submitted for approval (e.g., `10 Jun, 25 11:22`). |
+| **Status**            | Displays the current state of the approval process:<br />- `Pending Approval`<br />- `Approved`<br />- `Rejected`. |
+
+## Reviewing Policy Details  
+1. Click on any Policy Store Name link to open the detailed policy review screen.  
+2. The comparison view shows a visual representation of the policy version differences.  
+   - Example:  
+     - User: John  
+     - Action: GetStoreInventory  
+     - Application: Order  
+3. The reviewer can analyze the changes and ensure they align with policy standards.  
+### Available Actions
+  - **Show Impact:**  
+    Allows the reviewer to view potential access impact or downstream effects of the proposed policy change.  
+  - **Approve:**  
+    Approves the policy version, moving it to active state.  
+  - **Reject:**  
+    Opens a comment box where the reviewer must provide the reason for rejection. Once submitted, the policy status updates to Rejected and the submitter can review the feedback.  
+### Post-Approval Status Update  
+Once actions are taken:  
+1. Approved policies display Approved status in green.  
+2. Rejected policies display Rejected status in red.  
+3. Pending items remain as Pending Approval in blue.  
+
+<Info>Note: This approval mechanism ensures that all policy changes are peer-reviewed and fully auditable.</Info>  
