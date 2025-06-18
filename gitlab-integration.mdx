@@ -4,40 +4,33 @@ title: "GitLab Integration for Policy Orchestration"
 
 Reva integrates with GitLab to distribute policies created in Reva. Policies are stored in your GitLab repository, enabling version control and team collaboration using Git workflows.
 
-### Key Benefits
+## Key Benefits  
+1. **Secure Storage**: GitLab versions and stores policies (enforcement remains in Reva)
+2. **Collaboration**: Review changes through GitLab Merge Requests
+3. **Change Tracking**: Full audit trail via Git commit history
+4. **Automated Sync**: Approved changes update Reva automatically
 
-- **Secure Storage**: GitLab versions and stores policies (enforcement remains in Reva)
-- **Collaboration**: Review changes through GitLab Merge Requests
-- **Change Tracking**: Full audit trail via Git commit history
-- **Automated Sync**: Approved changes update Reva automatically
+## Prerequisites
 
-### Prerequisites
+1. **GitLab Repository** ([GitLab's guide](https://docs.gitlab.com/))
+   - Create a repo for policy files  
+2. **Personal Access Token (PAT)** ([GitLab's PAT guide](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html))
+   - Generate a PAT with:  
+     - `api` scope  
+     - `write_repository` scope  
 
-- **GitLab Repository** ([GitLab's guide](https://docs.gitlab.com/))
-  - Create a repo for policy files
-
-- **Personal Access Token (PAT)** ([GitLab's PAT guide](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html))
-  - Generate a PAT with:
-    - `api` scope
-    - `write_repository` scope
-
-### Integration Steps
-
+## Integration Steps
 1. **Start Integration**
-   - Go to Reva: `Integrations > "+ Integration" > Select "GitLab"`
-
+   - Go to Reva: `Integrations > "+ Integration" > Select "GitLab"`  
 2. **Configure Settings**
    - **Integration Name***: Unique ID (e.g., gitlab-prod)
-   - **Description**: Purpose (e.g., "Access policies repository")
-
+   - **Description**: Purpose (e.g., "Access policies repository")  
 3. **Connect GitLab**
    - **PAT***: Your GitLab token (e.g., glpat-xxxxxx)
    - **Email***: Your GitLab email (e.g., user@domain.com)
    - **Username***: Your GitLab username (e.g., dev-user)
-   - **Repository URL***: HTTPS link (e.g., https://gitlab.com/yourteam/policies.git)
-
+   - **Repository URL***: HTTPS link (e.g., https://gitlab.com/yourteam/policies.git)  
 4. **Select Branch**
-   - Choose sync branch (e.g., main)
-
+   - Choose sync branch (e.g., main)  
 5. **Activate**
-   - Click Activate (bottom-right corner)
+   - Click Activate (bottom-right corner)  
