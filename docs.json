@@ -89,7 +89,7 @@
             "pages": [
               "create-manage-user",
               "create-manage-group",
-              "platform-auhorization",
+              "platform-authorization",
               "notify-policy-aprroval-workflow",
               "notify-policy-store-activation",
               "category-create-manage"

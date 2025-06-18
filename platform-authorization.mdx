@@ -1,5 +1,6 @@
 ---
 title: "Platform Authorization: Create and Manage Authorization"
+description: "Define who can perform platform-level actions like creating, approving, and activating policy stores in Reva."
 ---
 The Platform Authorization module in Reva lets administrators define who can perform specific platform level operations such as creating policy drafts, activating policy stores, and rolling back changes. This ensures that only authorized users manage sensitive authorization workflows.
 
@@ -10,24 +11,20 @@ To access Reva Authorization:
 
 ## Step-by-Step: Create or Manage Authorization Rules  
 1. **View Existing Rules**  
-   - From the Reva Authorization page, you can review all platform-level authorization rules including:
-     - **Action** (e.g., CreateDraft, EditDraft, ActivatePolicy)  
-     - **Resource** (e.g., ALL)  
-     - **Condition** (e.g., when { principal in resource.owner })  
+From the Reva Authorization page, you can review all platform-level authorization rules including:  
+      - **Action** (e.g., CreateDraft, EditDraft, ActivatePolicy)  
+      - **Resource** (e.g., ALL)  
+      - **Condition** (e.g., when \{principal in resource.owner\})  
    - Click the Edit button to modify or add rules.   
 2. **Use the Policy Designer**  
-   - The Policy Designer offers a visual builder to define authorization rules.  
+The Policy Designer offers a visual builder to define authorization rules.  
    - You can Add and connect components for:
-       - **Principal** – e.g., ALL or specific user/group  
-       - **Action** – e.g., CreateDraft, EditDraft, SendForApproval  
-       - **Resource** – e.g., ALL or specific Policy Store  
-       - **Condition** – add custom condition logic  
+       - **Principal** (e.g., ALL or specific user/group)  
+       - **Action** (e.g., CreateDraft, EditDraft, SendForApproval)  
+       - **Resource** (e.g., ALL or specific Policy Store)  
+       - **Condition** (add custom condition logic)  
    - At the bottom-left, use the **blue +** to add a Permit Policy or Deny Policy.  
-
-<Note>
-    **Example:** Permit `ALL` to perform `CreateDraft`, `EditDraft`, `SendForApproval`, and `View` on `ALL` resources. 
-</Note>  
-
+   <Info>**Example:** Permit `ALL` to perform `CreateDraft`, `EditDraft`, `SendForApproval`, and `View` on `ALL` resources.</Info>  
 3. **Add Custom Conditions (Optional)**    
    - Conditions allow fine-grained access control. For example:  
     ```cedar
@@ -46,14 +43,14 @@ To access Reva Authorization:
      - Once confirmed, click **Send To Approval**.  
 
 ## Field Descriptions  
-```mdx
+
 | **Field**     | **Description**                                                                   |
 |:------------- |:--------------------------------------------------------------------------------- |
 | **Principal** | The subject (e.g., user or group) the rule applies to. Often set to `ALL`.        |
 | **Action**    | Operation to be performed (e.g., `CreateDraft`, `ActivatePolicy`).                |
 | **Resource**  | Target of the action (e.g., a specific Policy Store or `ALL`).                    |
 | **Condition** | Optional rule logic that restricts access (e.g., only if user owns the resource). |
-| **Access**    | `Permit` or `Deny` – defines whether the action is allowed.                           |
+| **Access**    | `Permit` or `Deny` – defines whether the action is allowed.                           |  
 
 ## Best Practices  
 1. Always define specific resources and conditions when possible.  
