@@ -1,3 +1,61 @@
 ---
 title: "Platform Authorization: Create and Manage Authorization"
 ---
+The Platform Authorization module in Reva lets administrators define who can perform specific platform level operations such as creating policy drafts, activating policy stores, and rolling back changes. This ensures that only authorized users manage sensitive authorization workflows.
+
+## Navigating to Reva Authorization  
+To access Reva Authorization:  
+1. In the left sidebar, click the **Settings** icon.    
+2. Under **Settings**, select **Reva Authorization**.   
+
+## Step-by-Step: Create or Manage Authorization Rules  
+1. **View Existing Rules**  
+   - From the Reva Authorization page, you can review all platform-level authorization rules including:
+     - **Action** (e.g., CreateDraft, EditDraft, ActivatePolicy)  
+     - **Resource** (e.g., ALL)  
+     - **Condition** (e.g., when { principal in resource.owner })  
+   - Click the Edit button to modify or add rules.   
+2. **Use the Policy Designer**  
+   - The Policy Designer offers a visual builder to define authorization rules.  
+   - You can Add and connect components for:
+       - **Principal** – e.g., ALL or specific user/group  
+       - **Action** – e.g., CreateDraft, EditDraft, SendForApproval  
+       - **Resource** – e.g., ALL or specific Policy Store  
+       - **Condition** – add custom condition logic  
+   - At the bottom-left, use the **blue +** to add a Permit Policy or Deny Policy.  
+
+<Note>
+    **Example:** Permit `ALL` to perform `CreateDraft`, `EditDraft`, `SendForApproval`, and `View` on `ALL` resources. 
+</Note>  
+
+3. **Add Custom Conditions (Optional)**    
+   - Conditions allow fine-grained access control. For example:  
+    ```cedar
+       when { principal in resource.owners }  
+    ```
+   - Conditions must be explicitly added to avoid validation errors.  
+4. **Validate and Preview Access**  
+   - Click the Access Map button to visualize how your authorization policy will apply:  
+     - Explore Principal → Action → Resource relationships.  
+     - Use natural language search or ask AI to explore permissions.  
+5. **Review Summary and Impact**  
+   - Click **Test** and proceed to **Summary of Policies**:  
+     - See a summary of all policies (Modified or Unchanged).  
+     - Review the **Name**, **Recent Edit**, and **Actions**.  
+     - Click **Impact** for detailed analysis.  
+     - Once confirmed, click **Send To Approval**.  
+
+## Field Descriptions  
+```mdx
+| **Field**     | **Description**                                                                   |
+|:------------- |:--------------------------------------------------------------------------------- |
+| **Principal** | The subject (e.g., user or group) the rule applies to. Often set to `ALL`.        |
+| **Action**    | Operation to be performed (e.g., `CreateDraft`, `ActivatePolicy`).                |
+| **Resource**  | Target of the action (e.g., a specific Policy Store or `ALL`).                    |
+| **Condition** | Optional rule logic that restricts access (e.g., only if user owns the resource). |
+| **Access**    | `Permit` or `Deny` – defines whether the action is allowed.                           |
+
+## Best Practices  
+1. Always define specific resources and conditions when possible.  
+2. Use the Access Map to simulate real access paths.  
+3. Review impact before approval to avoid unintended privileges.  
