@@ -78,8 +78,10 @@
           {
             "group": "Start Using Reva Library",
             "pages": [
-              "Understanding Library and Their Components",
-              "Building Library Components"
+              "library",
+              "library-building-entity-type",
+              "library-building-schema",
+              "library-building-policy"
             ]
           },
           {

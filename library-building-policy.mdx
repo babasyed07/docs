@@ -1,0 +1,54 @@
+---
+title: "Building Library Components: Policy"
+---
+After defining Entity Types and Schemas, the next step in Reva’s Library is to create Policies. These are reusable, modular access rules that map principals to resources under specified conditions and actions, using the logic defined in a selected schema.  
+Reva supports two types of policies: 
+1. Default Policies: Predefined by Reva to enforce security and governance best practices. 
+2. Custom Policies: Created by users to implement application-specific authorization logic.  
+
+## How to access Entity Type
+Navigate to the Library 
+1. Click on the **Library** icon in the left sidebar.  
+2. Switch to the **Policy** tab or stay at All tab.  
+
+## Steps to Create a Custom Schema  
+1. Click **Create**  if you are in **Schema** tab or Press the **+ Create** button and choose **Entity Type** from the dropdown.  
+2. **Basic Information**  
+   - **Policy Name:** Enter a name for the policy (e.g., PetStorePolicy).  
+   - **Description:** Describe the intent of the policy.  
+   - **Select Schema:** Choose the schema (e.g., PetStoreSchema) which defines the data model for this policy.  
+   - Click **Next**.  
+3. **Design Policy** – <a href="authorization-policy.mdx" className="text-blue-600 font-semibold">Build Authorization Policy</a>   
+   - Define the access logic by selecting:
+     - **Permit Policy** or **Deny Policy**  
+     - **Principal:** Who is making the request  
+     - **Action:** What they want to do  
+     - **Resource:** What they want to access  
+     - **Condition** (optional): Contextual constraints (e.g., time, location, justification)  
+   - Optionally, use Chat with AI to auto-generate logic.
+4. **Save and Create**
+   - Click Create to finalize and save the policy.  
+   - The policy will be added to the Library under the Custom tag with a status of In Progress.  
+ 
+## Edit or Delete Policies
+To Edit or Delete a policy:
+1. Click the ⋳ (three-dot menu) next to the policy card.  
+   - Select:  
+     - Edit to reopen the policy editor.  
+     - Delete to remove the policy from the Library.  
+
+## Field Descriptions  
+
+| **Field**            | **Description**                                              |
+|:-------------------- |:------------------------------------------------------------ |
+| Policy Name          | A user-defined label for the policy (e.g., `PetStorePolicy`) |
+| Description          | Brief summary describing the purpose of the policy           |
+| Schema               | Links the policy to a schema for structure enforcement       |
+| Principal            | Entity requesting access (`User`, `Role`, etc.)              |
+| Action               | Operation to be allowed or denied (`ListOrders`, `GetOrder`) |
+| Resource             | Target of the action (`Order`, `Pet`)                        |
+| Condition (optional) | Logic to restrict access based on runtime attributes         |
+| Policy Type          | Permit or Deny                                               |
+
+<Info>Before you create policies, ensure a Schema is available and properly structured. Policies rely on schemas to map valid combinations of principals, actions, and resources.</Info>
+

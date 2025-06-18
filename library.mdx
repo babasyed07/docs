@@ -1,0 +1,59 @@
+---
+title: "Understanding Library and Their Components"
+---
+The Library in Reva provides a centralized space to create, manage, and reuse core building blocks of access control **Policy**, **Schema**, and **Entity Type**. It is designed to help teams enforce standardized, compliant, and scalable authorization across applications and environments.  
+
+## Pre-requisites  
+Before working with the Library, ensure the following:  
+1. **Schema** Definition is Mandatory 
+You must create a Schema before defining any policies. Schemas define the structure of the entities (User, Resource, Action, Context) and their attributes, which are referenced during policy evaluation.   
+2. **Entity Type**
+Understand the attributes and context data used in your policies. Examples: 
+   - **User:** role, token.amr, justification 
+   - **Resource:** sensitivity, type, environment, creation_date 
+   - **Context:** time, datetime, ip_address 
+
+<Info>Policies in the Library cannot be created without a Schema. The Schema acts as the structural foundation required for policy definition, validation, and evaluation.</Info>  
+
+## Components in the Library 
+1. **Entity Type**  
+Entity Types define the actual objects referenced in policies (e.g., User, Resource, Action). Each includes attributes and contextual values used for condition evaluation.  
+
+   | **Entity**   | **Attributes Used**                                                   | **Context Used**             |
+   |:------------ |:--------------------------------------------------------------------- |:---------------------------- |
+   | **User**     | `role`                                                                | `token.amr`, `justification` |
+   | **Resource** | `sensitivity`, `environment`, `api_endpoint`, `type`, `creation_date` | `time`, `datetime`           |  
+
+   These Entity Types are foundation to policies involving role-based access, data protection, MFA enforcement, and environment-level restrictions.  
+2. **Schema**  
+A Schema defines the structure of entities and the data fields they expose. Every policy must be associated with a Schema for it to be valid.  
+
+   | **Schema**                        | **Policies Using the Schema**                                         |
+   |:--------------------------------- |:--------------------------------------------------------------------- |
+   | **Global Enforcement** (Baseline)     | `Deny by Default`, `Least Privilege Enforcement`                      |
+   | **Authentication & Session Controls** | `Multi-Factor Authentication Required`, `Restrict After-Hours Access` |  
+3. **Policy**  
+Policies define who can perform what action on which resource, under optional conditions. They can be created using Reva visual editor or authored in Cedar.  
+   - Examples:  
+     - **Deny by Default** 
+       Implements a baseline deny rule unless explicitly permitted.  
+     - **Least Privilege Enforcement**
+       Ensures users have only the access needed for their role.  
+     - **Require Justification for Deletion**  
+       Checks for a valid justification before allowing delete actions.  
+     - **Multi-Factor Authentication Required**  
+       Enforces MFA using contextual data from login tokens.  
+
+## How to Navigate to the Library  
+1. Go to the left-side main menu.  
+2. Click the Library icon.  
+3. This opens the Library, where you can browse or create:  
+   - **Policy**  
+   - **Schema**  
+   - **Entity Type**  
+
+## Benefits of Using the Library
+1. **Reusability:** Define once, reuse across multiple policies and applications.  
+2. **Standardization:** Enforce consistent access patterns across your organization.  
+3. **Governance:** Maintain version history, ownership, and audit trails.  
+4. **Scalability:** Build complex authorization models quickly using modular components.  

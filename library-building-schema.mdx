@@ -1,0 +1,63 @@
+---
+title: "Building Library Components: Schema"
+---
+The Schema is a foundational element in Reva's Library. It defines the access control structure by linking principals, actions, and resources. Once Entity Types are created, schemas are used to construct reusable policy logic.  
+Reva supports two types of schemas:  
+1. **Default:** Built-in templates provided by Reva for common governance, security, and infrastructure controls.  
+2. **Custom:** User-defined schemas tailored to specific application needs (e.g., PetStoreSchema).  
+
+## How to access Entity Type
+Navigate to the Library 
+1. Click on the **Library** icon in the left sidebar. 
+2. Switch to the **Schema** tab or stay at All tab. 
+
+## Steps to Create a Custom Schema  
+1. Click **Create**  if you are in **Schema** tab or Press the **+ Create** button and choose **Entity Type** from the dropdown. 
+2. **Basic Information**  
+   - **Schema Name:** Give your schema a unique name (e.g., PetStoreSchema).  
+   - **Description:** Describe the purpose of this schema.  
+   - Click **Next**.  
+3. **Define Policy Structure**
+Add and link:
+   - **Principal** (e.g., User, Role)
+   - **Actions** (e.g., ListOrders, GetStoreInventory) 
+   - **Resource** (e.g., Order, Pet, Application)
+4. **Define Attributes**  
+For each Entity Type:
+   - Add **Attribute Name**  
+   - Choose **Attribute Type** (e.g., String, Boolean)  
+   - Define **Possible Values**  
+   - Toggle **Required** if mandatory  
+5. **Add Runtime Attributes**
+Define context-specific attributes like:
+   - justification, ip_address, timestamp  
+Assign these to relevant actions.  
+6. **Setup Hierarchy**
+Use drag-and-drop to define entity relationships.  
+   - Example: User → Member of → Role  
+7. **Save and Activate**
+   - Click Save and Activate to publish the schema.  
+   - It will now appear as a Custom schema with status In Progress or Active.  
+8. **Edit or Delete**  
+Click the ︙ (three-dot menu) on the schema card:  
+   - Edit: Update schema structure or metadata  
+   - Delete: Permanently remove the schema  
+
+## Field Descriptions  
+
+| **Field**          | **Description**                                                         |
+|:------------------ |:----------------------------------------------------------------------- |
+| Schema Name        | A unique name for the schema (e.g., `PetStoreSchema`)                   |
+| Description        | Summary of what the schema defines                                      |
+| Principal          | Who is requesting access (e.g., `User`, `Role`)                         |
+| Action             | Operation performed (e.g., `ListOrders`, `GetOrder`)                    |
+| Resource           | The target of the action (e.g., `Order`, `Pet`)                         |
+| Attribute Name     | Logical identifier for a policy attribute                               |
+| Attribute Type     | The data type of the attribute                                          |
+| Possible Values    | Comma-separated values applicable for the attribute                     |
+| Default Value      | Optional fallback value if not set                                      |
+| Required           | Whether the attribute must be supplied                                  |
+| Runtime Attributes | Attributes evaluated at access decision time (e.g., context-based info) |
+| Hierarchy          | Relationships between entities (e.g., user-to-role membership)          |
+
+<Info>To build and enforce policies using the Library, you must first create a Schema. A schema links your entities, actions, and resources—enabling fine-grained access control across your environment.</Info>
