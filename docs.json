@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
+  "style": "./style.css",
   "name": "Reva.AI",
   "colors": {
     "primary": "#16A34A",
@@ -126,11 +127,6 @@
         "label": "Support",
         "href": "mailto:support@reva.ai"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   }
 }
