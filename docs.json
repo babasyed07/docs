@@ -117,8 +117,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/svgviewer-output.svg",
-    "dark": "/logo/RevaDark.svg"
+    "light": "/logo/RevaLight.png",
+    "dark": "/logo/RevaDark.png"
   },
   "navbar": {
     "links": [
