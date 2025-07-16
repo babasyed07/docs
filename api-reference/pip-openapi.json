@@ -21,7 +21,7 @@
             "description": "Customer Server"
         },
         {
-            "url": "http://localhost:8300"
+            "url": "https://api.dev.reva.ai"
         }
     ],
     "tags": [
@@ -44,12 +44,7 @@
     }
     ],
     "paths": {
-        "/access/v1/evaluation": {
-        "servers": [
-           {
-               "url": "https://api.app.reva.ai"
-            }
-        ],
+        "/access/v1/evaluation": { 
         "post": {
         "summary": "Evaluate Entity",
         "description": "Used to evaluate a access decision request. Each request contains one subject-action-resource tuple to determine whether access is permitted or denied.",
@@ -479,7 +474,7 @@
         ]
       }
         },
-        "/v1/entity": {
+        "/v1/entity": {    
       "put": {
         "tags": [
           "Data Ingestion APIs"
@@ -865,12 +860,7 @@
         ]
       }
         },
-        "/v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap": {
-            "servers": [
-            {
-               "url": "http://localhost:7501"
-            }
-            ],
+        "/v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap": { 
             "put": {
                 "tags": [
                     "Access Map APIs"
