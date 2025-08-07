@@ -108,9 +108,21 @@
           ]
          },
          {
-            "group": "Reva REST APIs",
-            "openapi": [
-              "/api-reference/pip-openapi.json"
+          "group": "Reva REST APIs",
+          "openapi": [
+          "/api-reference/pip-openapi.json"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Product Updates",
+        "groups": [
+          {
+            "group": "Release History",
+            "pages": [
+              "releases/introduction",
+              "releases/reva-v1.2.0"
             ]
           }
         ]
