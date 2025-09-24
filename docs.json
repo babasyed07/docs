@@ -42,13 +42,13 @@
             ]
           },
           {
-            "group": "Setting Up and Configuring an Application",
+            "group": "Managing Policies and Application Context",
             "pages": [
-              "application-onboarding-overview",
-              "application-information",
-              "create-environment",
-              "onboarding-existing-policy-store",
-              "onboarding-new-policy-store"
+              "manage-policies",
+              "application-context-overview",
+              "application-configuration",
+              "application-schema-onboarding",
+              "application-settings"
             ]
           },
           {
