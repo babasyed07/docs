@@ -91,6 +91,7 @@
             "pages": [
               "create-manage-user",
               "create-manage-group",
+              "single-sign-on",
               "platform-authorization",
               "notify-policy-aprroval-workflow",
               "notify-policy-store-activation",
