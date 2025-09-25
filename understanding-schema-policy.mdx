@@ -35,18 +35,18 @@ The scope is mandatory and defines the combination of principals, actions, and r
        - Specific entity: `resource == Photo::"VacationPhoto94.jpg"`
        - Nested resource: `resource in Album::"alice_vacation"`  
 3. **Conditions**  
-Conditions are optional constraints defined using **when** and **unless** clauses. They allow fine-grained, Attribute-Based Access Control (ABAC).
+Conditions are optional constraints defined using **when** and **unless** clauses. They allow RBAC, ReBAC and ABAC.
      - **when**: The policy matches only if the expression evaluates to true.
      - **unless**: The policy matches only if the expression evaluates to false.  
    - Conditions can refer to:  
      - Contextual request attributes (e.g., IP address, time)
      - Principal or resource attributes (e.g., `resource.owner == principal`)  
-4. **Annotations**  
-Annotations are optional metadata key-value pairs attached to a policy. They do not affect policy evaluation and must appear before the effect statement.
-     - Format: `@annotationName("value")`
-     - Omitting the value is equivalent to an empty string.  
-   - **Common example**: `@id`, used by tools like the Cedar CLI.  
-
+{/* 4. **Annotations**  
+       Annotations are optional metadata key-value pairs attached to a policy. They do not affect policy evaluation and must appear before the effect statement.
+       - Format: `@annotationName("value")`
+       - Omitting the value is equivalent to an empty string.  
+       - **Common example**: `@id`, used by tools like the Cedar CLI.  
+       */}
 ### Policy Patterns Enabled by Cedar  
 Cedar supports multiple authorization models:  
 1. **Discretionary Access Control**: Scoped to specific principals.  

@@ -252,13 +252,15 @@ This prevents errors related to missing attributes by returning false if the `cl
 
 Validate your policies by checking principal/resource attribute matrices. Also, ensure that edge cases, such as missing attributes or empty relationships, are tested. This ensures robustness in real-world scenarios.
 
-### Modularity:
+{/*
+   ### Modularity:
 
-Make your policies modular by creating reusable conditions. For instance, define common conditions like `isWorkHours()` and apply them across multiple policies:
+   Make your policies modular by creating reusable conditions. For instance, define common conditions like `isWorkHours()` and apply them across multiple policies:
 
-   ```cedar
-   isWorkHours() : bool { ... }
-   permit (...) when { isWorkHours() };
-   ```  
+      ```cedar
+      isWorkHours() : bool { ... }
+      permit (...) when { isWorkHours() };
+      ```  
 
-This keeps your policies clean, maintainable, and easy to update.
+   This keeps your policies clean, maintainable, and easy to update.
+*/}
