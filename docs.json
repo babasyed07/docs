@@ -42,13 +42,13 @@
             ]
           },
           {
-            "group": "Setting Up and Configuring an Application",
+            "group": "Managing Policies and Application Context",
             "pages": [
-              "application-onboarding-overview",
-              "application-information",
-              "create-environment",
-              "onboarding-existing-policy-store",
-              "onboarding-new-policy-store"
+              "manage-policies",
+              "application-context-overview",
+              "application-configuration",
+              "application-schema-onboarding",
+              "application-settings"
             ]
           },
           {
@@ -56,7 +56,8 @@
             "pages": [
               "understanding-schema-policy",
               "policy-rbac-abac-rebac",
-              "authorization-policy"
+              "authorization-policy",
+              "policy-setting"
             ]
           },
           {
@@ -90,6 +91,7 @@
             "pages": [
               "create-manage-user",
               "create-manage-group",
+              "single-sign-on",
               "platform-authorization",
               "notify-policy-aprroval-workflow",
               "notify-policy-store-activation",

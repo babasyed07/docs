@@ -93,6 +93,10 @@ After schema activation, users can generate a Data Template from the console to 
 7. **Publish Policy**
    - Once satisfied, click Publish to activate.  
    - If approval is required (non-owner contributors), the draft will move to Pending Actions for review.  
+   <Info>
+    Before you can publish policies, you must first configure **Policy Publish settings** in the **Policy Store** This includes selecting the policy type (AVP, Cedar, or OPA) and setting up the connection details such as region, external ID, and account number. Without this configuration, publishing will not be possible.   
+    **Example**: In the SecureBank store, you would set Policy Type to **AVP**, provide the AWS Account ID <code>123456789012</code>, and select Region <code>us-east-2</code> before publishing policies.
+   </Info>
 
 ## Key Features Summary  
 
