@@ -114,6 +114,12 @@
           "openapi": [
           "/api-reference/pip-openapi.json"
             ]
+          },
+          {
+          "group": "CLoud PDP",
+          "openapi": [
+          "/api-reference/pdp-cloud-api.json"
+            ]
           }
         ]
       },
