@@ -116,7 +116,7 @@
             ]
           },
           {
-          "group": "CLoud PDP",
+          "group": "Policy Decision Point (PDP) Edge Service API",
           "openapi": [
           "/api-reference/pdp-cloud-api.json"
             ]
