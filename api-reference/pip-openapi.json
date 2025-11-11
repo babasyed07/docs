@@ -49,7 +49,7 @@
     }
     ],
     "paths": {
-        "/access/v1/evaluation": { 
+        "/pdp/access/v1/evaluation": { 
         "post": {
         "summary": "Evaluate Entity",
         "description": "Used to evaluate a access decision request. Each request contains one subject-action-resource tuple to determine whether access is permitted or denied.",
@@ -106,7 +106,7 @@
            }
          }
         },
-        "/v1/entity/bulk": {
+        "/ingestion/v1/entity/bulk": {
         "post": {
         "tags": [
           "Data Ingestion APIs"
@@ -479,7 +479,7 @@
         ]
       }
         },
-        "/v1/entity": {    
+        "/ingestion/v1/entity": {    
       "put": {
         "tags": [
           "Data Ingestion APIs"
@@ -678,7 +678,7 @@
         ]
       }
         },
-        "/v1/entity/{entityId}": {
+        "/ingestion/v1/entity/{entityId}": {
       "delete": {
         "tags": [
           "Data Ingestion APIs"
