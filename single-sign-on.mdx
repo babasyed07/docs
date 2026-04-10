@@ -23,11 +23,11 @@ The Single Sign-On (SSO) Configurations page allows administrators to connect th
    **Example: Microsoft Entra SSO Configuration**
    | Field             | Value                                                                 |
    |-------------------|----------------------------------------------------------------------|
-   | **Provider Name** | Reva Okta Integration                                                |
-   | **Issuer URL**    | `https://dev-123456.okta.com/oauth2/default`                         |
-   | **Client ID**     | `0oa1xyz123ABCdEfG5d6`                                               |
+   | **Provider Name** | RevaEntraSSO                                               |
+   | **Issuer URL**    | `https://login.microsoftonline.com/74fd0612-bc84-4ade-ba55-17aa0ba10242/v2.0`                         |
+   | **Client ID**     | `ab84786c-af3e-428b-ad64-001444686cd5`                                               |
    | **Client Secret** | `****`                                                              |
-   | **Scope**         | `openid, profile, email, groups`                                    |  
+   | **Scope**         | `openid, profile, email`                                    |  
     </Info>  
 4. **Save the Configuration**  
    Click **Create** to complete the setup.  
@@ -37,15 +37,28 @@ The Single Sign-On (SSO) Configurations page allows administrators to connect th
    This Redirect URL must be copied and added to your Identity Provider (Microsoft Entra or Okta) under the application settings, usually in the Redirect URIs / Callback URLs section.  
    <img height="200" src="images/sso-redirecturl.png" />
    <Info>If this step is skipped, authentication attempts will fail because the IdP will not know where to send the authorization response.</Info> 
-    **Example (Microsoft Entra**  
-    <Info> 
-    **Redirect URL Registration**
-    In Azure Active Directory (App Registration):
-    - Go to your registered application.
-    - Navigate to Authentication → Redirect URIs.
-    - Add the Redirect URL that ws generated from your Reva SSO configuration.
-    - Save the changes.
-    </Info>  
+
+   <Info> 
+   ## Steps for Mirosoft Entra Application Registration for SSO  
+   ### Register the Application:  
+   1. Sign in to the Microsoft Entra admin center.  
+   2. Navigate to Identity > Applications > App registrations and select New registration.  
+   3. Enter a name, choose the supported account types (e.g., single-tenant Only), and set the Redirect URI (e.g., Web, https://your-app-url.com/auth).  
+   4. Click Register.
+   ### Get SSO Issuer URL & Client ID:  
+   1. Under the Overview tab of the newly created app, copy the Application (client) ID.  
+   2. Click the Endpoints button at the top.  
+   3. Copy the URL labeled OpenID Connect metadata document.  
+      a. The Issuer URL is this URL without the /.well-known/openid-configuration suffix.  
+      b. Example Issuer URL: https://login.microsoftonline.com/your-tenant-id/v2.0.  
+   ### Configure Authentication & Secret:  
+   1. Navigate to Authentication to ensure Redirect URIs are correct.  
+   2. Navigate to Certificates & secrets > New client secret to generate a secret for your application.  
+   ### Configure App for SSO:  
+   1. Use the copied Application (Client) ID, Issuer URL, and Client Secret in your application's OIDC configuration settings.  
+   </Info>  
+
+
 
 
 
