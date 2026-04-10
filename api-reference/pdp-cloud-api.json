@@ -1,0 +1,480 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PDP Edge API",
+    "description": "Policy Decision Point (PDP) Edge Service API for authorization and search operations",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "API Support",
+      "url": "http://www.swagger.io/support",
+      "email": "support@swagger.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0"
+  },
+  "externalDocs": {
+    "description": "OpenAPI",
+    "url": "https://swagger.io/resources/open-api/"
+  },
+  "servers": [
+      {
+          "url": "https://api.app.reva.ai",
+          "description": "Customer Server"
+      },
+      {
+          "url": "https://api.dev.reva.ai",
+          "description": "For internal engineering team requester @sarthak"
+      },
+      {
+          "url": "https://api.preview.reva.ai",
+          "description": "For Customer Preview request"
+      }
+  ],
+  "paths": {
+    "/access/v1/search/action": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search actions",
+        "description": "Search for actions that a subject can perform on a resource",
+        "requestBody": {
+          "description": "Search criteria",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/main.SearchActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/main.SearchActionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    },
+    "/access/v1/search/resource": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search resources",
+        "description": "Search for resources that a subject can perform a specific action on",
+        "requestBody": {
+          "description": "Search criteria",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/main.SearchResourceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/main.SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    },
+    "/access/v1/search/subject": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search subjects",
+        "description": "Search for subjects that can perform a specific action on a resource",
+        "requestBody": {
+          "description": "Search criteria",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/main.SearchSubjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/main.SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    },
+    "/v1/authorize": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "summary": "Authorize one or many requests",
+        "description": "Accepts **either** a single `shared.AuthZENRequest` object or a JSON array of them.",
+        "requestBody": {
+          "description": "Single object or array",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/shared.AuthZENRequest"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "multiple requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/shared.AuthZENResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "main.Context": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string"
+          }
+        }
+      },
+      "main.EntityNameReference": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "main.EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "main.EntityTypeReference": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "main.PageInfo": {
+        "type": "object",
+        "properties": {
+          "next_token": {
+            "type": "string"
+          }
+        }
+      },
+      "main.SearchActionRequest": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/main.Context"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/main.EntityReference"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/main.EntityReference"
+          }
+        }
+      },
+      "main.SearchActionResponse": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/main.PageInfo"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/main.SearchNameResult"
+            }
+          }
+        }
+      },
+      "main.SearchNameResult": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "main.SearchResourceRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/main.EntityNameReference"
+          },
+          "context": {
+            "$ref": "#/components/schemas/main.Context"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/main.EntityTypeReference"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/main.EntityReference"
+          }
+        }
+      },
+      "main.SearchResponse": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/main.PageInfo"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/main.SearchResult"
+            }
+          }
+        }
+      },
+      "main.SearchResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "main.SearchSubjectRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/main.EntityNameReference"
+          },
+          "context": {
+            "$ref": "#/components/schemas/main.Context"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/main.EntityReference"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/main.EntityTypeReference"
+          }
+        }
+      },
+      "shared.AuthZENAction": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.AuthZENRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/shared.AuthZENAction"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "resource": {
+            "$ref": "#/components/schemas/shared.AuthZENResource"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/shared.AuthZENSubject"
+          }
+        }
+      },
+      "shared.AuthZENResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/shared.EntityID"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.AuthZENResponse": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "boolean"
+          }
+        }
+      },
+      "shared.AuthZENSubject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/shared.EntityID"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.EntityID": {
+        "type": "object"
+      },
+      "shared.HTTPError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "x-original-swagger-version": "2.0"
+}

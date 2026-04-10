@@ -114,6 +114,12 @@
           "openapi": [
           "/api-reference/pip-openapi.json"
             ]
+          },
+          {
+          "group": "Policy Decision Point (PDP) Edge Service API",
+          "openapi": [
+          "/api-reference/pdp-cloud-api.json"
+            ]
           }
         ]
       },

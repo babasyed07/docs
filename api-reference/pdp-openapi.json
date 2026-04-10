@@ -17,7 +17,7 @@
         }
     ],
   "paths": {
-    "/access/v1/evaluation": {
+    "/pdp/access/v1/evaluation": {
       "post": {
         "summary": "Evaluate access decisions request",
         "tags": ["Authorization APIs - AuthZEN Complaint"],
