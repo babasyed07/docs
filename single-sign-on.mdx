@@ -38,7 +38,6 @@ The Single Sign-On (SSO) Configurations page allows administrators to connect th
    <img height="200" src="images/sso-redirecturl.png" />
    <Info>If this step is skipped, authentication attempts will fail because the IdP will not know where to send the authorization response.</Info> 
 
-<Info> 
 ## Steps for Microsoft Entra Application Registration for SSO  
 ### Register the Application:  
 1. Sign in to the Microsoft Entra admin center.  
@@ -58,6 +57,6 @@ The Single Sign-On (SSO) Configurations page allows administrators to connect th
 1. Navigate to Manage > API Permissions
 2. Add API a Permission > Microsoft Graph > Select "Delegated Permissions"
 3. Under "OpenId permissions" select email, openid, and profile.
+   <img height="10" src="images/Entra_SSO_API_Permissions.png" />
 ### Configure App for SSO:  
 1. Use the copied Application (Client) ID, Issuer URL, and Client Secret in conifguring the OIDC configuration settings in Reva.  
-</Info>  
