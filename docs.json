@@ -38,7 +38,8 @@
               "avp-integration",
               "s3-integration",
               "github-integration",
-              "gitlab-integration"
+              "gitlab-integration",
+              "okta-identity-integration"
             ]
           },
           {
