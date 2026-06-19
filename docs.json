@@ -18,6 +18,7 @@
             "group": "Reva Overview and Concepts",
             "pages": [
               "index",
+              "ai-workload-security-overview",
               "access-control-models",
               "authorization",
               "understanding-reva-avp-cedar"
@@ -35,11 +36,21 @@
             "group": "Setting Up Integration Points",
             "pages": [
               "integration-overview",
+              "azure-agent-integration",
               "avp-integration",
               "scim-integration",
               "github-integration",
               "gitlab-integration",
               "okta-identity-integration"
+            ]
+          },
+          {
+            "group": " AI Workload Security",
+            "pages": [
+              "ai-workload-context-modeling",
+              "ai-workload-policy-design",
+              "ai-workload-policy-testing",
+              "ai-workload-decision-logs"
             ]
           },
           {
@@ -55,18 +66,13 @@
             ]
           },
           {
-            "group": "Managing Policies and Application Context",
+            "group": "Custom Application Authorization",
             "pages": [
               "manage-policies",
               "application-context-overview",
               "application-configuration",
               "application-schema-onboarding",
-              "application-settings"
-            ]
-          },
-          {
-            "group": "Policy Design and Modeling",
-            "pages": [
+              "application-settings",
               "understanding-schema-policy",
               "policy-rbac-abac-rebac",
               "authorization-policy",
