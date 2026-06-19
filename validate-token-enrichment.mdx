@@ -1,0 +1,49 @@
+---
+title: "Validate Token Enrichment"
+---
+After configuration is complete, validate the end-to-end flow.  
+Confirm that:  
+1. The Identity Provider connector is configured and activated.
+2. The token enrichment policy store is created.
+3. The starter schema is available under the Schema tab.
+4. The schema is customized for token enrichment, if required.
+5. Required custom source data is ingested through Data Fabric Integration.
+6. The preferred data source is set to Live, if API-ingested data is used.
+7. Token Claim Mapping is configured.
+8. **Reva Managed** is selected as the Policy Publish Destination.
+9. Token Enrichment Integration values are copied into the Identity Provider.
+10. Policies are published.
+11. The Identity Provider can call Reva Trust Gateway.
+12. Reva evaluates the correct Cedar policies.
+13. Reva returns the expected claims.
+14. The Identity Provider adds the returned claims to the token.
+15. The application receives the enriched token.  
+
+## Example Validation Scenario
+This example shows how custom source data can affect token enrichment.  
+A user named Sarah is assigned to an application in the Identity Provider. However, Sarah is also listed in a custom suspension database for the same application.  
+The suspension data is ingested into Reva through Data Fabric Integration. The Cedar policy checks whether Sarah is part of the suspended application data. When the Identity Provider sends the token enrichment request, Reva evaluates the policy and does not return the restricted application or role claims for Sarah.  
+Another user with similar Identity Provider access, but without a suspension record, receives the expected application and role claims.  
+This validates that Reva is not only using Identity Provider assignment data. Reva is also using custom authorization data to decide which claims should be enriched into the token.
+
+## Review Access Map  
+After data ingestion and policy publishing are complete, Reva can generate access information based on the live data and published policies.  
+Use the access map or access graph to validate whether a user has access to an application.  
+For example, if Sarah is suspended for an application, the access map should show that Sarah does not have access to that application, even if she is assigned in the Identity Provider.
+
+## Review Enrichment Logs  
+Use Decision Logs to review token enrichment activity.  
+To view enrichment logs:  
+1. Open the token enrichment policy store.
+2. Go to Decision Logs.
+3. Enable Enrichment Logs.
+4. Review the enrichment requests and responses.
+5. Open a log entry to view the response details.  
+
+Use enrichment logs to confirm:  
+- Which user was evaluated
+- Which application was evaluated
+- Which claims were requested
+- Which claims were returned
+- Whether any claim was blocked by policy
+- What response was sent back to the Identity Provider  

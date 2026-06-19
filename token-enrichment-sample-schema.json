@@ -1,0 +1,426 @@
+{
+  "TokenEnrichment": {
+    "actions": {
+      "getRole": {
+        "appliesTo": {
+          "resourceTypes": [
+            "AppRole"
+          ],
+          "principalTypes": [
+            "User"
+          ]
+        },
+        "memberOf": []
+      },
+      "getApplication": {
+        "appliesTo": {
+          "resourceTypes": [
+            "Application"
+          ],
+          "principalTypes": [
+            "User"
+          ]
+        },
+        "memberOf": []
+      },
+      "getEntitlement": {
+        "appliesTo": {
+          "resourceTypes": [
+            "Entitlement"
+          ],
+          "principalTypes": [
+            "MachineId"
+          ]
+        },
+        "memberOf": []
+      },
+      "read": {
+        "appliesTo": {
+          "resourceTypes": [
+            "Application"
+          ],
+          "principalTypes": [
+            "User",
+            "UserGroup"
+          ]
+        },
+        "memberOf": []
+      },
+      "write": {
+        "appliesTo": {
+          "resourceTypes": [
+            "Application"
+          ],
+          "principalTypes": [
+            "User",
+            "UserGroup"
+          ]
+        },
+        "memberOf": []
+      },
+      "delete": {
+        "appliesTo": {
+          "resourceTypes": [
+            "Application"
+          ],
+          "principalTypes": [
+            "User",
+            "UserGroup"
+          ]
+        },
+        "memberOf": []
+      }
+    },
+    "entityTypes": {
+      "User": {
+        "memberOfTypes": [
+          "UserGroup"
+        ],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "externalId": {
+              "type": "String",
+              "required": true
+            },
+            "displayName": {
+              "type": "String",
+              "required": true,
+              "displayName": true
+            },
+            "nickName": {
+              "type": "String",
+              "required": false
+            },
+            "profileUrl": {
+              "type": "String",
+              "required": false
+            },
+            "title": {
+              "type": "String",
+              "required": false
+            },
+            "userType": {
+              "type": "String",
+              "required": false
+            },
+            "preferredLanguage": {
+              "type": "String",
+              "required": false
+            },
+            "locale": {
+              "type": "String",
+              "required": false
+            },
+            "timezone": {
+              "type": "String",
+              "required": false
+            },
+            "active": {
+              "type": "Boolean",
+              "required": true
+            },
+            "manager": {
+              "type": "Entity",
+              "required": false,
+              "name": "User"
+            },
+            "department": {
+              "type": "String",
+              "required": false
+            },
+            "riskTier": {
+              "type": "String",
+              "required": false,
+              "possibleValues": [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            },
+            "allowedIntents": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "String"
+              }
+            },
+            "email": {
+              "type": "String",
+              "required": true
+            },
+            "racf": {
+              "type": "String",
+              "required": true
+            },
+            "jobTitle": {
+              "type": "String",
+              "required": false
+            },
+            "userSource": {
+              "type": "String",
+              "required": false
+            },
+            "suspendedApps": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "Entity",
+                "name": "Application"
+              }
+            },
+            "assignedGroups": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "Entity",
+                "name": "UserGroup"
+              }
+            }
+          }
+        }
+      },
+      "UserGroup": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name": {
+              "type": "String",
+              "required": true,
+              "displayName": true
+            },
+            "displayName": {
+              "type": "String",
+              "required": true,
+              "displayName": true
+            },
+            "schemas": {
+              "type": "Set",
+              "required": true,
+              "element": {
+                "type": "String"
+              }
+            }
+          }
+        }
+      },
+      "MachineId": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name": {
+              "type": "String",
+              "required": true,
+              "displayName": true
+            },
+            "clientId": {
+              "type": "String",
+              "required": true
+            },
+            "appcode": {
+              "type": "String",
+              "required": false
+            }
+          }
+        }
+      },
+      "AppRole": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "parentApplication": {
+              "type": "Entity",
+              "required": true,
+              "name": "Application"
+            }
+          }
+        }
+      },
+      "Entitlement": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "parentApplication": {
+              "type": "Entity",
+              "required": true,
+              "name": "Application"
+            }
+          }
+        }
+      },
+      "SuspendedApps": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "user": {
+              "type": "Entity",
+              "required": false,
+              "name": "User"
+            },
+            "application": {
+              "type": "Entity",
+              "required": false,
+              "name": "Application"
+            }
+          }
+        }
+      },
+      "Application": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name": {
+              "type": "String",
+              "required": true,
+              "displayName": true
+            },
+            "label": {
+              "type": "String",
+              "required": true
+            },
+            "status": {
+              "type": "String",
+              "required": false
+            },
+            "signOnMode": {
+              "type": "String",
+              "required": true
+            },
+            "created": {
+              "type": "String",
+              "required": false
+            },
+            "lastUpdated": {
+              "type": "String",
+              "required": false
+            },
+            "orn": {
+              "type": "String",
+              "required": false
+            },
+            "accessibility": {
+              "type": "Record",
+              "required": false,
+              "attributes": {
+                "loginRedirectUrl": {
+                  "type": "String",
+                  "required": false
+                },
+                "errorRedirectUrl": {
+                  "type": "String",
+                  "required": false
+                },
+                "selfService": {
+                  "type": "Boolean",
+                  "required": false
+                }
+              }
+            },
+            "licensing": {
+              "type": "Record",
+              "required": false,
+              "attributes": {
+                "seatCount": {
+                  "type": "Long",
+                  "required": false
+                }
+              }
+            },
+            "profile": {
+              "type": "Record",
+              "required": false,
+              "attributes": {}
+            },
+            "visibility": {
+              "type": "Record",
+              "required": false,
+              "attributes": {
+                "autoLaunch": {
+                  "type": "Boolean",
+                  "required": false
+                },
+                "autoSubmitToolbar": {
+                  "type": "Boolean",
+                  "required": false
+                },
+                "hide": {
+                  "type": "Boolean",
+                  "required": false
+                },
+                "appLinks": {
+                  "type": "Record",
+                  "required": false,
+                  "attributes": {}
+                }
+              }
+            },
+            "features": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "String"
+              }
+            },
+            "credentials": {
+              "type": "Record",
+              "required": false,
+              "attributes": {
+                "oauthClient": {
+                  "type": "Record",
+                  "required": false,
+                  "attributes": {}
+                }
+              }
+            },
+            "_links": {
+              "type": "Record",
+              "required": false,
+              "attributes": {}
+            },
+            "_embedded": {
+              "type": "Record",
+              "required": false,
+              "attributes": {}
+            },
+            "clientId": {
+              "type": "Entity",
+              "required": true,
+              "name": "MachineId"
+            },
+            "appcode": {
+              "type": "String",
+              "required": true
+            },
+            "roleModel": {
+              "type": "String",
+              "required": false
+            },
+            "allowedUsers": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "Entity",
+                "name": "User"
+              }
+            },
+            "assignedGroups": {
+              "type": "Set",
+              "required": false,
+              "element": {
+                "type": "Entity",
+                "name": "UserGroup"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

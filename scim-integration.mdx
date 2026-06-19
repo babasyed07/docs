@@ -1,0 +1,79 @@
+---
+title: "SCIM Integration: Policy Orchestration and Data Fabric Hub"
+---
+SCIM integration allows Reva to receive identity and access data from an external identity provider or SCIM client. Reva uses this data as Policy Information Point data for policy orchestration, policy evaluation, access maps, and token enrichment workflows.  
+The SCIM integration has two main steps:  
+1. Generate a SCIM ingestion token in Reva.
+2. Configure the SCIM endpoint and Bearer token in the identity provider or SCIM client.
+
+## Prerequisites  
+Before you configure SCIM integration, make sure you have:  
+1. Reva tenant admin access
+2. A valid Reva authorization token to call the SCIM token generation API
+3. An identity provider or SCIM client that supports SCIM 2.0
+4. Permission to configure SCIM authentication using a Bearer token  
+
+## Generate the SCIM Ingestion Token  
+Use the following API to generate the SCIM ingestion token.  
+The `Authorization` header must use the access token copied from the browser session. You can get this token from browser inspect mode after logging in to Reva.  
+```bash
+curl --location 'https://api.pr06.preview.reva.ai/v1/api-key/scim-token' \
+--header 'accept: */*' \
+--header 'Content-Type: application/json' \
+--header 'origin: https://customer.preview.reva.ai' \
+--header 'Authorization: <Bearer-Token>' \
+--data '{
+  "type": "Ingestion",
+  "scope": {
+    "type": "SharedEntities",
+    "objects": [
+      "All"
+    ]
+  },
+  "regenerate": false
+}'
+```  
+Replace `<Bearer-Token>` with the access token copied from the browser inspect mode.  
+<Warning>
+The browser access token is sensitive. Do not share it, publish it, or store it in documentation.
+</Warning>
+
+### Request Parameters  
+| Field | Description |
+| --- | --- |
+| `type` | Defines the purpose of the token. Use `Ingestion` for SCIM ingestion. |
+| `scope.type` | Defines the scope type for the token. Use `SharedEntities`. |
+| `scope.objects` | Defines the objects included in the token scope. Use `All` to allow ingestion for all shared entities. |
+| `regenerate` | Set to `false` to create a token only if one does not already exist. Set to `true` to regenerate the token. |  
+
+## API Response  
+The API returns the SCIM token details.
+```json  
+{
+  "apiKeyId": "b3bb9f2f-62eb-4e30-815d-af1f7eb43db9",
+  "data": {
+    "name": "scim-token",
+    "type": "Ingestion",
+    "createdBy": "admin",
+    "createdAt": "2026-06-19T16:32:40.417913Z",
+    "validity": 0,
+    "permission": "All",
+    "expiresAt": "2036-06-16T16:32:40.417913Z",
+    "scope": {
+      "type": "SharedEntities"
+    }
+  },
+  "secret": "<SCIM-SECRET>",
+  "token": "<SCIM-BEARER-TOKEN>"
+}
+```  
+
+## Configure the SCIM Endpoint  
+Use the following SCIM Base URL in the identity provider or SCIM client: `https://api.pr06.preview.reva.ai/ingestion/scim/v2`
+In the identity provider or SCIM client, configure the authentication method as Bearer token authentication.
+
+| SCIM Configuration Field | Reva Value |
+| --- | --- |
+| SCIM Base URL | `https://api.pr06.preview.reva.ai/ingestion/scim/v2` |
+| Authentication Type | Bearer Token |
+| Bearer Token | Value copied from the `token` field in the API response |

@@ -1,0 +1,26 @@
+---
+title: "Enrich Identity Tokens with Policy-Based Claims"
+---
+Token Enrichment allows Reva to add policy-based claims, roles, applications, and entitlements to identity tokens during authentication.  
+Reva provides Token Enrichment as a SaaS-based service through Reva Trust Gateway. During token generation, the Identity Provider sends a request to Reva Trust Gateway. Reva evaluates Cedar policies using identity, application, group, role, entitlement, and suspension data. Reva then returns the claims that should be added to the token.  
+The Identity Provider issues the enriched token to the application. The application can use the claims in the token to make access decisions without calling Reva separately. 
+
+## Supported Identity Providers
+Reva supports Token Enrichment with the following Identity Providers:
+
+| Identity Provider | Support Status |
+| --- | --- |
+| Okta | Supported |
+| Microsoft Entra ID | Supported |
+
+## How Token Enrichment Works
+1. A user signs in to an application through the Identity Provider.  
+2. The Identity Provider starts the token generation flow.  
+3. The Identity Provider sends the token enrichment request to Reva Trust Gateway.  
+4. Reva identifies the user, application, and token context.  
+5. Reva evaluates the active Cedar policies in the token enrichment policy store.  
+6. Reva checks identity data, application data, group membership, roles, entitlements, and any custom source data.  
+7. Reva returns the claims, roles, applications, or entitlements that the user is authorized to receive.  
+8. The Identity Provider adds the returned values to the token.  
+9. The application receives the enriched token and uses the claims for access control.  
+

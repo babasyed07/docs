@@ -17,25 +17,20 @@ Make sure you have the following details.
 | Okta admin access         | You need access to the Okta Admin Console.                                      |
 | Okta org URL              | The base URL of your Okta tenant. Example: `https://demo-ai-auth-acme.okta.com` |
 | Okta API token            | The API token created in the Okta Admin Console.                                |
-| Event Hook access in Okta | You need permission to create and verify Event Hooks in Okta.                   |
-
+| Event Hook access in Okta | You need permission to create and verify Event Hooks in Okta.                   |  
 **Important:** The Reva Okta Identity Store connector uses an **Okta API token**.
 
-# Create the Okta Identity Integration in Reva
-
-## Open Integrations
-
+## Create the Okta Identity Integration in Reva  
+### Open Integrations  
 1. Go to **Integrations** page.
 2. Click **+ Integration**.
 3. Select **Identity Store**.  
 
-## Select Okta  
-
+### Select Okta  
 1. On the **Create Identity Store Integration** page, select **Okta**.
 2. Click **Next**.
 
-## Enter Basic Information  
-
+### Enter Basic Information   
 1. On the **Basic Information** page, enter the Okta connection details.
 
     | Field        | Required | Description                                                                          | Example                                                         |
@@ -47,32 +42,24 @@ Make sure you have the following details.
 
 2. Click **Next**.
 
-## Activate the Integration
-
+### Activate the Integration
 1. On the **Activate Integration** page, review the connection name.
-2. Click **Activate**.
-
-After the connection is created, Reva shows a success message.
-
-Example:
-
-`OktaTokenEnrichment Created`
-
+2. Click **Activate**.  
+After the connection is created, Reva shows a success message.  
+Example:  
+`OktaTokenEnrichment Created`  
 The integration is now available on the **Integrations** page.
 
-# Open the Event Hook Instructions in Reva
-
+## Open the Event Hook Instructions in Reva
 After the Okta Identity Store integration is active, open the setup instructions from the integration details page.
 
-## Open the Okta Integration Details
-
+### Open the Okta Integration Details
 1. Go to **Integrations** page.
 2. Find the Okta integration card.
 3. Click the three-dot menu on the Okta card.
 4. Select **Details**.
 
-## Open Manage for the Active Integration
-
+### Open Manage for the Active Integration
 1. On the details page, expand **Active Integrations**.
 2. Find the active Okta integration.
 3. Click the three-dot menu.
@@ -80,32 +67,25 @@ After the Okta Identity Store integration is active, open the setup instructions
 
 This opens the **Integration Details** panel.
 
-## Review the Setup Okta Event Hook Instructions
-
-In the **Integration Details** panel, review the section named **Setup Okta Event Hook**.
-
-Reva shows the values that must be copied into Okta.
-
-The setup has four sections:
-
+### Review the Setup Okta Event Hook Instructions
+In the **Integration Details** panel, review the section named **Setup Okta Event Hook**.  
+Reva shows the values that must be copied into Okta.  
+The setup has four sections:  
 1. Copy the Reva endpoint details.
 2. Subscribe to events.
 3. Save the Event Hook.
-4. Verify endpoint ownership.
-
-<Note>Keep this Reva screen open while you configure the Event Hook in Okta.</Note>
-
+4. Verify endpoint ownership.  
+<Note>
+  Keep this Reva screen open while you configure the Event Hook in Okta.
+</Note>
 <Info>
-# Configure the Event Hook in Okta
-
-## Open Event Hooks in Okta
-
+## Configure the Event Hook in Okta  
+### Open Event Hooks in Okta  
 1. Sign in to the **Okta Admin Console**.
 2. Go to **Workflow > Event Hooks**.
 3. Click **Create Event Hook**.
 
-## Enter the Event Hook Details
-
+### Enter the Event Hook Details  
 In the Okta Event Hook form, enter the values shown in Reva.
 
 | Okta Field               | Value to Enter                                                      |
@@ -119,12 +99,9 @@ In the Okta Event Hook form, enter the values shown in Reva.
 
 Use the copy icon beside each value in Reva to avoid typing errors.
 
-## Subscribe to Events
-
-In the Okta Event Hook form, go to **Subscribe to events**.
-
-Search and select the event types shown in Reva.
-
+### Subscribe to Events  
+In the Okta Event Hook form, go to **Subscribe to events**.  
+Search and select the event types shown in Reva.  
 Select the following events:
 
 | Reva Event Label         | Purpose                                                    |
@@ -140,27 +117,22 @@ Select the following events:
 
 Use the list displayed in Reva as the source of truth for the events to select.
 
-## Save the Event Hook
-
+### Save the Event Hook  
 1. In Okta, click **Save & Continue**.
 2. Okta saves the Event Hook and opens the endpoint verification step.
 
-## Verify Endpoint Ownership
-
-Okta sends a one-time verification request to the Reva endpoint.
-
+### Verify Endpoint Ownership
+Okta sends a one-time verification request to the Reva endpoint.  
 1. In the Okta **Verify Endpoint Ownership** window, click **Verify**.
 2. Wait for Okta to complete verification.
 3. Once verification succeeds, the Event Hook is listed as active in Okta.
 
 </Info>
 
-# Test the Reva Integration
+## Test the Reva Integration
 
-## Step 13: Test the Connection in Reva
-
-After the Event Hook is verified in Okta:
-
+### Test the Connection in Reva
+After the Event Hook is verified in Okta:  
 1. Return to the Reva **Integration Details** panel.
 2. Click **Test**.
 3. Confirm that Reva shows a success message.

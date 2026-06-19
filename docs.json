@@ -32,14 +32,26 @@
             ]
           },
           {
-            "group": "Setting Up Policy Integration Points",
+            "group": "Setting Up Integration Points",
             "pages": [
               "integration-overview",
               "avp-integration",
-              "s3-integration",
+              "scim-integration",
               "github-integration",
               "gitlab-integration",
               "okta-identity-integration"
+            ]
+          },
+          {
+            "group": "Token Enrichment with Reva Trust Gateway",
+            "pages": [
+              "enrich-identity-tokens-with-policy-based-claims",
+              "configure-identity-provider-connector",
+              "customize-the-schema-for-token-enrichment",
+              "configure-data-fabric-integration",
+              "extend-policies-to-use-custom-source-data",
+              "token-enrichment-developer-configuration",
+              "validate-token-enrichment"
             ]
           },
           {

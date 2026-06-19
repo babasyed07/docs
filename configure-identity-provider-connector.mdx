@@ -1,0 +1,54 @@
+---
+title: "Configure the Identity Provider Connector"  
+---
+Before you configure Token Enrichment, configure and activate the Identity Provider connector in Reva.  
+For Okta, see <a href="okta-identity-integration" className="text-blue-600 font-semibold">Okta Identity Integration</a>.
+After the connector is configured and activated, Reva automatically creates a token enrichment policy store with a starter Cedar schema for that Identity Provider.  
+The generated policy store includes a minimal schema to help you begin modeling token enrichment policies.  
+
+## Auto-created starter schema
+
+The starter schema includes the following entity types and actions:
+
+### Principal
+
+| Principal | Description |
+| --- | --- |
+| User | Represents a user from the Identity Provider. |
+| UserGroup | Represents a user group from the Identity Provider. |
+
+### Action
+
+| Action | Description |
+| --- | --- |
+| read | Used for read authorization policies. |
+| write | Used for write authorization policies. |
+| delete | Used for delete authorization policies. |
+
+### Resource
+
+| Resource | Description |
+| --- | --- |
+| Application | Represents an application that is evaluated during token enrichment. |
+
+<Note>
+The starter schema can be customized after the policy store is created. For example, you can extend the schema to include application roles, entitlements, machine identities, suspended applications, or blacklist data from custom source systems.
+</Note>
+
+## Review the Auto-Created Policy Store
+After the Identity Provider connector is activated, go to Manage Policies and open the token enrichment policy store created for the connector.
+The policy store includes the following areas:
+| Area | Purpose |
+| --- | --- |
+| Insights | View policy store tasks, updates, and processing status. |
+| Policies | Create, import, review, and publish Cedar policies used for token enrichment. |
+| Data | View identity, application, role, entitlement, and custom source data. |
+| Schema | Review and customize the Cedar schema generated for token enrichment. |
+| Version History | Review policy and schema version history. |
+| Decision Logs | Review authorization and enrichment decisions. |
+| Developer | Configure claim mapping, Reva Trust Gateway, policy publish destination, and Data Fabric ingestion. |
+| Settings | Configure policy store settings, including the preferred data source. |
+
+
+
+
