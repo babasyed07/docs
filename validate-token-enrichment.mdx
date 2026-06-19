@@ -21,22 +21,28 @@ Confirm that:
 
 ## Example Validation Scenario
 This example shows how custom source data can affect token enrichment.  
+
 A user named Sarah is assigned to an application in the Identity Provider. However, Sarah is also listed in a custom suspension database for the same application.  
+
 The suspension data is ingested into Reva through Data Fabric Integration. The Cedar policy checks whether Sarah is part of the suspended application data. When the Identity Provider sends the token enrichment request, Reva evaluates the policy and does not return the restricted application or role claims for Sarah.  
+
 Another user with similar Identity Provider access, but without a suspension record, receives the expected application and role claims.  
+
 This validates that Reva is not only using Identity Provider assignment data. Reva is also using custom authorization data to decide which claims should be enriched into the token.
 
 ## Review Access Map  
 After data ingestion and policy publishing are complete, Reva can generate access information based on the live data and published policies.  
+
 Use the access map or access graph to validate whether a user has access to an application.  
+
 For example, if Sarah is suspended for an application, the access map should show that Sarah does not have access to that application, even if she is assigned in the Identity Provider.
 
 ## Review Enrichment Logs  
 Use Decision Logs to review token enrichment activity.  
 To view enrichment logs:  
 1. Open the token enrichment policy store.
-2. Go to Decision Logs.
-3. Enable Enrichment Logs.
+2. Go to **Decision Logs**.
+3. Enable **Enrichment Logs**.
 4. Review the enrichment requests and responses.
 5. Open a log entry to view the response details.  
 

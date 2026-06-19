@@ -1,5 +1,5 @@
 ---
-title: "Enrich Identity Tokens with Policy-Based Claims"
+title: "Extend Policies to Use Custom Source Data"
 ---
 After custom source data is ingested, update the token enrichment policies to use that data.  
 Policies decide which claims Reva returns to the Identity Provider during token generation.  
@@ -7,12 +7,12 @@ Policies decide which claims Reva returns to the Identity Provider during token 
 Common policy patterns include:
 | Policy Pattern | Purpose |
 | --- | --- |
-| Permit assigned users | Return claims when the user is assigned to the application. |
-| Permit assigned groups | Return claims when the user belongs to an assigned group. |
-| Forbid suspended users | Block claims when the user is suspended for the application. |
-| Forbid inactive users | Block claims when the user is inactive. |
-| Forbid blacklisted users | Block claims when custom source data marks the user as blocked. |
-| Permit machine identity entitlements | Return entitlements for machine or service identities. |
+| **Permit assigned users** | Return claims when the user is assigned to the application. |
+| **Permit assigned groups** | Return claims when the user belongs to an assigned group. |
+| **Forbid suspended users** | Block claims when the user is suspended for the application. |
+| **Forbid inactive users** | Block claims when the user is inactive. |
+| **Forbid blacklisted users** | Block claims when custom source data marks the user as blocked. |
+| **Permit machine identity entitlements** | Return entitlements for machine or service identities. |
 
 For example, if a user is assigned to an application in the Identity Provider but appears in a suspension database for that application, Reva can block the application or role claim during token enrichment.
 <Info>
@@ -20,16 +20,16 @@ For example, if a user is assigned to an application in the Identity Provider bu
 After the schema and data model are ready, create or import the Cedar policies used for token enrichment.  
 To publish token enrichment policies:  
 1. Open the token enrichment policy store.
-2. Go to Policies.
-3. Create or import the required policies.
-4. Save the policies as a draft.
-5. Review the draft.
-6. Publish the policies.
-7. Go to Insights to confirm that the publish tasks are complete.  
+2. Go to **Policies**.
+3. **Create** or **import** the required policies.
+4. **Save the policies as a draft**.
+5. **Review** the draft.
+6. **Publish** the policies.
+7. Go to **Insights** to confirm that the publish tasks are complete.  
 Published policies are evaluated when the Identity Provider sends a token enrichment request to Reva Trust Gateway.  
 <Note>
   A sample Cedar policy file is available for reference.  
-  Download the sample policies: [token-enrichment-policies.cedar](/token-enrichment-policies.cedar)  
+  Download the sample policies: <a href="/token-enrichment-policies.cedar" className="text-blue-600 font-semibold underline" download>Token Enrichment Policies</a>
 </Note>
 </Info>
 
