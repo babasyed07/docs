@@ -45,7 +45,7 @@
             ]
           },
           {
-            "group": " AI Workload Security",
+            "group": "AI Workload Security",
             "pages": [
               "ai-workload-context-modeling",
               "ai-workload-policy-design",
@@ -77,6 +77,33 @@
               "policy-rbac-abac-rebac",
               "authorization-policy",
               "policy-setting"
+            ]
+          },
+          {
+            "group": "Guardrails",
+            "pages": [
+              "guardrails/overview",
+              {
+                "group": "Design Time Guardrail",
+                "expanded": true,
+                "pages": [
+                  "guardrails/design-time/overview",
+                  "guardrails/design-time/configure-guardrail-rules",
+                  "guardrails/design-time/create-design-time-guardrail",
+                  "guardrails/design-time/review-findings-policy-designer"
+                ]
+              },
+              {
+                "group": "Runtime Guardrail",
+                "expanded": true,
+                "pages": [
+                  "guardrails/runtime/overview",
+                  "guardrails/runtime/create-runtime-guardrail",
+                  "guardrails/runtime/configure-runtime-conditions",
+                  "guardrails/runtime/apply-to-runtime-enforcement",
+                  "guardrails/runtime/decision-logs"
+                ]
+              }
             ]
           },
           {
@@ -122,22 +149,22 @@
       {
         "tab": "API Documentation",
         "groups": [
-        {
-         "group": "API Overview",
-          "pages": [
-          "api-reference/introduction"
-          ]
-         },
-         {
-          "group": "Reva REST APIs",
-          "openapi": [
-          "/api-reference/pip-openapi.json"
+          {
+            "group": "API Overview",
+            "pages": [
+              "api-reference/introduction"
             ]
           },
           {
-          "group": "Policy Decision Point (PDP) Edge Service API",
-          "openapi": [
-          "/api-reference/pdp-cloud-api.json"
+            "group": "Reva REST APIs",
+            "openapi": [
+              "/api-reference/pip-openapi.json"
+            ]
+          },
+          {
+            "group": "Policy Decision Point (PDP) Edge Service API",
+            "openapi": [
+              "/api-reference/pdp-cloud-api.json"
             ]
           }
         ]
@@ -155,6 +182,9 @@
         ]
       }
     ]
+  },
+  "interaction": {
+    "drilldown": false
   },
   "logo": {
     "light": "/logo/RevaLight.png",

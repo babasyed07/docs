@@ -1,0 +1,57 @@
+---
+title: "Overview"
+description: "Use design time guardrails to validate policies during authoring and prevent unsafe policy logic before activation."
+---
+Design Time Guardrails help policy authors detect unsafe, incomplete, or duplicate policy logic before a policy is activated. These guardrails run during policy design and review, so issues can be fixed before they affect production access.  
+Design time guardrails are used in **Policy Designer** while users create or edit authorization policies. When a policy violates a configured guardrail rule, Reva shows a finding with the configured error message and remediation guidance.  
+
+## What Design Time Guardrails Do
+Design Time Guardrails validate policy quality before the policy is published. They help teams enforce policy standards, reduce excessive access, and avoid duplicate or conflicting policy definitions.
+
+Use design time guardrails to detect:
+* Duplicate policies.
+* Missing policy conditions.
+* Overly permissive access.
+* Conflicting permit and deny effects.
+* Wildcard resources or broad actions.
+* Policies that do not follow internal security standards.
+
+## Where to Access Design Time Guardrails  
+To access Design Time Guardrails:
+1. Open the Reva Admin Console.
+2. Go to **Guardrails** from the left navigation.
+3. Use the **Type** filter and select **Design**.
+4. View existing design time guardrails.
+5. Click **Create** to create a new guardrail.
+
+## Design Time Guardrail List   
+The Guardrails page shows all configured guardrails. You can search, filter, and switch between card view and table view.  
+| Field | Description |
+|---|---|
+| **Name** | Name of the guardrail. |
+| **Description** | Short summary of what the guardrail checks. |
+| **Applications** | Applications or policy stores where the guardrail applies. |
+| **Type** | Guardrail type. For design time guardrails, the value is `Design`. |
+| **Status** | Shows whether the guardrail is active. |
+| **Priority** | Severity or importance of the guardrail. |
+| **ctions** | Edit, duplicate, or delete the guardrail. |  
+
+## Design Time Guardrail Workflow  
+A design time guardrail follows this workflow:  
+1. Create or select guardrail rules.
+2. Create the design time guardrail.
+3. Select the policy store where the guardrail applies.
+4. Configure the enforcement mode and priority.
+5. Add remediation guidance.
+6. Save the guardrail.
+7. Review findings in Policy Designer while writing or editing policies.
+
+## Example  
+A **Duplicate Policy Detection** guardrail can check whether two or more policies use the same Principal, Action, Resource, and Condition combination.  
+
+If a duplicate policy is detected, Reva can show an error message such as:  
+```text
+Duplicate policy detected. A policy already exists with the same principal, action, resource, and condition. Remove or consolidate the duplicate policy before publishing.
+```
+
+The policy author can then review the duplicate policy and fix the issue before activation.  

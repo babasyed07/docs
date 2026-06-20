@@ -1,0 +1,53 @@
+---
+title: "Overview"
+description: "Use Reva Guardrails to detect, prevent, and monitor unsafe authorization patterns during policy design and runtime enforcement."
+---
+Reva Guardrails help teams build safer authorization systems by detecting risky access patterns before they become production issues. Guardrails provide an additional control layer across policy authoring, review, activation, and runtime authorization decisions.  
+Reva supports two guardrail types:  
+1. **Design Time Guardrail**
+2. **Runtime Guardrail**  
+
+Each guardrail type serves a different purpose and is managed separately.  
+
+## Design Time Guardrail  
+Design Time Guardrails evaluate policies while they are being written, reviewed, or activated. They help policy authors detect unsafe, incomplete, or non-compliant policy logic before the policy is published.  
+
+Use Design Time Guardrails to identify issues such as broad access, missing conditions, conflicting permissions, or policy patterns that do not follow security and compliance standards.  
+
+Design Time Guardrail findings are reviewed in **Policy Designer** while writing or editing a policy.  
+
+## Runtime Guardrail  
+Runtime Guardrails evaluate live authorization requests during enforcement. They use runtime context, identity signals, resource attributes, request attributes, and risk indicators to prevent unsafe access decisions.  
+
+Use Runtime Guardrails to block or control access when the request context changes, such as high-risk activity, suspicious behavior, elevated transaction value, or policy conditions that require real-time evaluation.  
+
+Runtime Guardrail outcomes are visible in **Decision Logs**.
+
+## Guardrail types  
+| Guardrail Type        | When It Runs                                   | Primary Purpose                           | Reviewed In     |
+| --------------------- | ---------------------------------------------- | ----------------------------------------- | --------------- |
+| Design Time Guardrail | During policy authoring, review, or activation | Detect unsafe policy logic before publish | Policy Designer |
+| Runtime Guardrail     | During live authorization enforcement          | Prevent risky access decisions at runtime | Decision Logs   |  
+
+## Why Guardrails Matter  
+Authorization policies can become risky when they are too broad, missing required conditions, or do not reflect current business context. Guardrails help reduce these risks by giving security and product teams a way to enforce policy quality and runtime safety.  
+
+With Reva Guardrails, teams can:  
+* Detect policy issues before activation.
+* Reduce excessive permissions.
+* Enforce least privilege during policy design.
+* Prevent high-risk access at runtime.
+* Review findings and decision outcomes with audit context.
+* Improve policy governance across applications and environments.
+
+## Guardrail Documentation
+
+<CardGroup cols={2}>
+  <Card title="Design Time Guardrail" icon="pen-to-square" href="/guardrails/design-time">
+    Learn how to create and apply guardrails that evaluate policies during authoring and review.
+  </Card>
+
+  <Card title="Runtime Guardrail" icon="shield-halved" href="/guardrails/runtime">
+    Learn how to create and apply guardrails that evaluate live authorization requests.
+  </Card>
+</CardGroup>

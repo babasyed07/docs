@@ -1,0 +1,120 @@
+---
+
+title: "Review Findings in Policy Designer"
+description: "Review design time guardrail violations and warnings while writing or editing policies in Policy Designer."
+---
+Design Time Guardrails help policy authors find policy issues before a policy is published. When a policy violates a configured guardrail rule, Reva shows the finding in **Policy Designer** so the author can review and fix the issue before activation.
+
+Use this page to understand how to review guardrail findings while creating or editing a policy.
+
+## When Findings Appear  
+Findings appear when a policy matches a configured design time guardrail rule. The finding can appear as a **Violation** or a **Warning**, based on the guardrail configuration.
+
+For example, if a policy has the same Principal, Action, Resource, and Condition combination as an existing policy, Reva can show a duplicate policy finding.
+
+## Before You Begin  
+Make sure the following setup is complete:
+
+* A design time guardrail is created.
+* The guardrail is applied to the policy store.
+* The guardrail status is active.
+* The guardrail mode is set to the expected behavior, such as **Enforce**.
+* At least one guardrail rule is selected.
+
+## Example Scenario  
+In this example, the **Duplicate Policy Detection** guardrail is applied to the **Secure-Bank** policy store.
+
+The guardrail checks whether two or more policies have the same Principal, Action, Resource, and Condition combination.
+
+When a duplicate policy is created, Reva detects the issue and shows a finding in Policy Designer.
+
+### Open the Policy Store  
+1. Open the Manage Policies.
+2. Click the desired policy store, where the guardrail has been applied.
+3. Open the **Policies** tab.
+
+The policy list shows the policies in the selected policy store.
+
+### Create or Edit a Policy  
+Create a new policy or open an existing policy in Policy Designer.
+
+In this example, a new policy is created with logic that matches an existing policy.
+
+### Review the Guardrail Indicator  
+When Reva evaluates the policy, the guardrail indicator shows that a finding exists.
+
+The finding appears when the policy matches a design time guardrail rule. For enforced guardrails, the policy cannot be published until the issue is fixed.
+
+### Open Policy Store Conformance  
+Click the guardrail or conformance icon in Policy Designer.
+
+The **Policy Store Conformance** panel opens. This panel shows policies that violate configured best practices.
+
+### Review Violations and Warnings
+The Policy Store Conformance panel has separate tabs for:
+
+
+| Tab | Description |
+|---|---|
+| **Violations** | Shows guardrail findings that must be fixed before publish when the guardrail is enforced. |
+| **Warnings** | Shows findings that should be reviewed, but may not block policy publishing depending on the guardrail mode. |
+
+For a duplicate policy finding, the panel shows the rule that was violated.
+
+Example:  
+```text
+Prevent Duplicate Policy with same PARC
+```
+
+The finding explains that no two policies should exist with the same Principal, Action, Resource, and Condition combination.
+
+## Review the Finding Details  
+Each finding includes details that help the policy author understand the issue.  
+| Field | Description |
+|---|---|
+| Rule Name | Name of the guardrail rule that was violated. |
+| Mode | Shows whether the rule is enforced or advisory. |
+| Policy Name | Name of the policy where the issue was found. |
+| Description | Explains why the policy violates the guardrail rule. |
+| Severity | Shows the severity level configured for the guardrail. |
+
+## Fix the Policy  
+Click **Fix** to start correcting the issue.
+
+For duplicate policy findings, review the existing policy and decide whether to remove, update, or consolidate the duplicate logic.
+
+Recommended actions:  
+1. Review the existing policy with the same Principal, Action, Resource, and Condition.
+2. Remove the new duplicate policy if it is not required.
+3. Merge actions or conditions into one policy if both policies are required.
+4. Save the corrected policy.
+5. Recheck the findings before publishing.
+
+## Step 8: Publish the Policy  
+After the finding is fixed, publish the policy.
+
+If the guardrail is configured in **Enforce** mode, Reva blocks publishing until the violation is resolved.
+
+If the guardrail is configured as a warning, the finding is shown for review, but publishing may still be allowed based on the guardrail setup.
+
+## Duplicate Policy Example  
+The following duplicate policy condition can trigger a design time finding:  
+| Matching Element | Description |
+|---|---|
+| **Principal** | The same principal is used in both policies. |
+| **Action** | The same action is used in both policies. |
+| **Resource** | The same resource is used in both policies. |
+| **Condition**| The same condition logic is used in both policies. |  
+
+When all four values match, Reva identifies the policy as a duplicate.
+
+## What to Check If Findings Do Not Appear
+If findings do not appear in Policy Designer, check the following:  
+| Check | What to Verify |
+|---|---|
+| **Guardrail status** | Confirm that the guardrail is active. |
+| **Guardrail type** | Confirm that the guardrail type is `Design`. |
+| **Policy store** | Confirm that the guardrail is applied to the same policy store. |
+| **Rules** | Confirm that at least one rule is selected. |
+| **Mode** | Confirm whether the guardrail is set to `Enforce` or `Monitor` mode. |
+| **Policy logic** | Confirm that the policy actually matches the rule condition. |  
