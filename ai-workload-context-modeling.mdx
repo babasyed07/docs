@@ -1,3 +1,84 @@
 ---
 title: "AI Workload Context Modeling"
+description: "Model your agents, tools, models, and MCP servers as Reva entities so your policies have something to reference."
 ---
+
+Before Reva can authorize your agents, it needs a model of your agentic system — the agents, the tools and models they call, and who is allowed to call whom. This model is your **context**. You build it once, Reva renders it as a **topology view** (the graph of who can invoke whom), and your policies reference these entities by `id`.
+
+## The Agentic Authorization Model
+
+Reva authorizes agent activity with the same Cedar shape used across the platform — **principal → action → resource** — plus runtime **context**.
+
+| Part | In an agent chain | Examples |
+|:-----|:------------------|:---------|
+| **Principal** | Who initiates the call | `User`, `UserGroup`, `ServiceAccounts`, `CloudFunctions`, `Agent` |
+| **Action** | What is being done | `invokeAgent`, `invokeModel`, `invokeTool`, `listTools`, `read`/`write`/`delete` |
+| **Resource** | What is being acted on | `Agent`, `Model`, `Tool`, `MCPServer`, `API` |
+| **Context** | Runtime facts policy can test | `onBehalfOf` (delegating user), `environment` (time, IP, geo), prompt/intent |
+
+## Core Entity Types
+
+| Entity | Acts as | Represents | Example `id` |
+|:-------|:--------|:-----------|:-------------|
+| **User** | Principal | A human identity that starts a workflow | `john` |
+| **UserGroup** | Principal grouping | A logical group of users | `logistics-team` |
+| **ServiceAccounts** | Principal | A non-human machine identity | `etl-runner` |
+| **CloudFunctions** | Principal | A serverless function acting as a caller | `order-webhook` |
+| **Agent** | Principal **and** Resource | An agent — it calls others and is called | `billing-agent` |
+| **Skill** | Attribute of an Agent | A declared capability of an agent | `rate-lookup` |
+| **Model** | Resource | An LLM / foundation model an agent invokes | `claude-sonnet` |
+| **Tool** | Resource | A callable tool (often via MCP) | `rate-mcp/reva-rate-mcp` |
+| **MCPServer** | Resource | An MCP server hosting tools | `rate-mcp` |
+| **API** | Resource | A REST endpoint an agent calls | `orders-api` |
+
+<Note>
+  Agents are both **principals and resources** — they invoke models, tools, and other agents, and they are themselves invoked by users and other agents.
+</Note>
+
+## Entity Relationships & Topology
+
+Reva connects entities into a **topology**: the directed graph of who may invoke whom. Only certain source → target combinations are valid, mirroring the actions in the schema:
+
+| Target | Allowed sources | Meaning |
+|:-------|:----------------|:--------|
+| **Agent** | User, UserGroup, ServiceAccounts, CloudFunctions, Agent | invoke an agent |
+| **Model** | Agent | an agent invokes a model |
+| **Tool** | Agent, User, ServiceAccounts | invoke a tool |
+| **MCPServer** | Agent, User, ServiceAccounts | list tools on an MCP server |
+| **API** | User, UserGroup, ServiceAccounts, CloudFunctions, Agent | read / write / delete an API |
+
+For the complete edge rules and how to express them, see [Fill the Agentic Workload Metadata Template](/ai-workload-metadata-template).
+
+## Runtime Attributes
+
+Policies can test attributes on these entities — both Reva's standard attributes and your own custom attributes:
+
+- **Standard attributes** — `riskTier`, `dataClassification`, `connectionType`, `trustTier`, `dataClassificationCeiling`, and more.
+- **Custom & MCP tool attributes** — add runtime attributes (for example, an MCP tool's `container_id`) so you can write policy on the values your agents actually pass at runtime.
+
+<Card title="Add Runtime Attributes (Schema View & Edit)" icon="sliders" href="/ai-workload-schema-runtime-attributes">
+  Add attributes for MCP/tool inputs and any custom field you want to write policy on.
+</Card>
+
+## Ways to Build Your Context
+
+You can build and maintain your topology in several ways — mix and match as your system grows.
+
+<CardGroup cols={2}>
+  <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
+    Download the metadata template, fill in your entities and relationships, and upload it.
+  </Card>
+  <Card title="Add from Repository" icon="code-branch" href="/ai-workload-schema-add-from-repository">
+    Scan a connected GitHub/GitLab repo to discover agents, tools, and MCP servers.
+  </Card>
+  <Card title="Add from Topology View" icon="diagram-project" href="/ai-workload-add-entity-from-topology">
+    Add a new entity directly on the graph and wire its connections visually.
+  </Card>
+  <Card title="Edit Entity Details" icon="pen-to-square" href="/ai-workload-entity-detail">
+    Review and edit an entity's attributes, relationships, and metadata.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Start with [the metadata template](/ai-workload-metadata-template) to bootstrap your whole topology at once, then refine individual entities from the topology view.
+</Tip>

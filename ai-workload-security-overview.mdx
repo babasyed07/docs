@@ -1,4 +1,80 @@
 ---
 title: "AI Workload Security Overview"
+description: "Authorize every call in your agentic AI systems — at runtime — with Reva."
 ---
 
+**AI Workload Security** brings fine-grained, runtime authorization to agentic AI. As an autonomous system runs, every call it makes — a user invoking an agent, an agent delegating to another agent, an agent calling a tool, MCP server, or model — is checked against your Cedar policies **before** it happens. Decisions are enforced in real time and recorded for audit.
+
+This is different from [AI-assisted authoring](/index#ai-assisted-authoring) (AI that helps you *write* policies). Here, Reva is the authorization layer that governs what your AI agents are allowed to do.
+
+## What Reva Authorizes
+
+Reva evaluates each hop in an agent chain as a distinct authorization decision:
+
+| Call | PDP action | Example |
+|:-----|:-----------|:--------|
+| **User → Agent** | `invokeAgent` | A user asks the supervisor agent to handle a request |
+| **Agent → Agent** | `invokeAgent` | The supervisor delegates to a billing sub-agent |
+| **Agent → Tool / MCP server** | `invokeTool` | An agent calls a tool exposed by an MCP server |
+| **Agent → Model** | `invokeModel` | An agent calls an LLM to reason over a prompt |
+| **Agent → API** | `read` / `write` / `delete` | An agent calls a REST API |
+
+<Note>
+  MCP **discovery** calls (`tools/list`, `prompts/list`, `resources/list`, `initialize`) are not policy-checked. Only **invocations** (`tools/call`, `prompts/get`, `resources/read`) are evaluated.
+</Note>
+
+## Architecture
+
+Three pieces work together to authorize an agent chain:
+
+- **Reva PDP (Policy Decision Point)** — evaluates Cedar policies and returns allow/deny.
+- **Reva Trust Gateway (RTG)** — mints short-lived, task-scoped transaction tokens that travel with each hop.
+- **`reva-ai` SDK** — a thin layer you add to your agents: an **inbound guard** that checks each incoming call, and an **outbound proxy** that authorizes and token-forwards each outgoing call.
+
+```
+                ┌──────────────────────────────┐
+                │   Reva PDP (Decision Point)   │
+                │   + Reva Trust Gateway        │
+                │   allow / deny · mint token   │
+                └──────────────────────────────┘
+                       ▲                ▲
+        evaluate       │                │   enrich (mint
+        inbound call   │                │   transaction token)
+                       │                │
+  User ──Bearer──▶  Agent A  ─────────▶  Agent B  ─────────▶  Tool / MCP / Model
+                  @reva_ai_authorise      revaclient.proxy
+                  (inbound guard)         (outbound, token-forwarded)
+```
+
+You can integrate without code too — by calling the [PDP evaluation API](/ai-workload-developer-evaluation-api) directly from your own enforcement point.
+
+## How Authorization Works
+
+1. A user (or an upstream agent) calls an agent, carrying a bearer token.
+2. The agent's **inbound guard** builds an evaluation request — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — and calls the PDP.
+3. The PDP evaluates the active Cedar policies in the policy store and returns **allow** or **deny**.
+4. On **allow**, the agent's handler runs. On **deny**, the call is rejected — Reva is **fail-closed** by default.
+5. For each **outbound** call, the SDK proxy asks the RTG to mint a short-lived **transaction token** and forwards it to the next hop, which re-evaluates on its own inbound boundary.
+6. Every decision — allow or deny — is written to the [decision logs](/ai-workload-decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
+
+## Capabilities at a Glance
+
+Reva's AI Workload Security capabilities span runtime authorization, identity delegation, tool governance, and audit.
+
+<Card title="Capability & Maturity Matrix" icon="table-list" href="/ai-workload-capability-matrix">
+  See exactly what's **Available** today, what's in **Beta**, and what's on the **Roadmap**.
+</Card>
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Model Your Agents" icon="diagram-project" href="/ai-workload-context-modeling">
+    Define your agents, tools, models, and MCP servers as Reva entities.
+  </Card>
+  <Card title="Design Policies" icon="shield-halved" href="/ai-workload-policy-design">
+    Write context-based, on-behalf-of, and intent-based agent policies.
+  </Card>
+  <Card title="Integrate the SDK" icon="code" href="/ai-workload-developer-sdk">
+    Add `reva-ai` to your agents, or call the PDP API directly.
+  </Card>
+</CardGroup>

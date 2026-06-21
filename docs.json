@@ -15,10 +15,10 @@
         "tab": "User Guide",
         "groups": [
           {
-            "group": "Reva Overview and Concepts",
+            "group": "Start Here",
             "pages": [
               "index",
-              "ai-workload-security-overview",
+              "choose-your-use-case",
               "access-control-models",
               "authorization",
               "understanding-reva-avp-cedar"
@@ -33,24 +33,62 @@
             ]
           },
           {
-            "group": "Setting Up Integration Points",
+            "group": "Custom Application Authorization",
             "pages": [
-              "integration-overview",
-              "azure-agent-integration",
-              "avp-integration",
-              "scim-integration",
-              "github-integration",
-              "gitlab-integration",
-              "okta-identity-integration"
+              "manage-policies",
+              "application-context-overview",
+              "application-configuration",
+              "application-schema-onboarding",
+              "application-settings",
+              "understanding-schema-policy",
+              "policy-rbac-abac-rebac",
+              "authorization-policy",
+              "policy-setting"
             ]
           },
           {
             "group": "AI Workload Security",
             "pages": [
-              "ai-workload-context-modeling",
-              "ai-workload-policy-design",
-              "ai-workload-policy-testing",
-              "ai-workload-decision-logs"
+              "ai-workload-security-overview",
+              "ai-workload-capability-matrix",
+              {
+                "group": "Onboard & Model Your Agents",
+                "expanded": true,
+                "pages": [
+                  "azure-agent-integration",
+                  "ai-workload-context-modeling",
+                  "ai-workload-metadata-template",
+                  "ai-workload-schema-upload-template",
+                  "ai-workload-schema-add-from-repository",
+                  "ai-workload-schema-runtime-attributes",
+                  "ai-workload-entity-detail",
+                  "ai-workload-add-entity-from-topology"
+                ]
+              },
+              {
+                "group": "Design & Generate Policies",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-policy-design",
+                  "ai-workload-policy-generated"
+                ]
+              },
+              {
+                "group": "Test & Monitor",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-policy-testing",
+                  "ai-workload-decision-logs"
+                ]
+              },
+              {
+                "group": "Developer Integration",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-developer-sdk",
+                  "ai-workload-developer-evaluation-api"
+                ]
+              }
             ]
           },
           {
@@ -63,20 +101,6 @@
               "extend-policies-to-use-custom-source-data",
               "token-enrichment-developer-configuration",
               "validate-token-enrichment"
-            ]
-          },
-          {
-            "group": "Custom Application Authorization",
-            "pages": [
-              "manage-policies",
-              "application-context-overview",
-              "application-configuration",
-              "application-schema-onboarding",
-              "application-settings",
-              "understanding-schema-policy",
-              "policy-rbac-abac-rebac",
-              "authorization-policy",
-              "policy-setting"
             ]
           },
           {
@@ -121,6 +145,17 @@
               "policy-test",
               "preparing-uploading-data",
               "analyzing-impact"
+            ]
+          },
+          {
+            "group": "Setting Up Integration Points",
+            "pages": [
+              "integration-overview",
+              "avp-integration",
+              "scim-integration",
+              "github-integration",
+              "gitlab-integration",
+              "okta-identity-integration"
             ]
           },
           {

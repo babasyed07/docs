@@ -1,0 +1,190 @@
+---
+title: "Developer Integration — Evaluation API"
+description: "Call the Reva PDP directly to authorize agent-chain calls without the SDK."
+---
+
+If you can't (or don't want to) embed the [`reva-ai` SDK](/ai-workload-developer-sdk), call the Reva PDP from your own enforcement point. You send the details of a call — who is calling, what they're doing, on what resource, with what context — and the PDP returns an allow/deny decision.
+
+| Approach | Use when |
+|:---------|:---------|
+| **SDK** ([guide](/ai-workload-developer-sdk)) | You control the agent code and want drop-in inbound/outbound authorization. |
+| **Evaluation API** (this page) | You enforce at a gateway/proxy, use an unsupported language, or want full control over the request. |
+
+## Endpoints
+
+The `reva-ai` SDK calls these PDP endpoints at runtime; you can call them directly too:
+
+| Method & path | Purpose |
+|:--------------|:--------|
+| `POST {RTG_URL}/pdp/access/v1/agent/evaluation` | Evaluate a single agent-chain call and return **allow / deny**. |
+| `POST {RTG_URL}/pdp/access/v1/token/enrich` | Evaluate an outbound hop and, on allow, mint a short-lived **transaction token**. |
+
+<Note>
+  The browsable, generated reference for the PDP Edge API (the `authorize` and `search` operations) is under the **[API Documentation](/api-reference/introduction)** tab. The agent-evaluation and token-enrichment paths above are the runtime endpoints used by the SDK — confirm the exact base URL (`RTG_URL`) and path prefix for your tenant.
+</Note>
+
+## Authentication
+
+| Item | How it's sent |
+|:-----|:--------------|
+| Platform API key | `X-API-Token` header on every PDP call (`RTG_AUTH_TOKEN`) |
+| Caller identity | The end user's bearer token / inherited transaction token |
+| Policy store | The store the call is evaluated against (`POLICYSTORE_ID`) |
+
+## Request Fields
+
+| Field | Description |
+|:------|:------------|
+| `subject` | Who is making this call — `{ type, id }` (`User` or `Agent`), plus optional `properties` (e.g. `origin`). |
+| `action` | The operation — `{ "name": "invokeAgent" \| "invokeTool" \| "invokeModel" }`. |
+| `resource` | What is being called — `{ type, id, name, properties }`. For tools, includes the MCP endpoint and `tool`. |
+| `principal` | The originating end user the chain runs for. |
+| `context.onBehalfOf` | The delegating user and attributes (e.g. `riskTier`) — drives on-behalf-of policies. |
+| `context.environment` | `requestId`, `time`, `sourceIp`, `geo`. |
+| `transmission` | The prompt/intent of the call — `promptKey`, `role`, `contentType`, `content`. |
+| `session` | Conversation correlation — `id` (thread), `turn`, `startedAt`. |
+| `history` | The prior hop(s), recursively, for chain-of-custody. `null` at the first hop. |
+
+## Examples
+
+<CodeGroup>
+```json User → Agent
+{
+  "subject":   { "type": "User", "id": "john" },
+  "action":    { "name": "invokeAgent" },
+  "resource": {
+    "type": "Agent",
+    "id": "shipment-supervisor-agent",
+    "name": "shipment-supervisor-agent",
+    "properties": {
+      "endpoint": { "url": "/agents/shipment-supervisor", "type": "AGENT" }
+    }
+  },
+  "principal": { "type": "User", "id": "john" },
+  "context": {
+    "onBehalfOf": { "type": "User", "id": "john", "properties": { "riskTier": "LOW" } },
+    "environment": { "requestId": "req-u2a-001", "time": "2026-06-18T10:00:00Z", "sourceIp": "10.0.4.12", "geo": "IN" }
+  },
+  "transmission": {
+    "promptKey": "userQuery",
+    "role": "user",
+    "contentType": "text/plain",
+    "content": "Track shipment SH-2024-0042 and check compliance status"
+  },
+  "session": { "id": "thread-sc-001", "turn": 1, "startedAt": "2026-06-18T10:00:00Z" }
+}
+```
+
+```json Agent → Agent
+{
+  "subject": {
+    "type": "Agent",
+    "id": "shipment-supervisor-agent",
+    "properties": { "origin": { "url": "/agents/shipment-supervisor", "type": "AGENT" } }
+  },
+  "action":   { "name": "invokeAgent" },
+  "resource": {
+    "type": "Agent",
+    "id": "billing-agent",
+    "name": "billing-agent",
+    "properties": { "endpoint": { "url": "127.0.0.1:9093/v1/run", "type": "AGENT" } }
+  },
+  "principal": { "type": "User", "id": "john" },
+  "context": {
+    "onBehalfOf": { "type": "User", "id": "john", "properties": { "riskTier": "LOW" } },
+    "environment": { "requestId": "req-a2a-001", "time": "2026-06-18T10:00:02Z", "sourceIp": "10.0.4.12", "geo": "IN" }
+  },
+  "transmission": {
+    "promptKey": "userQuery",
+    "role": "user",
+    "contentType": "text/plain",
+    "content": "Generate billing report for shipment SH-2024-0042"
+  },
+  "session": { "id": "thread-sc-001", "turn": 2, "startedAt": "2026-06-18T10:00:00Z" },
+  "history": {
+    "prompt": "Track shipment SH-2024-0042 and check compliance status",
+    "subject": { "type": "User", "id": "john" },
+    "action": { "name": "invokeAgent" },
+    "resource": { "type": "Agent", "id": "shipment-supervisor-agent" },
+    "issuer": "john",
+    "threadId": "thread-sc-001"
+  }
+}
+```
+
+```json Agent → Tool
+{
+  "subject": {
+    "type": "Agent",
+    "id": "billing-agent",
+    "properties": { "origin": { "url": "127.0.0.1:9093/v1/run", "type": "AGENT" } }
+  },
+  "action": { "name": "invokeTool" },
+  "resource": {
+    "type": "MCPServer",
+    "id": "rate-mcp",
+    "name": "reva-rate-mcp",
+    "properties": { "endpoint": { "url": "127.0.0.1:9102/mcp", "type": "MCP" } },
+    "tool": "reva-rate-mcp"
+  },
+  "principal": { "type": "User", "id": "john" },
+  "context": {
+    "onBehalfOf": { "type": "User", "id": "john", "properties": { "riskTier": "LOW" } },
+    "environment": { "requestId": "req-a2t-001", "time": "2026-06-18T10:00:05Z", "sourceIp": "10.0.4.12", "geo": "IN" }
+  },
+  "transmission": {
+    "promptKey": "query",
+    "role": "user",
+    "contentType": "text/plain",
+    "content": "Calculate shipping rate for 50kg package from Mumbai to Delhi"
+  },
+  "session": { "id": "thread-sc-001", "turn": 3, "startedAt": "2026-06-18T10:00:00Z" },
+  "history": {
+    "prompt": "Generate billing report for shipment SH-2024-0042",
+    "subject": { "type": "Agent", "id": "shipment-supervisor-agent" },
+    "action": { "name": "invokeAgent" },
+    "resource": { "type": "Agent", "id": "billing-agent" },
+    "issuer": "shipment-supervisor-agent",
+    "threadId": "thread-sc-001",
+    "history": {
+      "prompt": "Track shipment SH-2024-0042 and check compliance status",
+      "subject": { "type": "User", "id": "john" },
+      "action": { "name": "invokeAgent" },
+      "resource": { "type": "Agent", "id": "shipment-supervisor-agent" },
+      "issuer": "john",
+      "threadId": "thread-sc-001"
+    }
+  }
+}
+```
+</CodeGroup>
+
+## Responses
+
+On **allow**, evaluation returns a positive decision; `token/enrich` additionally returns a short-lived transaction token to forward on the next hop:
+
+```json
+{ "decision": true }
+```
+
+On **deny**, the decision is negative and a reason is included so you can diagnose the policy outcome:
+
+```json
+{
+  "decision": false,
+  "context": { "reason": "authorization denied by policy" }
+}
+```
+
+Every decision — allow or deny — appears in the [decision logs](/ai-workload-decision-logs), correlated by the session `threadId`.
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="PDP Edge API Reference" icon="book" href="/api-reference/introduction">
+    The generated reference for the published authorize and search operations.
+  </Card>
+  <Card title="Python SDK" icon="code" href="/ai-workload-developer-sdk">
+    Skip manual requests — let the SDK build and send them.
+  </Card>
+</CardGroup>

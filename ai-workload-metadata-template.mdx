@@ -1,0 +1,365 @@
+---
+title: "Fill the Agentic Workload Metadata Template"
+description: "Per-entity, per-attribute field guide for the metadata template you download, fill, and upload to generate your Reva topology view."
+---
+
+<Note>
+  Download the template, fill it in following this guide, then upload it in Reva — see [Upload from Template](/ai-workload-schema-upload-template). Reva parses the files and renders your **topology view** (the graph of who can invoke whom).
+</Note>
+
+<a href="/reva-agentic-metadata-template.zip" className="text-blue-600 font-semibold underline" download>Download the Agentic Workload Metadata Template (.zip)</a>
+
+
+When you start onboarding an agentic workload in Reva, you download a metadata
+template, fill it with your environment's entities and their relationships, and
+upload it back. Reva parses those files and renders the **topology view** — the
+graph of who can invoke whom (users → agents → models, tools, MCP servers, and
+APIs).
+
+This guide explains, **per entity and per attribute**, what each column means,
+whether it is required, the data type, the exact legitimate values, and a
+ready-to-copy example.
+
+---
+
+## 1. What's in the template
+
+The template is a folder with two parts:
+
+```
+Agenticworkload_metadata/
+├── topology/
+│   └── topology.csv              ← the edges (relationships) of the graph
+└── entities/
+    ├── User/User.csv
+    ├── UserGroup/UserGroup.csv
+    ├── ServiceAccounts/ServiceAccounts.csv
+    ├── CloudFunctions/CloudFunctions.csv
+    ├── Agent/Agent.csv
+    ├── Skill/Skill.csv
+    ├── Model/Model.csv
+    ├── Tool/Tool.csv
+    ├── MCPServer/MCPServer.csv
+    └── API/API.csv
+```
+
+Each `entities/<Entity>/<Entity>.csv` file is the **node list** for one entity
+type. Every column in those files maps to an attribute in the Reva AI schema.
+`topology.csv` is the **edge list** that connects those nodes.
+
+> **Golden rule:** fill the entity files first (so every node has a stable `id`),
+> then fill `topology.csv` using those same `id` values. Reva matches edges to
+> nodes by `id`, so a typo in an `id` means a broken or missing connection.
+
+---
+
+## 2. CSV formatting rules (read once, applies everywhere)
+
+These conventions apply to every file:
+
+| Situation | How to write it | Example |
+|-----------|-----------------|---------|
+| Keep the header row | Never rename, reorder, or delete columns | leave row 1 as shipped |
+| Text / string value | Plain text, wrap in double quotes | `"shipment-supervisor-agent"` |
+| Required field | Must not be blank | — |
+| Optional field, not used | Leave the cell empty | `""` |
+| Boolean | Lowercase `true` or `false` only | `"true"` |
+| Number (Long) | Digits only, no quotes needed inside | `3` |
+| Enum / fixed list | Use an exact value from the allowed list (case-sensitive) | `"INTERNAL"` |
+| Set / list (multiple values) | A JSON array. Inside CSV, double the inner quotes | `"[""INTERNAL"",""PII""]"` |
+| Empty Set | `[]` or an empty cell both work | `"[]"` |
+| Record (nested object) | A JSON object | `"{""perMinute"":60,""perHour"":1000}"` |
+| Entity reference | The `id` of the target row in that entity's file | `"engineering-group"` |
+
+**On the JSON-array escaping:** a CSV cell that holds a list like
+`["INTERNAL"]` becomes `"[""INTERNAL""]"` once it's inside a quoted CSV field —
+the surrounding quotes wrap the cell, and each inner `"` is doubled. Most
+spreadsheet apps do this doubling automatically when you type `["INTERNAL"]`
+into a cell, so you usually just type the plain JSON and let the tool escape it
+on save.
+
+**On `id`:** every entity row needs a unique, stable `id` (a slug works well,
+e.g. `billing-agent`). Reva uses `id` as the join key across all files. It is
+**required** on every entity.
+
+---
+
+## 3. Entity field reference
+
+Legend for the **Required** column: ✅ = required, ⬜ = optional.
+
+### 3.1 User — `entities/User/User.csv`
+
+The human identities that can initiate a workflow.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug, your join key | `"john"` |
+| `externalId` | ✅ | String | ID from your IdP/HR system | `"john001"` |
+| `displayName` | ✅ | String | Human-readable name (shown in the graph) | `"John Doe"` |
+| `active` | ✅ | Boolean | `true` / `false` | `"true"` |
+| `allowedIntents` | ⬜ | Set of String | JSON array of intent strings | `"[""read"",""summarize""]"` |
+| `department` | ⬜ | String | Free text | `"Logistics"` |
+| `locale` | ⬜ | String | BCP-47 locale | `"en-US"` |
+| `manager` | ⬜ | Entity → User | `id` of another row in this file | `"mike"` |
+| `nickName` | ⬜ | String | Free text | `"John"` |
+| `preferredLanguage` | ⬜ | String | Language code | `"en"` |
+| `profileUrl` | ⬜ | String | URL | `"https://hr/john"` |
+| `riskTier` | ⬜ | Enum | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | `"LOW"` |
+| `timezone` | ⬜ | String | IANA / offset | `"UTC"` |
+| `title` | ⬜ | String | Free text | `"Ops Lead"` |
+| `userType` | ⬜ | String | Free text (e.g. `internal`, `external`) | `"internal"` |
+| `memberOf:UserGroup` | ⬜ | Entity → UserGroup | `id` from `UserGroup.csv` | `"logistics-team"` |
+
+> `manager` and `memberOf:UserGroup` are **references** — the value must exactly
+> match an existing `id` (a User `id` and a UserGroup `id` respectively).
+
+### 3.2 UserGroup — `entities/UserGroup/UserGroup.csv`
+
+Logical groupings of users.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"logistics-team"` |
+| `name` | ✅ | String | Display name | `"Logistics Team"` |
+
+### 3.3 ServiceAccounts — `entities/ServiceAccounts/ServiceAccounts.csv`
+
+Non-human machine identities that can initiate calls.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"etl-runner"` |
+| `name` | ✅ | String | Display name | `"ETL Runner"` |
+| `active` | ✅ | Boolean | `true` / `false` | `"true"` |
+| `scopes` | ⬜ | Set of String | JSON array of scope strings | `"[""read:orders"",""write:orders""]"` |
+
+### 3.4 CloudFunctions — `entities/CloudFunctions/CloudFunctions.csv`
+
+Serverless functions that can act as principals (e.g. invoke an agent or API).
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"order-webhook"` |
+| `name` | ✅ | String | Display name | `"Order Webhook"` |
+| `region` | ⬜ | String | Cloud region | `"us-east-1"` |
+| `runtime` | ⬜ | String | Runtime label | `"python3.12"` |
+
+### 3.5 Agent — `entities/Agent/Agent.csv`
+
+The agents in your workload. These are both **principals** (they call models,
+tools, APIs, and other agents) and **resources** (users and agents invoke them).
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"billing-agent"` |
+| `name` | ✅ | String | Display name | `"billing-agent"` |
+| `description` | ✅ | String | What the agent does | `"Agent for billing operations"` |
+| `pathUrl` | ✅ | String | Route or endpoint where the agent runs | `"localhost:9093/v1/run"` |
+| `status` | ⬜ | Enum | `ACTIVE` · `INACTIVE` · `DEPRECATED` | `"ACTIVE"` |
+| `skills` | ⬜ | Set of Entity → Skill | JSON array of Skill `id`s; `[]` if none | `"[""rate-lookup""]"` |
+| `version` | ⬜ | String | Semantic version | `"1.0.0"` |
+| `riskTier` | ⬜ | Enum | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | `"MEDIUM"` |
+| `maxChainDepth` | ⬜ | Long (number) | Max agent-to-agent hops allowed | `3` |
+| `dataClassificationCeiling` | ⬜ | Enum | `PUBLIC` · `INTERNAL` · `CONFIDENTIAL` · `PII` · `PHI` · `PCI` · `SECRET` | `"INTERNAL"` |
+
+> `skills` references the `id`s in `Skill.csv`. Leave it as `"[]"` if the agent
+> has no declared skills.
+
+### 3.6 Skill — `entities/Skill/Skill.csv`
+
+Named capabilities an agent can declare. Referenced by the Agent `skills` column.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"rate-lookup"` |
+| `name` | ✅ | String | Display name | `"Rate Lookup"` |
+| `description` | ✅ | String | What the skill does | `"Looks up carrier shipping rates"` |
+| `source` | ✅ | Enum | `MANUAL` · `REVAAI` | `"MANUAL"` |
+| `riskTier` | ⬜ | Enum | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | `"LOW"` |
+
+> `source` = `MANUAL` when you defined the skill yourself; `REVAAI` when Reva
+> discovered/generated it.
+
+### 3.7 Model — `entities/Model/Model.csv`
+
+The LLMs / foundation models that agents invoke.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"claude-sonnet"` |
+| `modelId` | ✅ | String | Provider's model identifier | `"claude-sonnet-4-6"` |
+| `name` | ✅ | String | Display name | `"Claude Sonnet"` |
+| `provider` | ✅ | String | Model vendor | `"Anthropic"` |
+| `description` | ⬜ | String | Free text | `"General reasoning model"` |
+| `version` | ⬜ | String | Version label | `"4.6"` |
+| `region` | ⬜ | String | Hosting region | `"us-east-1"` |
+| `dataResidency` | ⬜ | String | Residency region/policy | `"US"` |
+| `modality` | ⬜ | Set of String | JSON array (e.g. `text`, `image`, `audio`) | `"[""text"",""image""]"` |
+| `allowedClassifications` | ⬜ | Set of String | JSON array of data classes the model may handle | `"[""PUBLIC"",""INTERNAL""]"` |
+| `deprecated` | ⬜ | Boolean | `true` / `false` | `"false"` |
+
+> `allowedClassifications` is a free-form string set, but use the standard data
+> classification vocabulary for consistency: `PUBLIC`, `INTERNAL`,
+> `CONFIDENTIAL`, `PII`, `PHI`, `PCI`, `SECRET`.
+
+### 3.8 Tool — `entities/Tool/Tool.csv`
+
+Callable tools (often MCP tools). Agents, users, and service accounts invoke
+tools.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug. For MCP tools use `<mcpServerId>/<toolName>` | `"rate-mcp/reva-rate-mcp"` |
+| `name` | ✅ | String | Display name | `"reva-rate-mcp"` |
+| `description` | ✅ | String | What the tool does | `"MCP server tool for rate calculations"` |
+| `toolType` | ⬜ | Enum | `MCP` · `OPENAPI` · `FUNCTION` · `CODE` · `BROWSER` · `AGENT` | `"MCP"` |
+| `connectionType` | ⬜ | Enum | `INTERNAL` · `EXTERNAL` | `"INTERNAL"` |
+| `scopes` | ⬜ | Set of String | JSON array of scopes; `[]` if none | `"[]"` |
+| `dataClassification` | ⬜ | Enum | `PUBLIC` · `INTERNAL` · `CONFIDENTIAL` · `PII` · `PHI` · `PCI` · `SECRET` | `"INTERNAL"` |
+| `riskTier` | ⬜ | Enum | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | `"MEDIUM"` |
+| `requiresHumanApproval` | ⬜ | Boolean | `true` / `false` | `"false"` |
+| `version` | ⬜ | String | Version label | `"1.0.0"` |
+| `deprecated` | ⬜ | Boolean | `true` / `false` | `"false"` |
+| `memberOf:MCPServer` | ⬜ | Entity → MCPServer | `id` from `MCPServer.csv` | `"rate-mcp"` |
+
+> **Tool `id` convention:** in the supplied example, MCP tools use the form
+> `<mcpServerId>/<toolName>` (e.g. `rate-mcp/reva-rate-mcp`), and the same
+> `<mcpServerId>` appears in `memberOf:MCPServer`. Keep these consistent — the
+> topology file references tools by this exact `id`.
+
+### 3.9 MCPServer — `entities/MCPServer/MCPServer.csv`
+
+MCP servers that host tools. Agents/users/service accounts can `listTools`
+against them.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"rate-mcp"` |
+| `name` | ✅ | String | Display name | `"reva-rate-mcp"` |
+| `description` | ✅ | String | What the server provides | `"MCP server for rate calculations"` |
+| `transport` | ✅ | Enum | `streamable-http` · `sse` · `stdio` · `websocket` | `"stdio"` |
+| `baseUrl` | ✅ | String | Server URL/address | `"localhost:9102/mcp"` |
+| `connectionType` | ✅ | Enum | `INTERNAL` · `EXTERNAL` | `"INTERNAL"` |
+| `trustTier` | ⬜ | Enum | `TRUSTED` · `PARTNER` · `PUBLIC` · `UNTRUSTED` | `"TRUSTED"` |
+| `allowedDataClassifications` | ⬜ | Set of String | JSON array of data classes | `"[""INTERNAL""]"` |
+
+> `transport`, `baseUrl`, and `connectionType` are **required** for MCP servers
+> (unlike Tool, where connection details are optional).
+
+### 3.10 API — `entities/API/API.csv`
+
+REST/HTTP endpoints that principals can `read`, `write`, or `delete` against.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `id` | ✅ | String | Unique slug | `"orders-api"` |
+| `name` | ✅ | String | Display name | `"Orders API"` |
+| `baseUrl` | ✅ | String | Base URL | `"https://api.internal"` |
+| `endpoint` | ✅ | String | Path of the operation | `"/v1/orders"` |
+| `description` | ⬜ | String | Free text | `"Order management API"` |
+| `operationId` | ⬜ | String | OpenAPI operationId | `"listOrders"` |
+| `dataClassification` | ⬜ | Enum | `PUBLIC` · `INTERNAL` · `CONFIDENTIAL` · `PII` · `PHI` · `PCI` · `SECRET` | `"CONFIDENTIAL"` |
+| `riskTier` | ⬜ | Enum | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | `"HIGH"` |
+| `rateLimit` | ⬜ | Record | JSON object with `perMinute` and `perHour` (both numbers, both required if present) | `"{""perMinute"":60,""perHour"":1000}"` |
+
+> `rateLimit` is a nested object. If you include it, both `perMinute` and
+> `perHour` must be present.
+
+---
+
+## 4. The topology file — `topology/topology.csv`
+
+This is the edge list. Each row connects a **source** node to a **target** node,
+producing one arrow in the graph.
+
+| Column | Req | Type | Allowed / format | Example |
+|--------|:---:|------|------------------|---------|
+| `step` | ✅ | Long (number) | Sequence number, start at 1, increment by 1 | `1` |
+| `source_type` | ✅ | Enum (entity type) | One of the 10 entity types below | `"User"` |
+| `source_id` | ✅ | Reference | `id` of a row in `<source_type>.csv` | `"john"` |
+| `target_type` | ✅ | Enum (entity type) | One of the 10 entity types below | `"Agent"` |
+| `target_id` | ✅ | Reference | `id` of a row in `<target_type>.csv` | `"shipment-supervisor-agent"` |
+
+**Valid entity-type values** (for `source_type` / `target_type`): `User`,
+`UserGroup`, `ServiceAccounts`, `CloudFunctions`, `Agent`, `Skill`, `Model`,
+`Tool`, `MCPServer`, `API`.
+
+### 4.1 Which connections are legal
+
+Reva's schema only allows certain source → target combinations (these mirror the
+actions in the schema: `invokeAgent`, `invokeModel`, `invokeTool`, `listTools`,
+`read`/`write`/`delete`). Use this table to keep your edges valid:
+
+| Target (`target_type`) | Allowed sources (`source_type`) | Meaning |
+|------------------------|---------------------------------|---------|
+| `Agent` | `User`, `ServiceAccounts`, `CloudFunctions`, `UserGroup`, `Agent` | invoke an agent |
+| `Model` | `Agent` | agent invokes a model |
+| `Tool` | `Agent`, `User`, `ServiceAccounts` | invoke a tool |
+| `MCPServer` | `Agent`, `User`, `ServiceAccounts` | list tools on an MCP server |
+| `API` | `User`, `ServiceAccounts`, `CloudFunctions`, `UserGroup`, `Agent` | read / write / delete an API |
+
+> Targets are always one of `Agent`, `Model`, `Tool`, `MCPServer`, or `API`.
+> `Skill`, `UserGroup`, `ServiceAccounts`, `CloudFunctions`, and `User` are never
+> edge **targets** (`Skill` is attached via the Agent `skills` column, and
+> `UserGroup` via the User `memberOf:UserGroup` column — not via topology).
+
+### 4.2 Worked example (from the supply-chain sample)
+
+```csv
+"step","source_type","source_id","target_type","target_id"
+1,"User","john","Agent","shipment-supervisor-agent"
+2,"User","mike","Agent","shipment-supervisor-agent"
+3,"Agent","shipment-supervisor-agent","Agent","compliance-agent"
+4,"Agent","shipment-supervisor-agent","Agent","billing-agent"
+5,"Agent","shipment-supervisor-agent","Agent","transit-anomaly-agent"
+6,"Agent","billing-agent","Tool","rate-mcp/reva-rate-mcp"
+7,"Agent","compliance-agent","Tool","compliance-mcp/reva-compliance-mcp"
+8,"Agent","shipment-supervisor-agent","Tool","carrier-mcp/reva-carrier-mcp"
+```
+
+Reading row 6: *the billing agent invokes the rate tool.* Note `source_id`
+`billing-agent` exists in `Agent.csv`, and `target_id`
+`rate-mcp/reva-rate-mcp` exists in `Tool.csv` — both `id`s match exactly.
+
+---
+
+## 5. Fill order & pre-upload checklist
+
+Fill in this order so references always resolve:
+
+1. **UserGroup**, **Skill**, **MCPServer** — leaf reference targets first.
+2. **User** (references UserGroup + manager), **ServiceAccounts**,
+   **CloudFunctions**.
+3. **Model**, **Tool** (references MCPServer), **API**.
+4. **Agent** (references Skill).
+5. **topology.csv** — last, using all the `id`s above.
+
+Before uploading, check:
+
+- [ ] Every entity row has a **unique, non-empty `id`**.
+- [ ] All **required** columns are filled (see ✅ in each table).
+- [ ] Every **enum** value is spelled exactly as listed (case-sensitive).
+- [ ] Every **Set** cell is valid JSON array syntax (`"[""A"",""B""]"`), or empty.
+- [ ] Every **Boolean** is `true` or `false` (lowercase).
+- [ ] Every reference (`manager`, `memberOf:*`, `skills`, and all topology
+      `source_id`/`target_id`) matches an existing `id`.
+- [ ] Every topology edge is a **legal** source → target pair (Section 4.1).
+- [ ] `step` values are sequential with no gaps or duplicates.
+- [ ] Headers and folder/file names are unchanged from the template.
+
+---
+
+## Appendix — Allowed value sets (quick reference)
+
+| Vocabulary | Values | Used by |
+|------------|--------|---------|
+| **riskTier** | `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` | User, Skill, Agent, Tool, API |
+| **dataClassification** | `PUBLIC`, `INTERNAL`, `CONFIDENTIAL`, `PII`, `PHI`, `PCI`, `SECRET` | Tool, API; Agent `dataClassificationCeiling`; MCPServer `allowedDataClassifications`; Model `allowedClassifications` |
+| **Agent.status** | `ACTIVE`, `INACTIVE`, `DEPRECATED` | Agent |
+| **Skill.source** | `MANUAL`, `REVAAI` | Skill |
+| **Tool.toolType** | `MCP`, `OPENAPI`, `FUNCTION`, `CODE`, `BROWSER`, `AGENT` | Tool |
+| **connectionType** | `INTERNAL`, `EXTERNAL` | Tool, MCPServer |
+| **MCPServer.transport** | `streamable-http`, `sse`, `stdio`, `websocket` | MCPServer |
+| **MCPServer.trustTier** | `TRUSTED`, `PARTNER`, `PUBLIC`, `UNTRUSTED` | MCPServer |
+| **Entity types** (topology) | `User`, `UserGroup`, `ServiceAccounts`, `CloudFunctions`, `Agent`, `Skill`, `Model`, `Tool`, `MCPServer`, `API` | topology.csv |
