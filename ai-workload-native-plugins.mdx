@@ -1,0 +1,27 @@
+---
+title: "Native Plugins"
+description: "Platform-native authorization for no-code/SaaS and coding agents. Coming soon."
+tag: "Coming Soon"
+---
+
+<Note>
+  **Coming soon.** Native plugins are under development. This page previews what they'll cover — contact your Reva representative for early access.
+</Note>
+
+For agents you can't instrument with code, Reva is building **native plugins** that enforce authorization through each platform's own extension model — no SDK or custom HTTP steps required. Every action is still evaluated by the [Reva Trust Guardian](/ai-workload-security-overview).
+
+Planned coverage:
+
+- **No-code / SaaS agents** — Salesforce Agentforce and similar platforms.
+- **Coding agents** — Claude Code, Cursor, and Kiro, securing their access to enterprise systems.
+
+## In the Meantime
+
+<CardGroup cols={2}>
+  <Card title="Pro-code? Use the SDK" icon="code" href="/ai-workload-developer-sdk">
+    Add `reva-ai` to agents you can edit.
+  </Card>
+  <Card title="Low-code? Use the Evaluation API" icon="plug" href="/ai-workload-developer-evaluation-api">
+    Call the Trust Guardian from HTTP hooks.
+  </Card>
+</CardGroup>

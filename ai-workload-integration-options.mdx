@@ -1,0 +1,45 @@
+---
+title: "Connect Your Agents"
+description: "Choose how your agents reach the Reva Trust Guardian — SDK, Evaluation API, or native plugins — based on how they're built."
+---
+
+Every agent action is authorized by the [Reva Trust Guardian](/ai-workload-security-overview#how-enforcement-works). How your agents *reach* the Trust Guardian depends on how they're built. Pick the approach that matches your stack — you can mix approaches across a fleet.
+
+## Choose Your Integration
+
+| Your agent | Examples | Integrate via | Status |
+|:-----------|:---------|:--------------|:-------|
+| **Pro-code** | LangChain, LangGraph, CrewAI, custom services | Python SDK | Available |
+| **Low-code** | Microsoft Copilot Studio | Evaluation API | Available |
+| **No-code / SaaS agents** | Salesforce Agentforce | Native plugin | Coming soon |
+| **Coding agents** | Claude Code, Cursor, Kiro | Native plugin / agent skill | Coming soon |
+
+## Pro-Code — Python SDK
+
+When you control the agent's code, the `reva-ai` SDK is the most complete option. A one-line decorator authorizes inbound calls, and an outbound proxy authorizes and token-forwards each call your agent makes — across agents, tools, MCP servers, and APIs.
+
+<Card title="Python SDK" icon="code" href="/ai-workload-developer-sdk">
+  Install `reva-ai` and protect inbound and outbound calls.
+</Card>
+
+## Low-Code — Evaluation API
+
+On low-code platforms like Microsoft Copilot Studio you often can't embed an SDK. Instead, call the Trust Guardian's **Evaluation API** wherever the platform lets you add an HTTP/REST step — send the subject, action, resource, and context, and act on the allow/deny decision it returns.
+
+<Card title="Agent Authorization Evaluation API" icon="plug" href="/ai-workload-developer-evaluation-api">
+  Call the Trust Guardian directly from your platform's HTTP hooks.
+</Card>
+
+## No-Code & Coding Agents — Native Plugins
+
+For no-code / SaaS agents (such as Salesforce Agentforce) and coding agents (Claude Code, Cursor, Kiro), Reva is building **native plugins** that drop authorization in through each platform's own extension model — no custom code or HTTP steps required.
+
+<Card title="Native Plugins" icon="puzzle-piece" href="/ai-workload-native-plugins">
+  Platform-native enforcement for no-code and coding agents — coming soon.
+</Card>
+
+## Not Sure Which to Use?
+
+<Tip>
+  If you can edit the agent's code, use the **SDK**. If you can add an HTTP/REST step but not code, use the **Evaluation API**. If the platform allows neither, a **native plugin** is the path — tell your Reva contact which platform you need.
+</Tip>

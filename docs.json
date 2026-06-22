@@ -90,7 +90,9 @@
                 "group": "Developer Integration",
                 "expanded": true,
                 "pages": [
-                  "ai-workload-developer-sdk"
+                  "ai-workload-integration-options",
+                  "ai-workload-developer-sdk",
+                  "ai-workload-native-plugins"
                 ]
               }
             ]
