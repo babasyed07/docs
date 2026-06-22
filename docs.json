@@ -197,28 +197,42 @@
             ]
           },
           {
+            "group": "AI Workload Authorization APIs",
+            "expanded": true,
+            "pages": [
+              "ai-workload-developer-evaluation-api"
+            ]
+          },
+          {
             "group": "Authorization APIs",
             "expanded": true,
             "pages": [
-              "ai-workload-developer-evaluation-api",
               {
-                "group": "AuthZEN Evaluation",
-                "openapi": [
-                  "/api-reference/reva-authorization-api.json"
+                "group": "AuthZEN Compliant Evaluation",
+                "expanded": true,
+                "openapi": "/api-reference/reva-authorization-api.json",
+                "pages": [
+                  "POST /pdp/access/v1/evaluation"
                 ]
               },
               {
-                "group": "PDP Edge Authorize",
-                "openapi": [
-                  "/api-reference/pdp-edge-authorization-api.json"
+                "group": "PDP Edge Authorization",
+                "expanded": true,
+                "openapi": "/api-reference/pdp-edge-authorization-api.json",
+                "pages": [
+                  "POST /v1/authorize"
                 ]
               }
             ]
           },
           {
             "group": "Access Search APIs",
-            "openapi": [
-              "/api-reference/pdp-edge-search-api.json"
+            "expanded": true,
+            "openapi": "/api-reference/pdp-edge-search-api.json",
+            "pages": [
+              "POST /access/v1/search/subject",
+              "POST /access/v1/search/action",
+              "POST /access/v1/search/resource"
             ]
           },
           {
@@ -226,15 +240,26 @@
             "expanded": true,
             "pages": [
               {
-                "group": "Entity Ingestion",
-                "openapi": [
-                  "/api-reference/data-fabric-ingestion-api.json"
+                "group": "Entity Ingestion APIs",
+                "expanded": true,
+                "openapi": "/api-reference/data-fabric-ingestion-api.json",
+                "pages": [
+                  "POST /ingestion/v1/entity",
+                  "POST /ingestion/v1/entity/bulk",
+                  "PATCH /ingestion/v1/entity/{entityId}",
+                  "PATCH /ingestion/v1/entity/bulk",
+                  "PUT /ingestion/v1/entity",
+                  "PUT /ingestion/v1/entity/bulk",
+                  "DELETE /ingestion/v1/entity/{entityId}",
+                  "DELETE /ingestion/v1/entity/bulk"
                 ]
               },
               {
-                "group": "Access Map",
-                "openapi": [
-                  "/api-reference/access-map-api.json"
+                "group": "Access Map APIs",
+                "expanded": true,
+                "openapi": "/api-reference/access-map-api.json",
+                "pages": [
+                  "PUT /v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap"
                 ]
               }
             ]
