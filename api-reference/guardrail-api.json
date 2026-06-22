@@ -1,0 +1,2926 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Reva Guardrail APIs",
+    "description": "Public APIs for guardrail templates, rules, rule drafts, rule testing, guardrail stores, and policy-store guardrail resolution.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.app.reva.ai",
+      "description": "Production"
+    },
+    {
+      "url": "https://api.preview.reva.ai",
+      "description": "Preview"
+    },
+    {
+      "url": "https://api.dev.reva.ai",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Guardrail Templates",
+      "description": "Manage reusable guardrail templates."
+    },
+    {
+      "name": "Guardrail Rules",
+      "description": "Manage guardrail rules, drafts, tests, and violations."
+    },
+    {
+      "name": "Guardrail Rule Builder",
+      "description": "Manage guardrail rule builder sessions."
+    },
+    {
+      "name": "Guardrail Stores",
+      "description": "Manage guardrail stores and store-level guardrail configurations."
+    },
+    {
+      "name": "Policy Store Guardrail Resolution",
+      "description": "Resolve guardrails linked to policy stores and drafts."
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/template": {
+      "get": {
+        "tags": [
+          "Guardrail Templates"
+        ],
+        "summary": "List guardrail templates",
+        "description": "Returns guardrail templates. Optional filters include type, category, and AI lifecycle stage.",
+        "operationId": "listGuardrailTemplates",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by template type: DESIGN_TIME or RUN_TIME",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RUN_TIME",
+                "DESIGN_TIME"
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by template category: AI or STANDARD",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AI",
+                "STANDARD",
+                "BOTH"
+              ]
+            }
+          },
+          {
+            "name": "aiStage",
+            "in": "query",
+            "description": "Filter by AI lifecycle stage: ENTRY, EXIT or BOTH. When ENTRY/EXIT is supplied, BOTH-tagged templates are also returned.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ENTRY",
+                "EXIT",
+                "BOTH"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDetailResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Guardrail Templates"
+        ],
+        "summary": "Create guardrail template",
+        "description": "Creates a new guardrail template.",
+        "operationId": "createGuardrailTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/template/{id}": {
+      "get": {
+        "tags": [
+          "Guardrail Templates"
+        ],
+        "summary": "Get guardrail template by ID",
+        "description": "Returns a guardrail template by ID.",
+        "operationId": "getGuardrailTemplateById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Template Id is invalid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Template not found"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Guardrail Templates"
+        ],
+        "summary": "Delete guardrail template",
+        "description": "Deletes a guardrail template by ID.",
+        "operationId": "deleteGuardrailTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Template Id is invalid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Template not found"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Guardrail Templates"
+        ],
+        "summary": "Update guardrail template",
+        "description": "Updates an existing guardrail template.",
+        "operationId": "updateGuardrailTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Request body is invalid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Template not found"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "List guardrail rules",
+        "description": "Returns all guardrail rules.",
+        "operationId": "listGuardrailRules",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Create guardrail rule",
+        "description": "Creates a new guardrail rule.",
+        "operationId": "createGuardrailRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/{id}": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Get guardrail rule by ID",
+        "description": "Returns a guardrail rule by ID.",
+        "operationId": "getGuardrailRuleById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Rule Id is invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Rule not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Delete guardrail rule",
+        "description": "Deletes a guardrail rule by ID.",
+        "operationId": "deleteGuardrailRule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Rule Id is invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Rule not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Update guardrail rule",
+        "description": "Updates a guardrail rule.",
+        "operationId": "updateGuardrailRule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/draft": {
+      "put": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Create guardrail rule draft",
+        "description": "Creates a draft version of a guardrail rule.",
+        "operationId": "createGuardrailRuleDraft",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/draft/{id}": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Get guardrail rule draft",
+        "description": "Returns draft rules for the given draft ID.",
+        "operationId": "getGuardrailRuleDraftById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "POLICY",
+                "ACCESS_MAP"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RuleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Delete guardrail rule draft",
+        "description": "Deletes a guardrail rule draft by ID.",
+        "operationId": "deleteGuardrailRuleDraft",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Rule Id is invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Rule not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Update guardrail rule draft",
+        "description": "Updates an existing guardrail rule draft.",
+        "operationId": "updateGuardrailRuleDraft",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Draft not found"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INVALID.REQUEST",
+                  "message": "Request body is invalid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/test": {
+      "post": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Test guardrail rule",
+        "description": "Tests a guardrail rule against selected application environments.",
+        "operationId": "testGuardrailRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestRuleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TestRuleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/refresh": {
+      "post": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "operationId": "refreshGuardrailRuleEvaluation",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Refresh guardrail rule evaluation",
+        "description": "Refreshes guardrail rule evaluation results.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/fetch": {
+      "post": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "operationId": "fetchGuardrailRulesByIds",
+        "parameters": [
+          {
+            "name": "ruleCategory",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RuleResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Fetch guardrail rules by IDs",
+        "description": "Fetches guardrail rules for the supplied list of rule IDs. Optionally filter by rule category.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/{name}/check": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "Check guardrail rule name",
+        "description": "Checks whether a guardrail rule name is available.",
+        "operationId": "checkGuardrailRuleName",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuplicateNameValidationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/violation": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "List guardrail violations",
+        "description": "Lists guardrail violations. Optionally filter by rule ID.",
+        "operationId": "listGuardrailViolations",
+        "parameters": [
+          {
+            "name": "ruleId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ViolationInsightResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/policy-store/{id}": {
+      "get": {
+        "tags": [
+          "Guardrail Rules"
+        ],
+        "summary": "List policy-store guardrail rules",
+        "description": "Returns guardrail rules linked to a policy store.",
+        "operationId": "listPolicyStoreGuardrailRules",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "POLICY",
+                "ACCESS_MAP"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RuleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/api-init": {
+      "post": {
+        "tags": [
+          "Guardrail Rule Builder"
+        ],
+        "summary": "Initialize rule builder session",
+        "description": "Initializes a rule builder session.",
+        "operationId": "initializeRuleBuilderSession",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocketInitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocketInitResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/api-message": {
+      "post": {
+        "tags": [
+          "Guardrail Rule Builder"
+        ],
+        "summary": "Send rule builder message",
+        "description": "Sends a message to the rule builder session and returns the generated response.",
+        "operationId": "sendRuleBuilderMessage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocketMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocketMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/rule/api-destroy": {
+      "post": {
+        "tags": [
+          "Guardrail Rule Builder"
+        ],
+        "summary": "Destroy rule builder session",
+        "description": "Destroys a rule builder session.",
+        "operationId": "destroyRuleBuilderSession",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocketMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "listGuardrailStores",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List guardrail stores",
+        "description": "Lists guardrail stores. Optional filters include type, mode, priority, and source.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "createGuardrailStore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create guardrail store",
+        "description": "Creates a guardrail store.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/guardrail-store": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "listGuardrailStoresV2",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List guardrail stores v2",
+        "description": "Lists guardrail stores using the v2 endpoint. Optional filters include type, mode, priority, and source.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/{guardrailStoreId}": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "getGuardrailStoreById",
+        "parameters": [
+          {
+            "name": "guardrailStoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get guardrail store by ID",
+        "description": "Returns a guardrail store by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "deleteGuardrailStore",
+        "parameters": [
+          {
+            "name": "guardrailStoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Delete guardrail store",
+        "description": "Deletes a guardrail store by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "updateGuardrailStore",
+        "parameters": [
+          {
+            "name": "guardrailStoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update guardrail store",
+        "description": "Updates a guardrail store by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/config": {
+      "put": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "createOrUpdateGuardrailStoreConfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create or update guardrail store config",
+        "description": "Creates or updates a guardrail store configuration.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/config/ids": {
+      "post": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "getGuardrailConfigIdsByIds",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get guardrail config IDs by IDs",
+        "description": "Returns guardrail configuration IDs for the supplied request payload.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/{guardrailStoreId}/policy-stores": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "listLinkedPolicyStores",
+        "parameters": [
+          {
+            "name": "guardrailStoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List linked policy stores",
+        "description": "Lists policy stores linked to a guardrail store.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/tags": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "listGuardrailStoreTags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List guardrail store tags",
+        "description": "Lists guardrail store tags.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/guardrail-store/configs": {
+      "get": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "listActiveGuardrailConfigs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyStoreGuardrailConfigItem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List active guardrail configs",
+        "description": "Lists active guardrail configuration items.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Guardrail Stores"
+        ],
+        "operationId": "deleteGuardrailConfigsByIds",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Delete guardrail configs by IDs",
+        "description": "Deletes guardrail configurations for the supplied IDs.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/policy-store/{policyStoreId}/guardrails/resolved": {
+      "get": {
+        "tags": [
+          "Policy Store Guardrail Resolution"
+        ],
+        "summary": "Get resolved guardrails for policy store",
+        "description": "Returns resolved guardrail details for a policy store. Optional filter by guardrail type.",
+        "operationId": "getResolvedPolicyStoreGuardrails",
+        "parameters": [
+          {
+            "name": "policyStoreId",
+            "in": "path",
+            "description": "Policy Store ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "0edb1064-9f6b-4601-81bb-44229726152a"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Optional filter by guardrail type: RUN_TIME or DESIGN_TIME. Defaults to RUN_TIME when omitted.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RUN_TIME",
+                "DESIGN_TIME"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResolvedGuardrailDetails"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Application not found"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/policy-store/{policyStoreId}/guardrails/configs": {
+      "get": {
+        "tags": [
+          "Policy Store Guardrail Resolution"
+        ],
+        "summary": "Get policy-store guardrail configs",
+        "description": "Returns guardrail metadata and configuration payloads linked to a policy store.",
+        "operationId": "getPolicyStoreGuardrailConfigs",
+        "parameters": [
+          {
+            "name": "policyStoreId",
+            "in": "path",
+            "description": "Policy Store ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "0edb1064-9f6b-4601-81bb-44229726152a"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Optional filter by guardrail type: RUN_TIME or DESIGN_TIME",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RUN_TIME",
+                "DESIGN_TIME"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyStoreGuardrailConfigItem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/draft/{draftId}/guardrails/resolved": {
+      "get": {
+        "tags": [
+          "Policy Store Guardrail Resolution"
+        ],
+        "summary": "Get resolved guardrails for draft",
+        "description": "Returns resolved guardrail details for a draft. Optional filter by guardrail type.",
+        "operationId": "getResolvedDraftGuardrails",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "description": "Draft ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "0edb1064-9f6b-4601-81bb-44229726152a"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Optional filter by guardrail type: RUN_TIME or DESIGN_TIME",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RUN_TIME",
+                "DESIGN_TIME"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "INTERNAL.SERVER.ERROR",
+                  "message": "Some error has occurred, Please contact administrator"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResolvedGuardrailDetails"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "key": "RESOURCE.NOT.FOUND",
+                  "message": "Application not found"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ApplicationEnvironment": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "env": {
+            "type": "string"
+          }
+        }
+      },
+      "AttributeValue": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ConfigAttribute": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "minValue": {
+            "type": "number"
+          },
+          "maxValue": {
+            "type": "number"
+          },
+          "step": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "deny": {
+            "$ref": "#/components/schemas/AttributeValue"
+          },
+          "conditionalAllow": {
+            "$ref": "#/components/schemas/AttributeValue"
+          }
+        }
+      },
+      "ConfigJson": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ConfigAttribute"
+            }
+          }
+        }
+      },
+      "ConfigJsonAttributeResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "minValue": {
+            "type": "object"
+          },
+          "maxValue": {
+            "type": "object"
+          },
+          "step": {
+            "type": "object"
+          },
+          "default": {
+            "type": "object"
+          }
+        }
+      },
+      "DuplicateNameValidationResponse": {
+        "type": "object",
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "GuardrailConfigAttribute": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "selectedValue": {
+            "$ref": "#/components/schemas/SelectedValue"
+          }
+        }
+      },
+      "GuardrailEndpoint": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "JsonNode": {
+        "type": "object"
+      },
+      "PolicyStoreGuardrailConfigItem": {
+        "type": "object",
+        "properties": {
+          "guardrailId": {
+            "type": "string"
+          },
+          "guardrailName": {
+            "type": "string"
+          },
+          "activeVersionId": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "ruleId": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuardrailConfigAttribute"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Remediation": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string"
+          },
+          "remediationMethod": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemediationMethod"
+            }
+          }
+        }
+      },
+      "RemediationMethod": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "ResolvedGuardrailDetails": {
+        "type": "object",
+        "properties": {
+          "guardrailRuleId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "regoPolicy": {
+            "type": "string"
+          },
+          "configJson": {
+            "$ref": "#/components/schemas/ConfigJson"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "guardrailId": {
+            "type": "string"
+          },
+          "guardrailName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "AI",
+              "STANDARD",
+              "BOTH"
+            ]
+          },
+          "aiStage": {
+            "type": "string",
+            "enum": [
+              "ENTRY",
+              "EXIT",
+              "BOTH"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "OPA",
+              "IBAC",
+              "EXTERNAL_WEBHOOK"
+            ]
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/GuardrailEndpoint"
+          }
+        }
+      },
+      "RuleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "POLICY",
+              "ACCESS_MAP"
+            ]
+          },
+          "ruleStatus": {
+            "type": "string",
+            "enum": [
+              "ENFORCE",
+              "DISABLE",
+              "MONITOR"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "IN_PROGRESS",
+              "DRAFT"
+            ]
+          },
+          "ruleCategory": {
+            "type": "string",
+            "enum": [
+              "VIOLATION",
+              "WARNING"
+            ]
+          },
+          "owner": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assignedTo": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "CRITICAL"
+            ]
+          },
+          "compliance": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "remediation": {
+            "$ref": "#/components/schemas/Remediation"
+          },
+          "disabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RuleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "baseRuleId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "POLICY",
+              "ACCESS_MAP"
+            ]
+          },
+          "ruleStatus": {
+            "type": "string",
+            "enum": [
+              "ENFORCE",
+              "DISABLE",
+              "MONITOR"
+            ]
+          },
+          "ruleCategory": {
+            "type": "string",
+            "enum": [
+              "VIOLATION",
+              "WARNING"
+            ]
+          },
+          "owner": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "CRITICAL"
+            ]
+          },
+          "compliance": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "IN_PROGRESS",
+              "DRAFT"
+            ]
+          },
+          "assignedTo": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remediation": {
+            "$ref": "#/components/schemas/Remediation"
+          },
+          "ruleCategoryCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "systemTag": {
+            "type": "string",
+            "enum": [
+              "CUSTOM",
+              "DEFAULT"
+            ]
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "updateBy": {
+            "type": "string"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "hasDraft": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SelectedValue": {
+        "type": "object",
+        "properties": {
+          "deny": {
+            "$ref": "#/components/schemas/AttributeValue"
+          },
+          "conditionalAllow": {
+            "$ref": "#/components/schemas/AttributeValue"
+          }
+        }
+      },
+      "SocketInitRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "SocketInitResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SocketMessageRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "SocketMessageResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "TemplateAttributeResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "minValue": {
+            "type": "number"
+          },
+          "maxValue": {
+            "type": "number"
+          },
+          "step": {
+            "type": "number"
+          },
+          "selectedValue": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "TemplateDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateAttributeResponse"
+            }
+          },
+          "regoPolicy": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RUN_TIME",
+              "DESIGN_TIME"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "AI",
+              "STANDARD",
+              "BOTH"
+            ]
+          },
+          "aiStage": {
+            "type": "string",
+            "enum": [
+              "ENTRY",
+              "EXIT",
+              "BOTH"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "OPA",
+              "IBAC",
+              "EXTERNAL_WEBHOOK"
+            ]
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/GuardrailEndpoint"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "TemplateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "configJson": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "regoPolicy": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RUN_TIME",
+              "DESIGN_TIME"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "AI",
+              "STANDARD",
+              "BOTH"
+            ]
+          },
+          "aiStage": {
+            "type": "string",
+            "enum": [
+              "ENTRY",
+              "EXIT",
+              "BOTH"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "OPA",
+              "IBAC",
+              "EXTERNAL_WEBHOOK"
+            ]
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/GuardrailEndpoint"
+          }
+        }
+      },
+      "TemplateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "configJson": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "configJsonAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConfigJsonAttributeResponse"
+            }
+          },
+          "regoPolicy": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RUN_TIME",
+              "DESIGN_TIME"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "AI",
+              "STANDARD",
+              "BOTH"
+            ]
+          },
+          "aiStage": {
+            "type": "string",
+            "enum": [
+              "ENTRY",
+              "EXIT",
+              "BOTH"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "OPA",
+              "IBAC",
+              "EXTERNAL_WEBHOOK"
+            ]
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/GuardrailEndpoint"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "TestRuleRequest": {
+        "type": "object",
+        "properties": {
+          "applicationEnvironment": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationEnvironment"
+            }
+          },
+          "ruleId": {
+            "type": "string"
+          }
+        }
+      },
+      "TestRuleResponse": {
+        "type": "object",
+        "properties": {
+          "applicationName": {
+            "type": "string"
+          },
+          "env": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyDescription": {
+            "type": "string"
+          }
+        }
+      },
+      "ViolationInsightResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "applicationName": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "CRITICAL"
+            ]
+          },
+          "env": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          },
+          "policyDescription": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
