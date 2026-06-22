@@ -2,54 +2,47 @@
 title: "Reva Home Page Overview"
 ---
 
-Your starting point for policy governance and authorization 
+The Reva Home page is your landing dashboard — **real-time insights and key performance indicators across all your applications**. From here you can jump into setup, review your workloads, and open decision logs.
 
-The Reva Home Page is designed as a welcoming, intuitive dashboard that helps you quickly navigate your authorization journey. With its clean layout and curated resources, you'll find everything needed to start securing applications efficiently. 
+## Application and AI Views
 
-## Page Layout Overview 
+The Home page has two views, toggled at the top right:
+
+| View | Best for | Shows |
+|:-----|:---------|:------|
+| **Application** | Custom application authorization | Get-started tiles for AVP policy stores and application onboarding, plus learning resources. |
+| **AI** | Agentic AI / AI workload security | Your agentic workload inventory — agents, MCP servers, tools, and models — or a prompt to onboard them if none exist yet. |
 
 <img height="200" src="images/landing-page.png" />
 
-1. **Top Banner:** Personalized welcome message  
-2. **Get Started with Reva Section:** Foundational setup actions  
-3. **Explore Section:** Self-paced learning resources 
+## Application View
 
-## Key Sections Explained 
+The Application view helps you set up custom application authorization.
 
-1. Welcome Message  
-   - Encourages quick setup  
-   - Reassures about available support  
+| Tile | Purpose | Takes you to |
+|:-----|:--------|:-------------|
+| **Discover AVP Policy Stores** | Connect your AWS account to manage AVP policies | [Integrations](/integration-overview) |
+| **Onboard your Applications** | Define fine-grained authorization policies | [Manage Policies](/manage-policies) |
+| **Decision Logs** | Investigate authorization decisions | [Decision Logs](/ai-workload-decision-logs) |
 
-<Info>Welcome! 🚀 Let’s get started with a quick setup. Your journey with Reva begins here. Reach out anytime—we’re here to make this experience seamless for you.</Info> 
+The **Explore** section below offers self-paced video and document guides — discovering AVP policies, designing policies with the Policy Designer, setting up approval workflows, and more.
 
-2. Get Started with Reva  
-   Quick-access widgets for initial setup  
+## AI View
 
-   | **Widget**                     | **Purpose**                 | **Action**                        |
-   |:------------------------------|:----------------------------|:----------------------------------|
-   | **Discover AVP Policy Stores**| Connect AWS accounts        | Start managing AVP policies       |
-   | **Onboard your Applications** | Begin authorization setup   | Launch application onboarding     |  
+The AI view is tailored to agentic AI. If your agentic workload is already populated, it shows your **inventory** — counts and a searchable table of agents, MCP servers, tools, and models. If nothing is onboarded yet, Reva prompts you to upload or onboard your agents.
 
-3. Explore Resources  
-Self-learning tools for all skill levels   
+A top banner offers three quick actions:
 
-   | **Resource**              | **Format** | **Best For**                                |
-   |:--------------------------|:-----------|:---------------------------------------------|
-   | **Discover AVP Policy**       | Document       | New users understanding policy management    |
-   | **Policy Designer Guide** | Document   | Creating custom access controls              |
-   | **Approval Workflows** | Document     | Configuring governance processes             |  
+| Tile | Purpose | Takes you to |
+|:-----|:--------|:-------------|
+| **Discover** | Connect the sources your agents depend on | [Integrations](/integration-overview) |
+| **Onboard** | Create an agentic policy store and onboard agents | [Manage Policies](/manage-policies) |
+| **Decision Logs** | Investigate agent authorization decisions | [Decision Logs](/ai-workload-decision-logs) |
 
-4. View More Resources   
-Expanded knowledge base access 
-   - Single "View More" link to: 
-   -  Tutorial library 
-   -  API documentation 
-   -  Use case playbooks 
-   -  Compliance templates 
+<Note>
+  The **Decision Logs** tile appears in both the Application and AI views.
+</Note>
 
-## Why This Design Works 
+## Get Oriented
 
-1. User-Centric Flow: Guides from setup → learning → advanced tools   
-2. Progressive Disclosure: Presents core actions first, advanced options later   
-3. Visual Hierarchy: Important actions stand out with clear CTAs   
-4. Contextual Help: Resources match user journey stage 
+New to the platform? See [Navigating Reva](/navigating-reva) for a map of all the main sections.

@@ -18,10 +18,7 @@
             "group": "Start Here",
             "pages": [
               "index",
-              "choose-your-use-case",
-              "access-control-models",
-              "authorization",
-              "understanding-reva-avp-cedar"
+              "choose-your-use-case"
             ]
           },
           {
@@ -29,12 +26,21 @@
             "pages": [
               "login-reva",
               "landing-page",
-              "platform-hierarchy"
+              "navigating-reva"
+            ]
+          },
+          {
+            "group": "Concepts & Knowledge",
+            "pages": [
+              "access-control-models",
+              "authorization",
+              "understanding-reva-avp-cedar"
             ]
           },
           {
             "group": "Custom Application Authorization",
             "pages": [
+              "platform-hierarchy",
               "manage-policies",
               "application-context-overview",
               "application-configuration",
@@ -55,7 +61,6 @@
                 "group": "Onboard & Model Your Agents",
                 "expanded": true,
                 "pages": [
-                  "azure-agent-integration",
                   "ai-workload-context-modeling",
                   "ai-workload-metadata-template",
                   "ai-workload-schema-upload-template",
@@ -85,8 +90,7 @@
                 "group": "Developer Integration",
                 "expanded": true,
                 "pages": [
-                  "ai-workload-developer-sdk",
-                  "ai-workload-developer-evaluation-api"
+                  "ai-workload-developer-sdk"
                 ]
               }
             ]
@@ -151,6 +155,7 @@
             "group": "Setting Up Integration Points",
             "pages": [
               "integration-overview",
+              "azure-agent-integration",
               "avp-integration",
               "scim-integration",
               "github-integration",
@@ -188,6 +193,12 @@
             "group": "API Overview",
             "pages": [
               "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Agentic AI Authorization API",
+            "pages": [
+              "ai-workload-developer-evaluation-api"
             ]
           },
           {
