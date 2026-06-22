@@ -1,11 +1,19 @@
 ---
 title: "AI Workload Security Overview"
-description: "Authorize every call in your agentic AI systems — at runtime — with Reva."
+description: "Intent-based, runtime authorization for every action your AI agents take."
 ---
 
-**AI Workload Security** brings fine-grained, runtime authorization to agentic AI. As an autonomous system runs, every call it makes — a user invoking an agent, an agent delegating to another agent, an agent calling a tool, MCP server, or model — is checked against your Cedar policies **before** it happens. Decisions are enforced in real time and recorded for audit.
+**AI Workload Security** applies Reva's [Intent & Behavior-Based Access Control](/) to your agentic systems. As an agent runs, every action it takes — invoking another agent, a tool, an MCP server, or a model — is authorized in real time against your policies **before it happens**, then recorded for audit. Authorization follows the agent's *intent and behavior*, not just its identity.
 
-This is different from [AI-assisted authoring](/index#ai-assisted-authoring) (AI that helps you *write* policies). Here, Reva is the authorization layer that governs what your AI agents are allowed to do.
+## Why Agents Need More Than Identity
+
+An agent's identity tells you *who* it is — not whether what it's about to do is appropriate. Because agents act autonomously, at machine speed, and on behalf of others, identity-only controls leave three gaps that compound across an agent chain:
+
+- **Excessive agency** — an over-permissioned agent takes destructive actions far beyond what anyone intended.
+- **Intent decay** — context shifts at every hop, so a single up-front permission check stops reflecting what's really happening.
+- **Confused deputy** — agents delegate access to other agents and systems, creating unbounded chains with no clear accountability.
+
+Reva closes these gaps by authorizing **every hop** against the agent's intent and runtime context.
 
 ## What Reva Authorizes
 
@@ -23,19 +31,19 @@ Reva evaluates each hop in an agent chain as a distinct authorization decision:
   MCP **discovery** calls (`tools/list`, `prompts/list`, `resources/list`, `initialize`) are not policy-checked. Only **invocations** (`tools/call`, `prompts/get`, `resources/read`) are evaluated.
 </Note>
 
-## Architecture
+## How It Works
 
 Three pieces work together to authorize an agent chain:
 
 - **Reva PDP (Policy Decision Point)** — evaluates Cedar policies and returns allow/deny.
-- **Reva Trust Gateway (RTG)** — mints short-lived, task-scoped transaction tokens that travel with each hop.
+- **Reva Trust Gateway (RTG)** — issues short-lived, task-scoped transaction tokens that travel with each hop.
 - **`reva-ai` SDK** — a thin layer you add to your agents: an **inbound guard** that checks each incoming call, and an **outbound proxy** that authorizes and token-forwards each outgoing call.
 
 ```
                 ┌──────────────────────────────┐
                 │   Reva PDP (Decision Point)   │
                 │   + Reva Trust Gateway        │
-                │   allow / deny · mint token   │
+                │   allow / deny · issue token  │
                 └──────────────────────────────┘
                        ▲                ▲
         evaluate       │                │   issue a
@@ -46,16 +54,23 @@ Three pieces work together to authorize an agent chain:
                   (inbound guard)         (outbound, token-forwarded)
 ```
 
-You can integrate without code too — by calling the [PDP evaluation API](/ai-workload-developer-evaluation-api) directly from your own enforcement point.
-
-## How Authorization Works
-
 1. A user (or an upstream agent) calls an agent, carrying a bearer token.
 2. The agent's **inbound guard** builds an evaluation request — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — and calls the PDP.
 3. The PDP evaluates the active Cedar policies in the policy store and returns **allow** or **deny**.
 4. On **allow**, the agent's handler runs. On **deny**, the call is rejected — Reva is **fail-closed** by default.
-5. For each **outbound** call, the SDK proxy asks the RTG to mint a short-lived **transaction token** and forwards it to the next hop, which re-evaluates on its own inbound boundary.
+5. For each **outbound** call, the SDK proxy asks the RTG to issue a short-lived **transaction token** and forwards it to the next hop, which re-evaluates on its own inbound boundary.
 6. Every decision — allow or deny — is written to the [decision logs](/ai-workload-decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
+
+No code? You can call the [Agent Authorization Evaluation API](/ai-workload-developer-evaluation-api) directly from your own enforcement point instead.
+
+## Precision Enforcement and Audit
+
+Because enforcement is policy-driven, Reva stays in control even when the agent isn't:
+
+- **Deterministic** — an inappropriate action is blocked even if the agent's reasoning or LLM is compromised by prompt injection.
+- **Zero Standing Privileges** — each hop is authorized just-in-time for the task's intent, and the scoped transaction token expires immediately, so privileges never linger.
+- **Chain-of-custody** — every hop shares a `threadId`, giving you an end-to-end, replayable record of who did what, on whose behalf, and why.
+- **Guarded at runtime** — pair policies with [runtime guardrails](/guardrails/overview) to screen content, context, behavior, and intent on every request, and route risky actions to human approval.
 
 ## Capabilities at a Glance
 
