@@ -264,81 +264,79 @@
                 "pages": [
                   "PUT /v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap"
                 ]
+              }
+            ]
+          },
+          {
+            "group": "Guardrail APIs",
+            "expanded": true,
+            "pages": [
+              {
+                "group": "Guardrail Templates",
+                "expanded": true,
+                "openapi": "/api-reference/guardrail-templates-api.json",
+                "pages": [
+                  "GET /v1/template",
+                  "PUT /v1/template",
+                  "GET /v1/template/{id}",
+                  "PATCH /v1/template/{id}",
+                  "DELETE /v1/template/{id}"
+                ]
               },
               {
-                "group": "Guardrail APIs",
+                "group": "Guardrail Rules",
                 "expanded": true,
+                "openapi": "/api-reference/guardrail-rules-api.json",
                 "pages": [
-                  {
-                    "group": "Guardrail Templates",
-                    "expanded": true,
-                    "openapi": "/api-reference/guardrail-templates-api.json",
-                    "pages": [
-                      "GET /v1/template",
-                      "PUT /v1/template",
-                      "GET /v1/template/{id}",
-                      "PATCH /v1/template/{id}",
-                      "DELETE /v1/template/{id}"
-                    ]
-                  },
-                  {
-                    "group": "Guardrail Rules",
-                    "expanded": true,
-                    "openapi": "/api-reference/guardrail-rules-api.json",
-                    "pages": [
-                      "GET /v1/rule",
-                      "PUT /v1/rule",
-                      "GET /v1/rule/{id}",
-                      "PATCH /v1/rule/{id}",
-                      "DELETE /v1/rule/{id}",
-                      "PUT /v1/rule/draft",
-                      "GET /v1/rule/draft/{id}",
-                      "PATCH /v1/rule/draft/{id}",
-                      "DELETE /v1/rule/draft/{id}",
-                      "POST /v1/rule/test",
-                      "POST /v1/rule/refresh",
-                      "POST /v1/rule/fetch",
-                      "GET /v1/rule/{name}/check",
-                      "GET /v1/rule/violation",
-                      "GET /v1/rule/policy-store/{id}"
-                    ]
-                  },
-                  {
-                    "group": "Guardrail Rule Builder",
-                    "expanded": false,
-                    "openapi": "/api-reference/guardrail-rule-builder-api.json",
-                    "pages": [
-                      "POST /v1/rule/api-init",
-                      "POST /v1/rule/api-message",
-                      "POST /v1/rule/api-destroy"
-                    ]
-                  },
-                  {
-                    "group": "Guardrail Stores",
-                    "expanded": true,
-                    "openapi": "/api-reference/guardrail-stores-api.json",
-                    "pages": [
-                      "GET /v1/guardrail-store",
-                      "PUT /v1/guardrail-store",
-                      "GET /v2/guardrail-store",
-                      "GET /v1/guardrail-store/{guardrailStoreId}",
-                      "PATCH /v1/guardrail-store/{guardrailStoreId}",
-                      "DELETE /v1/guardrail-store/{guardrailStoreId}",
-                      "PUT /v1/guardrail-store/config",
-                      "POST /v1/guardrail-store/config/ids",
-                      "GET /v1/guardrail-store/{guardrailStoreId}/policy-stores",
-                      "GET /v1/guardrail-store/tags",
-                      "GET /v1/guardrail-store/configs",
-                      "DELETE /v1/guardrail-store/configs",
-                      "GET /v1/policy-store/{policyStoreId}/guardrails/resolved",
-                      "GET /v1/policy-store/{policyStoreId}/guardrails/configs",
-                      "GET /v1/draft/{draftId}/guardrails/resolved"
-                    ]
-                  }
+                  "GET /v1/rule",
+                  "PUT /v1/rule",
+                  "GET /v1/rule/{id}",
+                  "PATCH /v1/rule/{id}",
+                  "DELETE /v1/rule/{id}",
+                  "PUT /v1/rule/draft",
+                  "GET /v1/rule/draft/{id}",
+                  "PATCH /v1/rule/draft/{id}",
+                  "DELETE /v1/rule/draft/{id}",
+                  "POST /v1/rule/test",
+                  "POST /v1/rule/refresh",
+                  "POST /v1/rule/fetch",
+                  "GET /v1/rule/{name}/check",
+                  "GET /v1/rule/violation",
+                  "GET /v1/rule/policy-store/{id}"
+                ]
+              },
+              {
+                "group": "Guardrail Rule Builder",
+                "expanded": false,
+                "openapi": "/api-reference/guardrail-rule-builder-api.json",
+                "pages": [
+                  "POST /v1/rule/api-init",
+                  "POST /v1/rule/api-message",
+                  "POST /v1/rule/api-destroy"
+                ]
+              },
+              {
+                "group": "Guardrail Stores",
+                "expanded": true,
+                "openapi": "/api-reference/guardrail-stores-api.json",
+                "pages": [
+                  "GET /v1/guardrail-store",
+                  "PUT /v1/guardrail-store",
+                  "GET /v2/guardrail-store",
+                  "GET /v1/guardrail-store/{guardrailStoreId}",
+                  "PATCH /v1/guardrail-store/{guardrailStoreId}",
+                  "DELETE /v1/guardrail-store/{guardrailStoreId}",
+                  "PUT /v1/guardrail-store/config",
+                  "POST /v1/guardrail-store/config/ids",
+                  "GET /v1/guardrail-store/{guardrailStoreId}/policy-stores",
+                  "GET /v1/guardrail-store/tags",
+                  "GET /v1/guardrail-store/configs",
+                  "DELETE /v1/guardrail-store/configs",
+                  "GET /v1/policy-store/{policyStoreId}/guardrails/resolved",
+                  "GET /v1/policy-store/{policyStoreId}/guardrails/configs",
+                  "GET /v1/draft/{draftId}/guardrails/resolved"
                 ]
               }
-```
-
             ]
           }
         ]
