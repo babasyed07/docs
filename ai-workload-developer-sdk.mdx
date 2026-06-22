@@ -28,7 +28,7 @@ Every service running the SDK sets these. Missing config **fails closed**.
 
 | Variable | Required | Purpose |
 |:---------|:---------|:--------|
-| `RTG_URL` | yes | Base URL of the Reva PDP / Trust Gateway, e.g. `https://api.your-tenant.reva.ai` |
+| `RTG_URL` | yes | Base URL of the Reva Trust Guardian (PDP), e.g. `https://api.your-tenant.reva.ai` |
 | `POLICYSTORE_ID` | yes | The policy store this service evaluates against |
 | `RTG_AUTH_TOKEN` | yes | Platform API key, sent as `X-API-Token` on every PDP call |
 | `RTG_DISABLED` | no | `true` disables PDP entirely. Defaults to `false`. **Never set in production.** |
@@ -96,10 +96,10 @@ def get_freight_quote(origin_code: str, destination_code: str) -> dict:
 
 ## Outbound Authorization
 
-Replace raw `httpx`/`requests` calls between protected services with the proxy. It mints a short-lived transaction token from the Trust Gateway and forwards it.
+Replace raw `httpx`/`requests` calls between protected services with the proxy. It mints a short-lived transaction token from the Trust Guardian and forwards it.
 
 <Note>
-  The transaction token is minted by the Reva Trust Gateway and consumed by the SDK internally (forwarded downstream as `X-Transaction-Token`). This token-minting is **not** a public API — to authorize calls without the SDK, use the [evaluation API](/ai-workload-developer-evaluation-api).
+  The transaction token is minted by the Reva Trust Guardian and consumed by the SDK internally (forwarded downstream as `X-Transaction-Token`). This token-minting is **not** a public API — to authorize calls without the SDK, use the [evaluation API](/ai-workload-developer-evaluation-api).
 </Note>
 
 <CodeGroup>

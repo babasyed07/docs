@@ -4,13 +4,13 @@ title: "Developer Configuration"
 Use the Developer tab to configure the runtime parts of token enrichment.  
 The Developer tab includes the following configuration areas:  
 1. **Token Claim Mapping**
-2. **Reva Trust Gateway**
+2. **Reva Trust Guardian**
 3. **Token Enrichment Integration**
 4. **Data Fabric Integration**
 
 ## Configure Token Claim Mapping
 Token Claim Mapping defines how Reva maps policy evaluation results to token claims.  
-Each claim is mapped to a Cedar action and resource. When the Identity Provider calls Reva Trust Gateway, Reva evaluates the mapped action and resource, then returns the authorized values in the enrichment response.  
+Each claim is mapped to a Cedar action and resource. When the Identity Provider calls Reva Trust Guardian, Reva evaluates the mapped action and resource, then returns the authorized values in the enrichment response.  
 Example claim mapping:
 | Claim Name | Action | Resource |
 | --- | --- | --- |
@@ -29,23 +29,23 @@ To configure Token Claim Mapping:
 7. Add any additional claims required for the token.
 8. Click **Save**.
 
-## Configure Reva Trust Gateway
-Reva Trust Gateway is the Reva-managed runtime used for token enrichment.  
-To configure Reva Trust Gateway:  
+## Configure Reva Trust Guardian
+Reva Trust Guardian is the Reva-managed runtime used for token enrichment.  
+To configure Reva Trust Guardian:  
 1. Open the token enrichment policy store.
 2. Go to the **Developer Integrations** tab.
 3. Under **Policy Publish Destination**, select **Reva Managed**.
 4. Click **Save**.
 
-After you save the configuration, Reva enables the managed Trust Gateway destination for the policy store. This allows Reva to publish and evaluate token enrichment policies through Reva Trust Gateway.
+After you save the configuration, Reva enables the managed Trust Guardian destination for the policy store. This allows Reva to publish and evaluate token enrichment policies through Reva Trust Guardian.
 
 ## Configure Token Enrichment Integration
-The **Token Enrichment Integration** section provides the values required to configure the Identity Provider to call Reva Trust Gateway during token generation.  
+The **Token Enrichment Integration** section provides the values required to configure the Identity Provider to call Reva Trust Guardian during token generation.  
 Copy the following values from Reva:  
 | Field | Description |
 | --- | --- |
 | Name | Name of the token enrichment integration. |
-| **Token Enrichment Endpoint** | Reva Trust Gateway endpoint called by the Identity Provider. |
+| **Token Enrichment Endpoint** | Reva Trust Guardian endpoint called by the Identity Provider. |
 | **Authentication Field** | Header field used for authentication. |
 | **Authentication Secret** | Secret used by the Identity Provider to authenticate to Reva. |
 | **Custom Header Field Name** | Header used to pass the policy store identifier. |
@@ -55,11 +55,11 @@ Copy the following values from Reva:
 Use these values when configuring the token enrichment webhook, token hook, inline hook, or custom claims provider in the Identity Provider.  
 
 ## Configure the Identity Provider Webhook
-Configure the Identity Provider to call Reva Trust Gateway during token generation.  
+Configure the Identity Provider to call Reva Trust Guardian during token generation.  
 The exact configuration depends on the Identity Provider. Most configurations require the following values from Reva:  
 | IdP Field | Reva Value |
 | --- | --- |
-| **Webhook URL, Token Hook URL, or REST API Endpoint** | Reva Trust Gateway Token Enrichment endpoint |
+| **Webhook URL, Token Hook URL, or REST API Endpoint** | Reva Trust Guardian Token Enrichment endpoint |
 | **Authentication Header** | Reva authentication field |
 | **Authentication Secret** | Reva authentication secret |
 | **Custom Header Name** | Reva custom header field name |
@@ -77,7 +77,7 @@ In Okta:
 3. Click **Add Inline Hook**.
 4. Select **Token** as the inline hook type.
 5. Enter the **hook name**.
-6. Paste the **Reva Trust Gateway Token Enrichment endpoint**.
+6. Paste the **Reva Trust Guardian Token Enrichment endpoint**.
 7. Configure the **authentication field** and **authentication secret** copied from Reva.
 8. Add the **custom header name** and **custom header value** copied from Reva.
 9. **Save** the inline hook.
@@ -87,11 +87,11 @@ Okta reference: <a href="https://help.okta.com/oie/en-us/content/topics/automati
 
 ### Microsoft Entra ID Configuration Notes
 For Microsoft Entra ID, configure a **Custom Claims Provider** with a **Token Issuance Start** event.
-The Custom Claims Provider calls the Reva Trust Gateway Token Enrichment endpoint during token issuance. Reva evaluates policies and returns the claims that should be added to the token.  
+The Custom Claims Provider calls the Reva Trust Guardian Token Enrichment endpoint during token issuance. Reva evaluates policies and returns the claims that should be added to the token.  
 Use the values copied from Reva:  
 | Microsoft Entra Configuration | Reva Value |
 | --- | --- |
-| **REST API Endpoint** | Reva Trust Gateway Token Enrichment endpoint |
+| **REST API Endpoint** | Reva Trust Guardian Token Enrichment endpoint |
 | **Authentication Method** | Reva-supported authentication method |
 | **Authentication Secret** | Reva authentication secret |
 | **Token Issuance Event** | Token Issuance Start |

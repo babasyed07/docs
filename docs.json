@@ -96,7 +96,7 @@
             ]
           },
           {
-            "group": "Token Enrichment with Reva Trust Gateway",
+            "group": "Token Enrichment with Reva Trust Guardian",
             "pages": [
               "enrich-identity-tokens-with-policy-based-claims",
               "configure-identity-provider-connector",

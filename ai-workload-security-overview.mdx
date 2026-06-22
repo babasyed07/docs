@@ -33,16 +33,14 @@ Reva evaluates each hop in an agent chain as a distinct authorization decision:
 
 ## How It Works
 
-Three pieces work together to authorize an agent chain:
+Two pieces work together to authorize an agent chain:
 
-- **Reva PDP (Policy Decision Point)** — evaluates Cedar policies and returns allow/deny.
-- **Reva Trust Gateway (RTG)** — issues short-lived, task-scoped transaction tokens that travel with each hop.
+- **Reva Trust Guardian** — Reva's Policy Decision Point (PDP). It evaluates your Cedar policies, returns allow/deny, and issues the short-lived, task-scoped transaction tokens that travel with each hop.
 - **`reva-ai` SDK** — a thin layer you add to your agents: an **inbound guard** that checks each incoming call, and an **outbound proxy** that authorizes and token-forwards each outgoing call.
 
 ```
                 ┌──────────────────────────────┐
-                │   Reva PDP (Decision Point)   │
-                │   + Reva Trust Gateway        │
+                │   Reva Trust Guardian (PDP)   │
                 │   allow / deny · issue token  │
                 └──────────────────────────────┘
                        ▲                ▲
@@ -58,7 +56,7 @@ Three pieces work together to authorize an agent chain:
 2. The agent's **inbound guard** builds an evaluation request — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — and calls the PDP.
 3. The PDP evaluates the active Cedar policies in the policy store and returns **allow** or **deny**.
 4. On **allow**, the agent's handler runs. On **deny**, the call is rejected — Reva is **fail-closed** by default.
-5. For each **outbound** call, the SDK proxy asks the RTG to issue a short-lived **transaction token** and forwards it to the next hop, which re-evaluates on its own inbound boundary.
+5. For each **outbound** call, the SDK proxy asks the Reva Trust Guardian to issue a short-lived **transaction token** and forwards it to the next hop, which re-evaluates on its own inbound boundary.
 6. Every decision — allow or deny — is written to the [decision logs](/ai-workload-decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
 
 No code? You can call the [Agent Authorization Evaluation API](/ai-workload-developer-evaluation-api) directly from your own enforcement point instead.
