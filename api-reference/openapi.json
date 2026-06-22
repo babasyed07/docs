@@ -10,7 +10,8 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.pr06.preview.reva.ai",
+      "description": "Production"
     }
   ],
   "security": [
