@@ -23,38 +23,38 @@ The base URL is your tenant's API host — for example `https://api.pr06.preview
 | Header | Required | Description |
 |:-------|:---------|:------------|
 | `Content-Type` | yes | `application/json` |
-| `Authorization` | yes | `Bearer <token>` — the caller's transaction token (a JWE) or access token |
+| `Authorization` | yes | `Bearer <PDP Auth Token>` — your PDP Auth Token (see below) |
 | `policyStoreId` | yes | The policy store to evaluate against |
 | `x-ms-correlation-id` | recommended | A correlation id used to trace the request across hops |
 
-## Request Fields
+Get your **PDP Auth Token** from the **Developer Settings** page, under the **PDP Auth Token** section. It is a long-lived platform credential — not a transaction token.
 
-| Field | Description |
-|:------|:------------|
-| `subject` | Who is making this call — `{ type, id, name }` (`User` or `Agent`), plus optional `properties`. |
-| `action` | The operation — `{ "name": "invokeAgent" \| "invokeTool" \| "invokeModel" }`. |
-| `resource` | What is being called — `{ type, id, name, properties }`. `type` is `Agent`, `Tool`, or `MCPServer`. |
+## Request Body
+
+The request is a JSON envelope describing one authorization decision. The parts below are the common building blocks — **the values are representative, not a fixed schema.** What you actually send (especially inside `context`) is whatever your policies and guardrails reference. The [example payloads](#example-bodies-by-hop) are your best reference.
+
+| Part | What it carries |
+|:-----|:----------------|
+| `subject` | Who is making the call — `{ type, id, name }` (`User` or `Agent`), with optional `properties`. |
+| `action` | The operation, e.g. `{ "name": "invokeAgent" }` — `invokeAgent`, `invokeTool`, `invokeModel`, and so on. |
+| `resource` | What is being called — `{ type, id, name, properties }`. `type` is typically `Agent`, `Tool`, or `MCPServer`. |
 | `principal` | The originating end user the chain runs for. |
-| `context.onBehalfOf` | The delegating user and attributes (e.g. `riskTier`) — drives on-behalf-of policies. |
-| `context.environment` | `requestId`, `time`, `sourceIp`, `geo`. |
-| `context.blockedTermInUserMessage` | Boolean guardrail signal — a blocked term was detected in the user's message. |
-| `context.blockedTermInInput` | Boolean guardrail signal — a blocked term was detected in the tool input. |
-| `context.isBlockedTool` | Boolean guardrail signal — the target tool is on a blocklist. |
+| `context` | The signals your policies evaluate. Commonly `onBehalfOf` (the delegating user and attributes such as `riskTier`) and `environment` (`requestId`, `time`, `sourceIp`, `geo`). It may also carry guardrail signals (for example `blockedTermInUserMessage`, `blockedTermInInput`, `isBlockedTool`) or any custom attribute your policies reference. |
 | `transmission` | The prompt/intent of the call — `promptKey`, `role`, `contentType`, `content`. |
 | `inputValues` | The structured arguments passed to the tool/agent, e.g. `{ "policy_id": "P-10234" }`. |
 | `session` | Conversation correlation — `id` (thread), `turn`, `startedAt`. |
-| `history` | The prior hop(s), recursively, for chain-of-custody. Omit (or `null`) at the first hop. |
+| `history` | Prior hop(s), recursively, for chain-of-custody. Omit at the first hop. |
 
-<Tip>
-  The `blockedTerm*` and `isBlockedTool` flags let your Cedar policies make guardrail-aware decisions — for example, `forbid` a tool call `when { context.isBlockedTool == true }`.
-</Tip>
+<Note>
+  These fields are **representative, not an exhaustive contract.** Send the attributes your policies actually use — Reva evaluates the `subject`, `action`, `resource`, and whatever you place in `context`. Use the example payloads below as your template.
+</Note>
 
 ## Example Request
 
 ```bash cURL
 curl -X POST "https://api.pr06.preview.reva.ai/pdp/access/v1/ai/evaluation" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <transaction-token>" \
+  -H "Authorization: Bearer <pdp-auth-token>" \
   -H "policyStoreId: 3b373af8-3fb4-4c31-b69a-f72e847eae08" \
   -H "x-ms-correlation-id: aaaa0000-1111-2222-3333-444455556666" \
   --data '{
@@ -76,7 +76,7 @@ curl -X POST "https://api.pr06.preview.reva.ai/pdp/access/v1/ai/evaluation" \
 ```
 
 <Warning>
-  The `Authorization` bearer is a secret — never commit or log a real token. The value above is a placeholder.
+  The `Authorization` bearer is your **PDP Auth Token** (from Developer Settings) — a secret. Never commit or log a real token; the value above is a placeholder.
 </Warning>
 
 ## Example Bodies by Hop
