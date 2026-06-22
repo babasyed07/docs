@@ -9,6 +9,10 @@
     {
       "url": "https://api.pr06.preview.reva.ai",
       "description": "Preview"
+    },
+    {
+      "url": "https://api.dv06.dev.reva.ai",
+      "description": "Development"
     }
   ],
   "tags": [
