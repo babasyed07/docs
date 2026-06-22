@@ -1,86 +1,24 @@
 ---
 title: "Azure Agent Integration"
+description: "Connect Azure-hosted agents to Reva. Coming soon."
+tag: "Coming Soon"
 ---
 
-Use the Azure Agent integration to connect Azure-hosted agentic workloads — such as Microsoft Copilot and Azure AI agents — to Reva. Once connected, Reva can govern the agents' runtime calls through the Reva Trust Gateway and record every decision in the [decision logs](/ai-workload-decision-logs).
-
-This guide covers two parts:
-
-1. Create the Azure Agent integration in Reva.
-2. Connect your agents to the Reva Trust Gateway so their calls are authorized at runtime.
-
 <Note>
-  Field names and screens for the Azure side depend on your Azure tenant and agent platform. Use the values shown in Reva as the source of truth, and confirm tenant specifics with your Reva representative.
+  **Coming soon.** The Azure Agent integration isn't available yet. This page previews what it will do — check back, or contact your Reva representative for early access.
 </Note>
 
-## Prerequisites
+The Azure Agent integration will let you connect Azure-hosted agentic workloads — such as Microsoft Copilot and Azure AI agents — to Reva, so their runtime calls are authorized through the Reva Trust Gateway and recorded in the [decision logs](/ai-workload-decision-logs).
 
-Make sure you have the following.
+## In the Meantime
 
-| Requirement | Description |
-| ----------- | ----------- |
-| Reva access | Permission to create and manage integrations in Reva. |
-| Azure access | Access to the Azure portal / agent platform for the agents you want to onboard. |
-| Agent endpoint | The URL where each agent runs (used to resolve the agent as a Reva entity). |
-| Policy store | The AI workload policy store the agents evaluate against (`POLICYSTORE_ID`). |
-| Platform API token | The Reva platform API key used by the Trust Gateway (`RTG_AUTH_TOKEN`). |
-
-## Create the Azure Agent Integration in Reva
-
-### Open Integrations
-1. Go to the **Integrations** page.
-2. Click **+ Integration**.
-3. Select **Agent Integration**.
-
-### Select Azure
-1. On the **Create Agent Integration** page, select **Azure**.
-2. Click **Next**.
-
-### Enter Basic Information
-1. On the **Basic Information** page, enter the connection details.
-
-    | Field | Required | Description | Example |
-    | ----- | -------- | ----------- | ------- |
-    | Name | Yes | A unique name for the Azure integration. | `AzureCopilotAgents` |
-    | Description | Yes | A short description of the connection. | `Azure-hosted Copilot agents governed by Reva.` |
-    | Endpoint URL | Yes | The base URL where your Azure agents run. | `https://my-agents.azurewebsites.net` |
-    | Policy Store | Yes | The AI workload policy store to evaluate against. | `AgenticAIAuthorization` |
-
-2. Click **Next**.
-
-### Activate the Integration
-1. On the **Activate Integration** page, review the connection name.
-2. Click **Activate**. Reva shows a success message and the integration appears on the **Integrations** page.
-
-## Onboard Your Agents
-
-After the integration is active, bring your agents, tools, models, and MCP servers into Reva as entities so your policies can reference them:
+You can already onboard and govern agents from other environments:
 
 <CardGroup cols={2}>
-  <Card title="Model Your Agentic Context" icon="diagram-project" href="/ai-workload-context-modeling">
-    Understand the entity model and how the topology is built.
+  <Card title="Model Your Agents" icon="diagram-project" href="/ai-workload-context-modeling">
+    Bring agents, tools, models, and MCP servers into Reva.
   </Card>
   <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
-    Bootstrap your whole topology from the metadata template.
+    Bootstrap your topology from the metadata template.
   </Card>
 </CardGroup>
-
-## Connect to the Reva Trust Gateway
-
-Each agent service authorizes its calls through the Reva Trust Gateway. Configure these environment variables on every agent, then add the [`reva-ai` SDK](/ai-workload-developer-sdk) or call the [evaluation API](/ai-workload-developer-evaluation-api) directly.
-
-| Variable | Purpose |
-| -------- | ------- |
-| `RTG_URL` | Base URL of the Reva PDP / Trust Gateway. |
-| `POLICYSTORE_ID` | The policy store the agent evaluates against. |
-| `RTG_AUTH_TOKEN` | The platform API key, sent as `X-API-Token` on every PDP call. |
-
-## Test the Integration
-
-1. Trigger a call from an onboarded agent (for example, have it invoke a tool or another agent).
-2. Open the policy store's **Decision Logs** tab.
-3. Confirm the call appears with the expected **Allow** or **Deny** decision.
-
-<Tip>
-  No decision rows? Confirm the agent is sending requests through the SDK proxy or the evaluation API, and that `RTG_URL`, `POLICYSTORE_ID`, and `RTG_AUTH_TOKEN` are set correctly.
-</Tip>
