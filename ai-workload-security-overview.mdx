@@ -38,8 +38,8 @@ Three pieces work together to authorize an agent chain:
                 │   allow / deny · mint token   │
                 └──────────────────────────────┘
                        ▲                ▲
-        evaluate       │                │   enrich (mint
-        inbound call   │                │   transaction token)
+        evaluate       │                │   issue a
+        inbound call   │                │   transaction token
                        │                │
   User ──Bearer──▶  Agent A  ─────────▶  Agent B  ─────────▶  Tool / MCP / Model
                   @reva_ai_authorise      revaclient.proxy

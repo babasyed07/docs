@@ -3,49 +3,85 @@ title: "Agent Authorization Evaluation API"
 description: "Call the Reva PDP directly to authorize agent-chain calls without the SDK."
 ---
 
-If you can't (or don't want to) embed the [`reva-ai` SDK](/ai-workload-developer-sdk), call the Reva PDP from your own enforcement point. You send the details of a call — who is calling, what they're doing, on what resource, with what context — and the PDP returns an allow/deny decision.
+If you can't (or don't want to) embed the [`reva-ai` SDK](/ai-workload-developer-sdk), call the Reva PDP directly from your own enforcement point. You send the details of a call — who is calling, what they're doing, on what resource, with what context — and the PDP returns an allow/deny decision.
 
 | Approach | Use when |
 |:---------|:---------|
 | **SDK** ([guide](/ai-workload-developer-sdk)) | You control the agent code and want drop-in inbound/outbound authorization. |
 | **Evaluation API** (this page) | You enforce at a gateway/proxy, use an unsupported language, or want full control over the request. |
 
-## Endpoints
-
-The `reva-ai` SDK calls these PDP endpoints at runtime; you can call them directly too:
+## Endpoint
 
 | Method & path | Purpose |
 |:--------------|:--------|
-| `POST {RTG_URL}/pdp/access/v1/agent/evaluation` | Evaluate a single agent-chain call and return **allow / deny**. |
-| `POST {RTG_URL}/pdp/access/v1/token/enrich` | Evaluate an outbound hop and, on allow, mint a short-lived **transaction token**. |
+| `POST /pdp/access/v1/ai/evaluation` | Evaluate a single agent-chain call (user → agent, agent → agent, agent → tool / MCP / model) and return **allow / deny**. |
 
-<Note>
-  The browsable, generated reference for the PDP Edge API (the `authorize` and `search` operations) is under the **[API Documentation](/api-reference/introduction)** tab. The agent-evaluation and token-enrichment paths above are the runtime endpoints used by the SDK — confirm the exact base URL (`RTG_URL`) and path prefix for your tenant.
-</Note>
+The base URL is your tenant's API host — for example `https://api.pr06.preview.reva.ai`.
 
-## Authentication
+## Authentication & Headers
 
-| Item | How it's sent |
-|:-----|:--------------|
-| Platform API key | `X-API-Token` header on every PDP call (`RTG_AUTH_TOKEN`) |
-| Caller identity | The end user's bearer token / inherited transaction token |
-| Policy store | The store the call is evaluated against (`POLICYSTORE_ID`) |
+| Header | Required | Description |
+|:-------|:---------|:------------|
+| `Content-Type` | yes | `application/json` |
+| `Authorization` | yes | `Bearer <token>` — the caller's transaction token (a JWE) or access token |
+| `policyStoreId` | yes | The policy store to evaluate against |
+| `x-ms-correlation-id` | recommended | A correlation id used to trace the request across hops |
 
 ## Request Fields
 
 | Field | Description |
 |:------|:------------|
-| `subject` | Who is making this call — `{ type, id }` (`User` or `Agent`), plus optional `properties` (e.g. `origin`). |
+| `subject` | Who is making this call — `{ type, id, name }` (`User` or `Agent`), plus optional `properties`. |
 | `action` | The operation — `{ "name": "invokeAgent" \| "invokeTool" \| "invokeModel" }`. |
-| `resource` | What is being called — `{ type, id, name, properties }`. For tools, includes the MCP endpoint and `tool`. |
+| `resource` | What is being called — `{ type, id, name, properties }`. `type` is `Agent`, `Tool`, or `MCPServer`. |
 | `principal` | The originating end user the chain runs for. |
 | `context.onBehalfOf` | The delegating user and attributes (e.g. `riskTier`) — drives on-behalf-of policies. |
 | `context.environment` | `requestId`, `time`, `sourceIp`, `geo`. |
+| `context.blockedTermInUserMessage` | Boolean guardrail signal — a blocked term was detected in the user's message. |
+| `context.blockedTermInInput` | Boolean guardrail signal — a blocked term was detected in the tool input. |
+| `context.isBlockedTool` | Boolean guardrail signal — the target tool is on a blocklist. |
 | `transmission` | The prompt/intent of the call — `promptKey`, `role`, `contentType`, `content`. |
+| `inputValues` | The structured arguments passed to the tool/agent, e.g. `{ "policy_id": "P-10234" }`. |
 | `session` | Conversation correlation — `id` (thread), `turn`, `startedAt`. |
-| `history` | The prior hop(s), recursively, for chain-of-custody. `null` at the first hop. |
+| `history` | The prior hop(s), recursively, for chain-of-custody. Omit (or `null`) at the first hop. |
 
-## Examples
+<Tip>
+  The `blockedTerm*` and `isBlockedTool` flags let your Cedar policies make guardrail-aware decisions — for example, `forbid` a tool call `when { context.isBlockedTool == true }`.
+</Tip>
+
+## Example Request
+
+```bash cURL
+curl -X POST "https://api.pr06.preview.reva.ai/pdp/access/v1/ai/evaluation" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <transaction-token>" \
+  -H "policyStoreId: 3b373af8-3fb4-4c31-b69a-f72e847eae08" \
+  -H "x-ms-correlation-id: aaaa0000-1111-2222-3333-444455556666" \
+  --data '{
+    "subject": { "type": "Agent", "id": "underwriter-copilot", "name": "underwriter-copilot" },
+    "action": { "name": "invokeTool" },
+    "resource": { "type": "Tool", "id": "fetch-risk-score", "name": "Fetch Risk Score" },
+    "principal": { "type": "User", "id": "amit" },
+    "context": {
+      "onBehalfOf": { "type": "User", "id": "amit", "properties": { "riskTier": "MEDIUM" } },
+      "environment": { "requestId": "req-a2t-allow", "time": "2026-06-21T10:00:00Z", "sourceIp": "10.0.4.12", "geo": "IN" },
+      "blockedTermInUserMessage": false,
+      "blockedTermInInput": false,
+      "isBlockedTool": false
+    },
+    "transmission": { "promptKey": "userQuery", "role": "user", "contentType": "text/plain", "content": "Fetch the risk score for policy P-10234" },
+    "inputValues": { "policy_id": "P-10234" },
+    "session": { "id": "thread-uc-tool-allow", "turn": 1, "startedAt": "2026-06-21T10:00:00Z" }
+  }'
+```
+
+<Warning>
+  The `Authorization` bearer is a secret — never commit or log a real token. The value above is a placeholder.
+</Warning>
+
+## Example Bodies by Hop
+
+The same endpoint evaluates every hop type. Later hops carry a recursive `history` block for chain-of-custody.
 
 <CodeGroup>
 ```json User → Agent
@@ -161,7 +197,7 @@ The `reva-ai` SDK calls these PDP endpoints at runtime; you can call them direct
 
 ## Responses
 
-On **allow**, evaluation returns a positive decision; `token/enrich` additionally returns a short-lived transaction token to forward on the next hop:
+On **allow**, evaluation returns a positive decision:
 
 ```json
 { "decision": true }
