@@ -33,6 +33,8 @@ Every service running the SDK sets these. Missing config **fails closed**.
 | `RTG_AUTH_TOKEN` | yes | Platform API key, sent as `X-API-Token` on every PDP call |
 | `RTG_DISABLED` | no | `true` disables PDP entirely. Defaults to `false`. **Never set in production.** |
 
+Optional tuning variables include `REVA_AI_TOKEN_LEEWAY_SECONDS` (clock-skew tolerance for transaction tokens) and the logging controls `REVA_AI_LOG_LEVEL`, `REVA_AI_LOG_FILE`, and `REVA_AI_LOG_STDOUT`.
+
 ## Inbound Authorization
 
 Decorate the inbound boundary of each agent or MCP tool with `@reva_ai_authorise`. It checks the incoming request with the PDP before your handler runs.
@@ -78,9 +80,27 @@ def get_freight_quote(origin_code: str, destination_code: str) -> dict:
   Decorate the route, not the application, and place `@reva_ai_authorise` **below** `@app.post(...)`. MCP discovery (`tools/list`, `initialize`) is never gated — only invocations (`tools/call`).
 </Note>
 
+### Decorator options
+
+| Option | Purpose |
+|:-------|:--------|
+| `agent_name` | The agent's (or MCP server's) PDP id. |
+| `agent_type` | `Agent` (default) or `MCP`. |
+| `action` | PDP action — defaults to `invokeAgent`; use `invokeTool` for tools and MCP servers. |
+| `auth_key` | Header carrying the caller's bearer token (usually `Authorization`). |
+| `prompt_key` | Body field (or JSON path) holding the prompt text. |
+| `tool_name` | Tool id when protecting an individual tool. |
+| `crew_name` | Crew id when protecting a CrewAI crew. |
+| `conversation_key` / `conversation_key_location` | Where to read the thread/conversation id (`body`, `header`, or `query`). |
+| `principal_claim` | JWT claim to use as the principal id (default `sub`). |
+
 ## Outbound Authorization
 
 Replace raw `httpx`/`requests` calls between protected services with the proxy. It mints a short-lived transaction token from the Trust Gateway and forwards it.
+
+<Note>
+  The transaction token is minted by the Reva Trust Gateway and consumed by the SDK internally (forwarded downstream as `X-Transaction-Token`). This token-minting is **not** a public API — to authorize calls without the SDK, use the [evaluation API](/ai-workload-developer-evaluation-api).
+</Note>
 
 <CodeGroup>
 ```python Agent → Agent
@@ -141,13 +161,19 @@ Each adapter maps the two primitives onto a framework's native API.
     ```
   </Tab>
   <Tab title="CrewAI">
+    CrewAI uses the core decorator (`agent_name` for an agent, `crew_name` for a crew); object-level helpers live under `revaclient.crewai.proxy`.
+
     ```python
-    from crewai import Agent
+    from crewai import Agent, Crew
     from reva_ai.sdk.ai import reva_ai_authorise
 
     @reva_ai_authorise(agent_name="research-agent")
     def make_research_agent() -> Agent:
         return Agent(role="Researcher", goal="Investigate", backstory="...")
+
+    @reva_ai_authorise(crew_name="research-crew")
+    def make_research_crew() -> Crew:
+        ...
     ```
   </Tab>
   <Tab title="AutoGen">
@@ -160,6 +186,20 @@ Each adapter maps the two primitives onto a framework's native API.
 </Tabs>
 
 For non-FastAPI inbound paths (queue workers, the a2a-sdk), seed identity with `set_caller_identity(...)` and call `authorise_inner_call_async(...)`.
+
+## Register a Service for Discovery
+
+Register a FastAPI agent or MCP server with Reva at startup so it can be discovered and appear in your inventory. Apply `reva_ai_discover` to the app:
+
+```python
+from fastapi import FastAPI
+from reva_ai.sdk.ai.discovery import reva_ai_discover, get_discovery_info
+
+app = FastAPI()
+reva_ai_discover(app, service_type="Agent", service_name="shipment-supervisor-agent")
+```
+
+`service_type` is `Agent` or `MCP`. Reva records the registration metadata (service name, pod/cluster, policy store, framework) and forwards it to the discovery log. Read it back from app state with `get_discovery_info(request)`.
 
 ## Add Reva to Your Coding Agent
 
