@@ -1,24 +1,28 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Data Ingestion APIs",
-    "description": "Data Ingestion Rest APIs",
-    "termsOfService": "http://swagger.io/terms/",
-    "contact": {
-      "name": "Tushar Agarwal",
-      "url": "http://www.reva.ai",
-      "email": "tushar.agarwal@reva.ai"
-    },
-    "license": {
-      "name": "Reva.ai License",
-      "url": "http://www.reva.ai/license"
-    },
+    "title": "Data Fabric Entity Ingestion API",
+    "description": "Create, update, replace, and delete authorization context entities in Reva Data Fabric.",
     "version": "1.0.0"
   },
   "servers": [
     {
       "url": "https://api.app.reva.ai",
-      "description": "Production Server"
+      "description": "Production"
+    },
+    {
+      "url": "https://api.preview.reva.ai",
+      "description": "Preview"
+    },
+    {
+      "url": "https://api.dev.reva.ai",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Entity Ingestion",
+      "description": "Manage authorization context entities in Reva Data Fabric."
     }
   ],
   "security": [
@@ -26,17 +30,11 @@
       "bearerAuth": []
     }
   ],
-  "tags": [
-    {
-      "name": "Data Ingestion APIs",
-      "description": "These APIs are used to manage and synchronize entities in Reva using the REST protocol. Any invalid records that result in errors should be retried by the caller."
-    }
-  ],
   "paths": {
-    "/v1/entity/bulk": {
+    "/ingestion/v1/entity/bulk": {
       "post": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Create Entities",
         "description": "Creates new entities in bulk in Reva",
@@ -145,7 +143,7 @@
       },
       "put": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Replace Entities",
         "description": "Performs a bulk replacement of existing entities in Reva using the provided data. This operation completely overwrites existing records.",
@@ -239,7 +237,7 @@
       },
       "delete": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Delete All Entities",
         "description": "Delete all Entities in Reva for a given entity type id",
@@ -313,7 +311,7 @@
       },
       "patch": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Update Entities",
         "description": "Performs a bulk update of specific attributes or parent relationships of existing entities in Reva without fully overwriting them",
@@ -406,10 +404,10 @@
         ]
       }
     },
-    "/v1/entity": {
+    "/ingestion/v1/entity": {
       "put": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Replace Entity",
         "description": "Replaces an existing entity in Reva with the provided data. This is a full overwrite operation",
@@ -500,7 +498,7 @@
       },
       "post": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Create Entity",
         "description": "Creates a new entity record in Reva",
@@ -605,10 +603,10 @@
         ]
       }
     },
-    "/v1/entity/{entityId}": {
+    "/ingestion/v1/entity/{entityId}": {
       "delete": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Delete Entity",
         "description": "Deletes an Entity in Reva",
@@ -692,7 +690,7 @@
       },
       "patch": {
         "tags": [
-          "Data Ingestion APIs"
+          "Entity Ingestion"
         ],
         "summary": "Update Entity",
         "description": "Updates specific attributes or parents of an existing entity in Reva without overwriting the full entity",
@@ -794,7 +792,60 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
+      "AttributeValue": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the attribute to update",
+            "example": "Salary"
+          },
+          "value": {
+            "type": "string",
+            "description": "New value of the attribute",
+            "example": "100000"
+          }
+        },
+        "description": "Details about an attribute update, used when path is ATTRIBUTE"
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "RelationValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the related entity",
+            "example": "parent-entity-6789"
+          },
+          "typeId": {
+            "type": "string",
+            "description": "Type identifier of the relation",
+            "example": "type-4567"
+          }
+        },
+        "description": "Details about a relation update, used when path is PARENT or CHILD"
+      },
       "RevaAttribute": {
         "type": "object",
         "properties": {
@@ -865,36 +916,6 @@
         },
         "description": "DTO representing a Reva entity with attributes, parents, and children."
       },
-      "RevaParent": {
-        "type": "object",
-        "properties": {
-          "entityId": {
-            "type": "string",
-            "description": "Unique identifier of the parent entity.",
-            "example": "parent-001"
-          },
-          "entityType": {
-            "type": "string",
-            "description": "Type of the parent entity.",
-            "example": "Department"
-          }
-        },
-        "description": "Parent entity related to a Reva entity."
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "type": "string"
-          }
-        }
-      },
       "RevaEntityResponse": {
         "type": "object",
         "properties": {
@@ -910,37 +931,21 @@
           }
         }
       },
-      "AttributeValue": {
+      "RevaParent": {
         "type": "object",
         "properties": {
-          "name": {
+          "entityId": {
             "type": "string",
-            "description": "Name of the attribute to update",
-            "example": "Salary"
+            "description": "Unique identifier of the parent entity.",
+            "example": "parent-001"
           },
-          "value": {
+          "entityType": {
             "type": "string",
-            "description": "New value of the attribute",
-            "example": "100000"
+            "description": "Type of the parent entity.",
+            "example": "Department"
           }
         },
-        "description": "Details about an attribute update, used when path is ATTRIBUTE"
-      },
-      "RelationValue": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier of the related entity",
-            "example": "parent-entity-6789"
-          },
-          "typeId": {
-            "type": "string",
-            "description": "Type identifier of the relation",
-            "example": "type-4567"
-          }
-        },
-        "description": "Details about a relation update, used when path is PARENT or CHILD"
+        "description": "Parent entity related to a Reva entity."
       },
       "UpdateRevaEntityDto": {
         "required": [
@@ -983,13 +988,6 @@
           }
         },
         "description": "Request object to update an entities' attributes or relationships"
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
       }
     }
   }

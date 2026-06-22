@@ -1,0 +1,66 @@
+{
+  "tab": "API Documentation",
+  "groups": [
+    {
+      "group": "API Overview",
+      "expanded": true,
+      "pages": [
+        "api-reference/introduction"
+      ]
+    },
+    {
+      "group": "AI Workload Authorization APIs",
+      "expanded": true,
+      "pages": [
+        "ai-workload-developer-evaluation-api"
+      ]
+    },
+    {
+      "group": "Authorization APIs",
+      "expanded": true,
+      "pages": [
+        {
+          "group": "AuthZEN Compliant Evaluation",
+          "expanded": true,
+          "openapi": [
+            "/api-reference/reva-authorization-api.json"
+          ]
+        },
+        {
+          "group": "PDP Edge Authorization",
+          "expanded": false,
+          "openapi": [
+            "/api-reference/pdp-edge-authorization-api.json"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Access Search APIs",
+      "expanded": false,
+      "openapi": [
+        "/api-reference/pdp-edge-search-api.json"
+      ]
+    },
+    {
+      "group": "Data Fabric APIs",
+      "expanded": true,
+      "pages": [
+        {
+          "group": "Entity Ingestion APIs",
+          "expanded": true,
+          "openapi": [
+            "/api-reference/data-fabric-ingestion-api.json"
+          ]
+        },
+        {
+          "group": "Access Map APIs",
+          "expanded": false,
+          "openapi": [
+            "/api-reference/access-map-api.json"
+          ]
+        }
+      ]
+    }
+  ]
+}
