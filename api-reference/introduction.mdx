@@ -1,22 +1,22 @@
 ---
 title: 'Reva API Documentation Overview'
 ---
-The Reva API provides a complete set of services to manage fine-grained access control, policy evaluation, data ingestion, and access map management for authorization governance.  
+The Reva API provides a complete set of services for authorization decisions, access discovery, and the data that powers them. The APIs are organized into the following families.
 
-The APIs are organized into the following functional categories:
-1. Authorization APIs - AuthZEN Compliant  
-Provides real-time access evaluation based on subject, action, resource, and context. This enables fine-grained, policy-based access decisions for applications.
-   - Evaluate access requests.
-   - Supports contextual data for dynamic decisions.
-   - Fully compatible with AuthZEN evaluation models.
-2. Data Ingestion APIs  
-Allows bulk management of entities, attributes, relationships, and parent-child hierarchies that are used during policy evaluation.
-   - Create, update, replace, and delete entities.
-   - Bulk ingestion support for efficient data synchronization.
-   - Entity models align with policy schemas.
-3. Access Map APIs  
-Manages and refreshes the Access Map, which represents the resolved permissions and relationships for optimized policy evaluations.
-   - Refresh Access Map for active policy versions.
-   - Keep authorization decisions performant by maintaining the latest entity relationships.
+## Authorization APIs
+Real-time access evaluation and authorization decisions.
 
-<Info>**Security:** All APIs are secured using Bearer Token authentication (Authorization: Bearer **token**), ensuring that only authorized clients can interact with the system.</Info>
+- **Agentic AI Evaluation** (`POST /pdp/access/v1/ai/evaluation`) — authorize each call in an agent chain (user → agent, agent → agent, agent → tool, MCP server, or model). See [Agent Authorization Evaluation API](/ai-workload-developer-evaluation-api).
+- **AuthZEN Evaluation** (`POST /pdp/access/v1/evaluation`) — AuthZEN-compatible access evaluation based on subject, action, resource, and context.
+- **PDP Edge Authorize** (`POST /v1/authorize`) — single or batch authorization decisions at the edge.
+
+## Access Search APIs
+Discover access relationships — search the subjects, actions, or resources permitted for a given query (`/access/v1/search/*`).
+
+## Data Fabric APIs
+Bring data in and keep authorization performant.
+
+- **Entity Ingestion** (`/ingestion/v1/entity*`) — create, update, replace, and delete entities, with bulk support. Entity models align with your policy schemas.
+- **Access Map** (`PUT /v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap`) — refresh the resolved permissions and relationships used for fast policy evaluation.
+
+<Info>**Security:** All APIs are secured with Bearer Token authentication (`Authorization: Bearer <token>`). For the Agentic AI Evaluation API, use your **PDP Auth Token** from the Developer Settings page.</Info>
