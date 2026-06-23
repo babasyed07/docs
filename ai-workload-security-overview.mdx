@@ -52,7 +52,7 @@ Whatever kind of agent you run, the model is the same: every hop is evaluated by
 2. Before the agent acts, the call is evaluated — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — against your Cedar policies in the Trust Guardian.
 3. The Trust Guardian returns **allow** or **deny**. On allow the agent proceeds; on deny the call is rejected — Reva is **fail-closed** by default.
 4. For each outbound call, the Trust Guardian issues a short-lived, task-scoped **transaction token** that travels to the next hop, which re-evaluates on its own boundary.
-5. Every decision — allow or deny — is written to the [decision logs](/ai-workload-decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
+5. Every decision — allow or deny — is written to the [decision logs](/decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
 
 How your agents *connect* to the Trust Guardian depends on how they're built — see below.
 

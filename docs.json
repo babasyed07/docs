@@ -79,14 +79,6 @@
                 ]
               },
               {
-                "group": "Test & Monitor",
-                "expanded": true,
-                "pages": [
-                  "ai-workload-policy-testing",
-                  "ai-workload-decision-logs"
-                ]
-              },
-              {
                 "group": "Developer Integration",
                 "expanded": true,
                 "pages": [
@@ -143,6 +135,12 @@
               "policy-insights",
               "policy-version",
               "review-approve-policy"
+            ]
+          },
+          {
+            "group": "Decision Logs",
+            "pages": [
+              "decision-logs"
             ]
           },
           {
