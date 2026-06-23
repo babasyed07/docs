@@ -1,0 +1,257 @@
+---
+title: "Publish to Reva Managed"
+description: "Configure Reva Managed as the publish destination and publish Cedar schema and policies to Reva Trust Gateway."
+---
+
+Use **Publish to Reva Managed** when you want Reva to host and manage the policy decision path for a Cedar policy store.
+
+For Cedar policy stores, Reva Managed is one of the supported policy publish destinations. Reva Managed is also referred to as **Reva Trust Gateway**.
+
+When you publish to Reva Managed, Reva makes the accepted schema and validated Cedar policies available for runtime authorization decisions through the Reva-hosted decision path.
+
+<Note>
+Reva Managed is available for Cedar policy stores. AVP policy stores publish directly to Amazon Verified Permissions.
+</Note>
+
+## When to use Reva Managed
+
+Use Reva Managed when:
+
+- You want Cedar policies managed in Reva and evaluated through Reva Trust Gateway.
+- You want a Reva-hosted runtime authorization path for your custom application.
+
+## Before you begin
+
+Make sure the Cedar policy store is ready for publishing.
+
+| Requirement | Description |
+|---|---|
+| **Cedar policy store** | The policy store must use the Cedar policy store type |
+| **Schema** | The schema must be accepted before publishing |
+| **Policies** | Policies must be created, reviewed, and saved |
+| **Policy testing** | Policies should be tested before publishing |
+| **Impact review** | Review the impact of policy changes before publishing |
+| **Entity data** | Test data or live data should be available for validation where applicable |
+| **Publish destination** | The publish destination must be Reva Managed |
+
+## Helpful references
+
+Use these guides before publishing to Reva Managed.
+
+<CardGroup cols={3}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create, edit, and test Cedar policies before publishing to Reva Managed.
+  </Card>
+
+  <Card
+    title="Configure Entity Data for Cedar Policies"
+    icon="database"
+    href="/custom-application-authorization/cedar-authorization/cedar-data"
+  >
+    Upload test data or configure live data for policy testing, impact analysis, and Access Map visibility.
+  </Card>
+
+  <Card
+    title="Policy Testing and Impact Analysis"
+    icon="vial-circle-check"
+    href="/policy-testing-and-impact-analysis"
+  >
+    Test policy behavior and review the impact of changes before publishing.
+  </Card>
+</CardGroup>
+
+## How Reva Managed publishing works
+
+Reva publishes the accepted schema and validated Cedar policies to Reva Managed. After publishing, applications can use the Reva-hosted decision path for authorization evaluation.
+
+| Area | Behavior |
+|---|---|
+| **Policy store type** | Cedar |
+| **Policy language** | Cedar |
+| **Publish destination** | Reva Managed |
+| **Runtime decision path** | Reva Trust Gateway |
+| **Git publishing** | Not required |
+| **AVP publishing** | Not used for this path |
+
+<Note>
+Publishing to Reva Managed does not write schema or policy files to Git. Use the Git publish destination if your organization wants schema and policy files published to GitHub, GitLab, or Azure DevOps.
+</Note>
+
+## Configure Reva Managed as the publish destination
+
+Use **Developer Integration** to configure Reva Managed publishing for the Cedar policy store.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to **Developer Integration**.
+3. Select **Reva Managed** as the publish destination.
+4. Review the generated integration details.
+5. Save the configuration.
+
+## Publish schema and policy changes
+
+After Reva Managed is configured, publish the latest schema and policy changes from the policy store.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to **Policies**.
+3. Review the policies that are ready to publish.
+4. Test the expected authorization scenarios.
+5. Review impact analysis.
+6. Review Access Map if test data or live data is available.
+7. Resolve policy errors or validation issues.
+8. Select **Publish**.
+9. Review the publish summary.
+10. Confirm the publish action.
+11. Verify that the publish status is successful.
+
+## Publish summary
+
+Before publishing, review the publish summary to understand what will change in Reva Managed.
+
+The publish summary can include:
+
+| Change type | Description |
+|---|---|
+| **New policies** | Policies that will be added to Reva Managed |
+| **Updated policies** | Existing policies that will be modified |
+| **Deleted policies** | Policies that will be removed |
+| **Schema changes** | Schema updates that will be published |
+| **Validation results** | Errors or warnings detected before publishing |
+| **Impact results** | Expected effect of the policy change |
+
+<Tip>
+Review the publish summary before confirming the publish action. This helps prevent unintended authorization behavior in the runtime decision path.
+</Tip>
+
+## Validate before publishing
+
+Before publishing to Reva Managed, confirm that policy behavior matches the intended authorization outcome.
+
+| Check | Why it matters |
+|---|---|
+| **Schema is accepted** | Policies must match the accepted schema |
+| **Policies are saved** | Only saved policy changes can be published |
+| **Test data is available** | Test data helps validate expected access behavior |
+| **Permit and deny cases are tested** | Both allowed and blocked scenarios should be validated |
+| **Impact analysis is reviewed** | Impact review shows how access may change |
+| **Access Map is reviewed** | Access Map helps show which principals have access to which resources |
+| **Policy errors are resolved** | Policies with validation errors should not be published |
+| **Developer Integration is configured** | Applications need the correct Reva Managed integration details |
+
+## Application integration
+
+After publishing to Reva Managed, use the **Developer Integration** tab to connect your application to the Reva-hosted decision path.
+
+Developer Integration provides the configuration details needed by the application or policy enforcement point.
+
+| Integration item | Description |
+|---|---|
+| **Policy store details** | Identifies the policy store used for runtime authorization |
+| **Decision endpoint** | Endpoint used by the application or enforcement layer to request authorization decisions |
+| **Authentication details** | Credentials or token configuration used to call the decision endpoint |
+| **Request format** | Expected request structure for principal, action, resource, and context |
+| **Response format** | Authorization decision response returned by Reva Managed |
+
+<Note>
+Use the integration details from the Reva UI for the active environment. Do not copy local development URLs into production documentation or application configuration.
+</Note>
+
+## Publishing a new Cedar policy store to Reva Managed
+
+If you created a new Cedar policy store in Reva, complete the schema and policy design flow before publishing.
+
+The recommended flow is:
+
+1. Create the Cedar policy store.
+2. Create or import the schema.
+3. Review and accept the schema.
+4. Add AI-suggested policies, or skip.
+5. Create and edit Cedar policies.
+6. Upload test data or configure live data.
+7. Test policy behavior.
+8. Review policy impact.
+9. Configure Reva Managed as the publish destination.
+10. Publish schema and policies to Reva Managed.
+11. Connect the application using Developer Integration.
+
+## After publishing
+
+After the publish is complete, verify the result.
+
+| Area | What to check |
+|---|---|
+| **Publish status** | Confirm that the publish operation completed successfully |
+| **Schema** | Confirm that the published schema matches the accepted schema |
+| **Policies** | Confirm that new, updated, or deleted policies match the publish summary |
+| **Decision behavior** | Test expected authorization decisions |
+| **Developer Integration** | Confirm the application uses the correct Reva Managed integration details |
+| **Decision Logs** | Review decision activity after application traffic starts using the published policy version |
+| **Version History** | Review the published version for audit and rollback context |
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| **Test before publishing** | Validate key authorization scenarios before publishing |
+| **Review impact** | Check how policy changes may affect access |
+| **Use Access Map** | Review access relationships created by policies and data |
+| **Keep changes focused** | Publish smaller policy changes when possible |
+| **Review generated policies** | Review AI-generated policies before publishing |
+| **Confirm integration details** | Make sure the application uses the correct Reva Managed endpoint and authentication |
+| **Track versions** | Use Version History to review published changes |
+| **Validate after publishing** | Confirm expected decisions after the publish is complete |
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| **Reva Managed destination is not available** | The policy store is not configured as Cedar or the destination is not enabled | Confirm the policy store type and Developer Integration settings |
+| **Publish fails** | Schema, policy validation, or integration configuration issue | Review validation errors and retry after resolving them |
+| **Policy validation fails** | Policy syntax or schema references are invalid | Review the policy and confirm that entities, actions, and attributes match the schema |
+| **Schema validation fails** | Schema contains missing or invalid elements | Review and accept a valid schema before publishing |
+| **Runtime decision is unexpected** | Policy logic, data, or request context does not match the intended scenario | Review policy tests, impact analysis, Access Map, and decision logs |
+| **Application cannot call Reva Managed** | Endpoint, authentication, or request format is incorrect | Review Developer Integration details and update the application configuration |
+| **Decision Logs are empty** | Application traffic is not reaching Reva Managed | Confirm application integration and request routing |
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create, edit, and test Cedar policies before publishing to Reva Managed.
+  </Card>
+
+  <Card
+    title="Configure Entity Data for Cedar Policies"
+    icon="database"
+    href="/custom-application-authorization/cedar-authorization/cedar-data"
+  >
+    Upload test data or configure live data for policy testing, impact analysis, and Access Map visibility.
+  </Card>
+
+  <Card
+    title="Publish to Git"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/publish-to-git"
+  >
+    Publish Cedar schema and policy files to GitHub, GitLab, or Azure DevOps.
+  </Card>
+
+  <Card
+    title="Decision Logs"
+    icon="list-check"
+    href="/custom-application-authorization/shared/decision-logs"
+  >
+    Review authorization decision activity after publishing.
+  </Card>
+</CardGroup>

@@ -1,0 +1,221 @@
+---
+
+title: "Publish to AVP"
+description: "Configure the AVP publish destination and publish schema and policy changes to Amazon Verified Permissions."
+---
+Use **Publish to AVP** to publish schema and policy changes from Reva to Amazon Verified Permissions.
+
+For AVP policy stores, Amazon Verified Permissions is the policy publish destination. After policies are created, reviewed, and tested in Reva, you can publish them to the linked AVP policy store.
+
+<Note>
+AVP policy stores use Cedar policies. Reva publishes the validated schema and policy changes directly to Amazon Verified Permissions.
+</Note>
+
+## When to publish to AVP
+
+Publish to AVP when you are ready to move reviewed policy changes from Reva to Amazon Verified Permissions.
+
+Use this flow when:
+
+* You created new policies in Reva.
+* You edited existing policies in Reva.
+* You updated the schema for a new AVP policy store.
+* You tested policies with test data or live data.
+* You reviewed the impact of the policy change.
+* You want Amazon Verified Permissions to use the latest approved policy version.
+
+## Before you begin
+
+Make sure the AVP policy store is ready for publishing.
+
+| Requirement         | Description                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| **AVP policy store**    | The policy store must use the AVP policy store type              |
+| **AVP connection**      | Reva must have a valid connection to Amazon Verified Permissions |
+| **Schema**              | The schema must be accepted before publishing                    |
+| **Policies**            | Policies must be created, reviewed, and saved                    |
+| **Policy testing**      | Policies should be tested before publishing                      |
+| **Impact review**       | Review the impact of the policy change before publishing         |
+| **Publish destination** | The publish destination must be AVP                              |
+
+## Helpful references
+
+Use these guides before publishing policy changes.
+
+<CardGroup cols={3}>
+  <Card
+    title="AVP Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/avp-authorization/avp-policy-design"
+  >
+    Create, edit, and test Cedar policies before publishing them to Amazon Verified Permissions.
+  </Card>
+  <Card
+    title="AVP Data"
+    icon="database"
+    href="/custom-application-authorization/avp-authorization/avp-data"
+  >
+    Upload test data or configure live data for testing, impact analysis, and Access Map visibility.
+  </Card>
+  <Card
+    title="Policy Testing and Impact Analysis"
+    icon="vial-circle-check"
+    href="/policy-testing-and-impact-analysis"
+  >
+    Test policy behavior and review the impact of changes before publishing.
+  </Card>
+</CardGroup>
+
+## How AVP publishing works
+
+Reva uses the AVP connection configured for the policy store to publish schema and policy changes to Amazon Verified Permissions.
+
+| Area                    | Behavior                                        |
+| ----------------------- | ----------------------------------------------- |
+| **Policy store type**       | AVP                                             |
+| **Policy language**         | Cedar                                           |
+| **Publish destination**     | AVP                                             |
+| **Publish target**          | Linked Amazon Verified Permissions policy store |
+| **Git publishing**          | Not used for AVP policy stores                  |
+| **Reva Managed publishing** | Not used for AVP policy stores                  |
+
+## Configure the AVP publish destination
+
+Use **Developer Integration** to confirm that the policy store is configured to publish to AVP.
+
+### Steps
+
+1. Open the AVP policy store.
+2. Go to **Developer Integration**.
+3. Confirm that the publish destination is **AVP**.
+4. Review the AVP connection.
+5. Confirm the linked AVP policy store.
+6. Save the configuration if changes are required.
+
+<Note>
+For an onboarded existing AVP policy store, the AVP connection and policy store are selected during onboarding. Use Developer Integration to review or update the publishing configuration.
+</Note>
+
+## Publish policy changes
+
+After the publish destination is configured, publish the latest policy changes from the **Policies** tab.
+
+### Steps
+
+1. Open the AVP policy store.
+2. Go to **Policies**.
+3. Review the policies that are ready to publish.
+4. Run policy tests for the expected authorization scenarios.
+5. Review impact analysis.
+6. Resolve any policy errors or validation issues.
+7. Select **Publish**.
+8. Review the publish summary.
+9. Confirm the publish action.
+10. Verify the publish status.
+
+## Publish summary
+
+Before publishing, review the publish summary to understand what will change in AVP.
+
+The publish summary can include:
+
+| Change type        | Description                                   |
+| ------------------ | --------------------------------------------- |
+| **New policies**       | Policies that will be added to AVP            |
+| **Updated policies**   | Existing policies that will be modified       |
+| **Deleted policies**   | Policies that will be removed from AVP        |
+| **Schema changes**     | Schema updates that will be published         |
+| **Validation results** | Errors or warnings detected before publishing |
+| **Impact results**     | Expected effect of the policy change          |
+
+<Tip>
+Review the publish summary carefully before confirming the publish action. This helps prevent unintended access changes in Amazon Verified Permissions.
+</Tip>
+
+## Validate before publishing
+
+Before publishing, confirm that the policy behavior matches the intended authorization outcome.
+
+Use this checklist:
+
+| Check                            | Why it matters                                                        |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **Schema is accepted**               | Policies must match the accepted schema                               |
+| **Test data is available**           | Test data helps validate expected access behavior                     |
+| **Permit and deny cases are tested** | Both allowed and blocked scenarios should be validated                |
+| **Impact analysis is reviewed**      | Impact review shows how access may change                             |
+| **Access Map is reviewed**           | Access Map helps show which principals have access to which resources |
+| **Policy errors are resolved**       | Policies with validation errors should not be published               |
+
+## Publishing existing AVP policy stores
+
+If you onboarded an existing AVP policy store, Reva uses the schema and policies from the linked AVP policy store.
+
+After onboarding, you can:
+
+* Review existing policies in Reva.
+* Edit policies in the Policy Designer.
+* Test policy behavior.
+* Review impact analysis.
+* Publish changes back to the same AVP policy store.
+
+## Publishing new AVP policy stores
+
+If you created a new AVP policy store in Reva, complete the schema and policy design flow before publishing.
+
+The recommended flow is:
+
+1. Create the AVP policy store.
+2. Create or import the schema.
+3. Review and accept the schema.
+4. Add AI-suggested policies, or skip.
+5. Create and edit policies.
+6. Upload test data or configure live data.
+7. Test policy behavior.
+8. Review policy impact.
+9. Configure the AVP publish destination.
+10. Publish to AVP.
+
+## After publishing
+
+After the publish is complete, verify the result.
+
+| Area              | What to check                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| **Publish status**    | Confirm that the publish operation completed successfully                                    |
+| **Policies**          | Confirm that the expected policies are available in AVP                                      |
+| **Schema**            | Confirm that the published schema matches the accepted schema                                |
+| **Decision behavior** | Test the expected authorization decisions                                                    |
+| **Decision Logs**     | Review decision activity after application traffic starts using the published policy version |
+| **Version History**   | Review the published version for audit and rollback context                                  |
+
+## Best practices
+
+| Practice                  | Recommendation                                           |
+| ------------------------- | -------------------------------------------------------- |
+| Test before publishing    | Validate key authorization scenarios before publishing   |
+| Review impact             | Check how the policy change may affect existing access   |
+| Use Access Map            | Review access relationships created by policies and data |
+| Keep changes focused      | Publish smaller changes when possible                    |
+| Review generated policies | Review AI-generated policies before publishing           |
+| Track versions            | Use Version History to review published changes          |
+| Validate after publishing | Confirm expected decisions after the publish is complete |
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card
+    title="AVP Settings"
+    icon="gear"
+    href="/custom-application-authorization/avp-authorization/avp-settings"
+  >
+    Manage ownership, data settings, and certification settings for the AVP policy store.
+  </Card>
+  <Card
+    title="Decision Logs"
+    icon="list-check"
+    href="/custom-application-authorization/shared/decision-logs"
+  >
+    Review authorization decisions and evaluation activity after publishing.
+  </Card>
+</CardGroup>

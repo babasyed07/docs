@@ -1,0 +1,320 @@
+---
+title: "Cedar Policy Design"
+description: "Create, edit, test, and manage Cedar policies for a Cedar policy store."
+---
+
+Use the Policy Designer to create and manage authorization policies for a Cedar policy store. Cedar policies define who can perform which actions on which resources and under what conditions.
+
+Policy design starts after the schema is created, imported, or onboarded from Git. The schema defines the principals, actions, resources, attributes, runtime attributes, and relationships that your policies can use.
+
+## Before you begin
+
+Make sure the Cedar policy store has a valid schema. If you created the policy store from scratch, complete schema design before creating policies.
+
+If you onboarded an existing Git policy store, Reva uses the schema and policy files from the connected Git repository.
+
+| Requirement | Description |
+|---|---|
+| **Cedar policy store** | The policy store where Cedar policies are created and managed |
+| **Schema** | Defines the principals, actions, resources, attributes, and relationships used by policies |
+| **Policy authoring method** | Choose AI-assisted authoring, AI-assisted editing, or manual code editing |
+| **Test data or live data** | Used to test and simulate policy behavior before publishing |
+| **Publish destination** | Git or Reva Managed |
+
+## Helpful references
+
+Review the schema and policy design concepts before creating policies. You can also use Cedar references to test and validate policy syntax.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Open the Cedar Playground to test Cedar policies and authorization scenarios.
+  </Card>
+
+  <Card
+    title="Cedar Policy Syntax"
+    icon="code"
+    href="https://docs.cedarpolicy.com/policies/syntax-policy.html"
+  >
+    Review the Cedar policy syntax guide.
+  </Card>
+</CardGroup>
+
+## Policy design options
+
+Reva supports three ways to create and update Cedar policies.
+
+| Authoring option | Description |
+|---|---|
+| **Create with AI** | Use natural language instructions to generate Cedar policies |
+| **Edit with AI** | Select an existing policy and ask Reva AI to update it |
+| **Code editor** | Write and edit Cedar policies manually |
+
+## Open the Policy Designer
+
+1. Open the Cedar policy store.
+2. Go to the **Policies** tab.
+3. Select **Start Policy Design**, or select **Policy** to create a new policy.
+4. Choose how you want to create or edit the policy.
+
+## Create policies with AI
+
+Use AI-assisted authoring when you want to describe the access rule in natural language and let Reva generate the Cedar policy.
+
+A good instruction should include the actor, action, resource, and condition.
+
+| Input | Example |
+|---|---|
+| **Principal** | User, manager, employee, service account, machine identity |
+| **Action** | View, approve, transfer, update, delete |
+| **Resource** | Account, document, transaction, report, application object |
+| **Condition** | Same department, active user, amount limit, risk level, ownership |
+
+### Example prompts
+
+| Use case | Example instruction |
+|---|---|
+| **Role-based access** | Allow managers to approve expense reports for employees in their department |
+| **Attribute-based access** | Allow users to view documents only when the document classification is public |
+| **Ownership-based access** | Allow users to edit records they own |
+| **Risk-based access** | Deny access when the user risk level is High |
+| **Context-based access** | Allow transfers only when the transaction amount is less than 5000 |
+| **Group-based access** | Allow members of the Finance group to view financial reports |
+
+### Steps
+
+1. Open the **Policies** tab.
+2. Select **Policy** or open **Ask Reva AI**.
+3. Enter a natural language instruction.
+4. Review the generated Cedar policy.
+5. Check the principal, action, resource, and condition.
+6. Save the policy.
+7. Test the policy before publishing.
+
+<Tip>
+Write policy instructions with clear nouns from your schema. Use the same principal, action, resource, and attribute names that exist in the accepted schema.
+</Tip>
+
+## Edit policies with AI
+
+Use AI-assisted editing when you want to update an existing policy without rewriting the Cedar policy manually.
+
+You can use this option to:
+
+- Add a condition.
+- Change the allowed action.
+- Change the resource scope.
+- Add a risk, status, or location check.
+- Convert a broad policy into a more specific policy.
+- Fix a policy that does not match the intended access rule.
+
+### Example edit instructions
+
+| Goal | Example instruction |
+|---|---|
+| **Add a condition** | Add a condition so the user must be active |
+| **Restrict by department** | Allow access only when the user's department matches the resource department |
+| **Add risk control** | Deny the action when the risk level is High |
+| **Reduce scope** | Change this policy so it applies only to resources owned by the user |
+| **Add amount limit** | Allow the action only when the transaction amount is less than 5000 |
+| **Add group condition**| Allow access only when the user is a member of the Finance group |
+
+### Steps
+
+1. Open the **Policies** tab.
+2. Select the policy you want to edit.
+3. Open the AI edit option.
+4. Enter the change you want to make.
+5. Review the updated Cedar policy.
+6. Save the policy.
+7. Test the updated policy before publishing.
+
+## Write policies in the code editor
+
+Use the code editor when you want full control over the Cedar policy.
+
+The code editor is useful when:
+
+- You already know Cedar syntax.
+- You want to fine-tune a generated policy.
+- You want to copy an existing Cedar policy.
+- You want to create a policy with complex conditions.
+- You want to validate the exact policy structure before publishing.
+
+### Basic Cedar policy structure
+
+```cedar
+permit (
+  principal,
+  action,
+  resource
+)
+when {
+  true
+};
+```
+
+A Cedar policy usually includes these parts.
+
+| Policy part | Description                                          |
+| ----------- | ---------------------------------------------------- |
+| **Effect**      | Defines whether the policy permits or forbids access |
+| **Principal**   | Defines who the policy applies to                    |
+| **Action**      | Defines the operation the principal wants to perform |
+| **Resource**    | Defines the object or asset the action applies to    |
+| **Condition**   | Defines when the policy applies                      |
+
+## Permit and forbid policies
+
+Cedar supports both permit and forbid policies.
+
+| Policy type | Description                                       |
+| ----------- | ------------------------------------------------- |
+| **Permit**      | Allows access when the policy matches the request |
+| **Forbid**      | Blocks access when the policy matches the request |
+
+Use forbid policies carefully. A forbid policy can override permit behavior, so always test expected permit and deny scenarios before publishing.
+
+## Policy design best practices
+
+Use these practices when creating Cedar policies.
+
+| Practice                  | Recommendation                                                            |
+| ------------------------- | ------------------------------------------------------------------------- |
+| **Start with the schema**     | Confirm that the principal, action, and resource exist in the schema      |
+| **Be specific**               | Avoid broad access unless the use case requires it                        |
+| **Use conditions**            | Add conditions for ownership, status, risk, department, region, or amount |
+| **Keep policies readable**    | Use clear names and avoid unnecessary complexity                          |
+| **Test before publishing**    | Use test data or live data to validate policy behavior                    |
+| **Review generated policies** | Always review AI-generated policies before saving or publishing           |
+| **Review impact**             | Check how a policy change affects access before publishing                |
+
+## Test policy behavior
+
+Before publishing, test the policy with sample scenarios.
+
+1. Open the **Policies** tab.
+2. Select a policy or policy set.
+3. Select **Test**.
+4. Enter or select the principal, action, resource, and context.
+5. Run the test.
+6. Review the authorization result.
+7. Update the policy if the result does not match the expected behavior.
+
+## Use test data or live data
+
+Policy testing can use either test data or live data.
+
+| Data source | Description                                                                                       |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| **Test Data**   | Uploaded entity datasets used for simulation, testing, impact analysis, and Access Map visibility |
+| **Live Data**   | Entity and contextual data ingested through Reva Data Fabric APIs                                 |
+
+Use **Test Data** when you want to validate policies before connecting real application data.
+
+Use **Live Data** when you want policy evaluations to use current application context.
+
+## Review impact and Access Map
+
+Before publishing policy changes, review the impact of the change.
+
+Policy data and test data help Reva show which principals have access to which resources. This helps you understand whether the policy creates the intended access relationships.
+
+Use **Access Map** to review access relationships created by policies and data.
+
+<Note>
+Access Map depends on both policies and data. If test data or live data is missing, incomplete, or not aligned with the schema, Access Map may not show the expected access relationships.
+</Note>
+
+## Publish policy changes
+
+After policies are created, reviewed, and tested, publish them to the configured destination.
+
+Cedar policy stores support two publish destinations.
+
+| Publish destination | Description                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Git                 | Publishes schema and policy files to GitHub, GitLab, or Azure DevOps                  |
+| Reva Managed        | Publishes schema and policies to Reva Managed, also referred to as Reva Trust Gateway |
+
+### Publish to Git
+
+Use Git publishing when your organization manages policy lifecycle through source control, code review, pull requests, or CI/CD workflows.
+
+1. Open the Cedar policy store.
+2. Go to **Developer Integration**.
+3. Confirm that the publish destination is **Git**.
+4. Review the Git provider, repository, branch, and file path.
+5. Return to the **Policies** tab.
+6. Review the policy changes.
+7. Select **Publish**.
+8. Review the publish summary.
+9. Confirm the publish action.
+
+### Publish to Reva Managed
+
+Use Reva Managed when you want Reva to host and manage the policy decision path.
+
+1. Open the Cedar policy store.
+2. Go to **Developer Integration**.
+3. Confirm that the publish destination is **Reva Managed**.
+4. Return to the **Policies** tab.
+5. Review the policy changes.
+6. Select **Publish**.
+7. Review the publish summary.
+8. Confirm the publish action.
+
+<Note>
+Reva Managed is also referred to as Reva Trust Gateway.
+</Note>
+
+## Troubleshooting
+
+| Issue                                    | Possible cause                                                                                  | Recommended action                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Policy validation fails**                 | Policy references a principal, action, resource, or attribute that is not defined in the schema | Review the schema and update the policy               |
+| **AI-generated policy is incomplete**        | The instruction does not include enough detail                                                  | Add the actor, action, resource, and condition        |
+| **Policy test returns an unexpected result** | Test data or context does not match the policy condition                                        | Review the test data, context, and policy logic       |
+| **Access Map does not show expected access** | Policy data or relationship data is missing                                                     | Review policies, data, and relationships              |
+| **Git publish fails**                        | Repository, branch, path, or permission issue                                                   | Review the Git configuration in Developer Integration |
+| **Reva Managed publish fails**               | Publish destination or integration setup is incomplete                                          | Review Developer Integration settings                 |
+
+## Next steps
+
+After designing Cedar policies, continue with:
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Data"
+    icon="database"
+    href="/custom-application-authorization/cedar-authorization/cedar-data"
+  >
+    Upload test data or configure live data for policy testing, impact analysis, and Access Map visibility.
+  </Card>
+
+  <Card
+    title="Publish to Git"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/publish-to-git"
+  >
+    Publish Cedar schema and policy files to GitHub, GitLab, or Azure DevOps.
+  </Card>
+  <Card
+    title="Publish to Reva Managed"
+    icon="shield-check"
+    href="/custom-application-authorization/cedar-authorization/publish-to-reva-managed"
+  >
+    Publish Cedar schema and policies to Reva Managed, also referred to as Reva Trust Gateway.
+  </Card>
+</CardGroup>

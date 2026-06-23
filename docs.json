@@ -40,12 +40,33 @@
           {
             "group": "Custom Application Authorization",
             "pages": [
-              "platform-hierarchy",
-              "manage-policies",
-              "application-context-overview",
-              "application-configuration",
-              "application-schema-onboarding",
-              "application-settings",
+              "custom-application-authorization/overview",
+              "custom-application-authorization/onboard-custom-application",
+            {
+              "group": "Amazon Verified Permissions Authorization",
+              "expanded": true,
+              "pages": [
+                "custom-application-authorization/avp-authorization/onboard-existing-avp-store",
+                "custom-application-authorization/avp-authorization/create-avp-policy-store",
+                "custom-application-authorization/avp-authorization/avp-schema-design",
+                "custom-application-authorization/avp-authorization/avp-policy-design",
+                "custom-application-authorization/avp-authorization/avp-data",
+                "custom-application-authorization/avp-authorization/publish-to-avp"
+              ]
+            },
+            {
+              "group": "Cedar Authorization",
+              "expanded": true,
+              "pages": [
+                "custom-application-authorization/cedar-authorization/onboard-existing-git-store",
+                "custom-application-authorization/cedar-authorization/create-cedar-policy-store",
+                "custom-application-authorization/cedar-authorization/cedar-schema-design",
+                "custom-application-authorization/cedar-authorization/cedar-policy-design",
+                "custom-application-authorization/cedar-authorization/cedar-data",
+                "custom-application-authorization/cedar-authorization/publish-to-git",
+                "custom-application-authorization/cedar-authorization/publish-to-reva-managed"
+              ]
+            },
               "understanding-schema-policy",
               "policy-rbac-abac-rebac",
               "authorization-policy",
@@ -223,7 +244,7 @@
                   "POST /v1/authorize"
                 ]
               }
-              
+
             ]
           },
           {

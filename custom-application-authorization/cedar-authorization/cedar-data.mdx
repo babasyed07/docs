@@ -1,0 +1,265 @@
+---
+title: "Configure Entity Data for Cedar Policies"
+description: "Upload test data or configure live data for policy testing, impact analysis, and Access Map visibility in a Cedar policy store."
+---
+
+Use the **Data** tab to add the entity and context data needed to test and evaluate policies for a Cedar policy store.
+
+Data helps Reva validate how Cedar policies behave before you publish changes to Git or Reva Managed. It is also used for policy testing, impact analysis, and Access Map visibility.
+
+## How data is used
+
+In a Cedar policy store, data supports three main workflows.
+
+| Workflow | Description |
+|---|---|
+| **Policy testing** | Validates whether a policy returns the expected permit or deny decision |
+| **Impact analysis** | Shows the possible impact of a policy change before publishing |
+| **Access Map** | Uses policies and data to show which principals have access to which resources |
+
+<Note>
+Access Map depends on both policies and data. If the data is missing, incomplete, or not aligned with the schema, the Access Map may not show the expected access relationships.
+</Note>
+
+## Helpful references
+
+Use these product documentation guides to understand how data supports policy testing, impact analysis, access visibility, and live data ingestion.
+
+<CardGroup cols={3}>
+  <Card
+    title="Policy Testing and Impact Analysis"
+    icon="vial-circle-check"
+    href="/policy-testing-and-impact-analysis"
+  >
+    Learn how to test policy behavior and review the impact of policy changes before publishing.
+  </Card>
+
+  <Card
+    title="Use Access Map"
+    icon="diagram-project"
+    href="/use-access-map"
+  >
+    Learn how policies and test data are used to build an Access Map for authorization visibility.
+  </Card>
+
+  <Card
+    title="Reva Data Fabric APIs"
+    icon="plug"
+    href="/api-reference/data-ingestion-apis"
+  >
+    Use the Data Fabric ingestion APIs to send live application data to Reva for policy evaluation.
+  </Card>
+</CardGroup>
+
+## Data options
+
+Cedar policy stores support test data and live data.
+
+| Data option | Description | Best used when |
+|---|---|---|
+| **Test Data** | Uploaded sample entity data used for simulation, testing, impact analysis, and Access Map generation | You want to validate policy behavior before connecting live application data |
+| **Live Data** | Entity and contextual data ingested through Reva Data Fabric APIs | You want policy testing and evaluation to use current application data |
+
+## Test Data
+
+Use **Test Data** when you want to validate policies during design time.
+
+Test data is useful when you want to:
+
+- Test a new schema.
+- Validate AI-suggested policies.
+- Test policies before publishing to Git or Reva Managed.
+- Simulate expected permit and deny decisions.
+- Run impact analysis before a policy change is published.
+- Build an Access Map using sample application data.
+- Check how policies behave for different users, actions, resources, and context values.
+
+<Note>
+Test data is used inside Reva for design-time validation and analysis. It does not replace the data used by your production application during runtime authorization.
+</Note>
+
+## Live Data
+
+Use **Live Data** when you want Reva to evaluate policies with current application data.
+
+Live data is useful when you want to:
+
+- Test policies with real application entities.
+- Validate decisions against current users, groups, roles, resources, or entitlements.
+- Support authorization insights and decision analysis.
+- Build Access Map views from current application data.
+- Reduce the gap between test scenarios and production behavior.
+
+Live data is ingested through <a href="/api-reference/data-ingestion-apis" className="text-blue-600 font-semibold underline">Reva Data Fabric APIs</a>. Use these APIs to send application entities, attributes, relationships, and contextual data to Reva for policy testing and evaluation.
+
+## Open the Data tab
+
+1. Open the Cedar policy store.
+2. Select the **Data** tab.
+3. Choose **Test Data** or **Live Data**.
+4. Add or review the data required for policy testing and analysis.
+
+## Upload test data
+
+Use test data upload when you want to add sample entities for policy simulation and Access Map generation.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to the **Data** tab.
+3. Select **Test Data**.
+4. Download the available template.
+5. Add sample entity data to the template.
+6. Upload the completed file.
+7. Review the uploaded data.
+8. Use the data to test policies, run impact analysis, and build the Access Map.
+
+## Test data template
+
+The test data template should match the schema used by the Cedar policy store.
+
+| Template content | Description |
+|---|---|
+| **Entity type** | The schema entity type, such as User, Group, Account, Document, Transaction, or Application |
+| **Entity ID** | Unique identifier for the entity |
+| **Attributes** | Entity attributes used in policy conditions |
+| **Relationships** | Entity hierarchy or relationship data, such as group membership or ownership |
+| **Context values** | Runtime values used during policy simulation, if required |
+
+<Tip>
+Before uploading test data, check that the entity types, attribute names, and value types match the accepted schema. Mismatched names or types can cause policy tests, impact analysis, or Access Map views to return unexpected results.
+</Tip>
+
+## Example test data use cases
+
+| Use case | Example test data |
+|---|---|
+| **Role-based access** | Users with different roles, such as Manager, Employee, or Admin |
+| **Ownership-based access** | Resources with owner IDs that match or do not match the user |
+| **Department-based access** | Users and resources assigned to different departments |
+| **Risk-based access** | Users or requests with Low, Medium, or High risk levels |
+| **Amount-based access** | Transactions with different amount values |
+| **Status-based access** | Active and inactive users or resources |
+| **Group-based access** | Users mapped to groups that are used in policy conditions |
+
+## Configure live data
+
+Use live data when you want Reva to evaluate policies with data from connected systems.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to the **Data** tab.
+3. Select **Live Data**.
+4. Review the data source configuration.
+5. Use the <a href="/api-reference/data-ingestion-apis" className="text-blue-600 font-semibold underline">Reva Data Fabric APIs</a> to send application data to Reva.
+6. Confirm that entities are available in the policy store.
+7. Use the live data for policy testing, impact analysis, insights, and Access Map visibility.
+
+## Live data examples
+
+Live data can include identity, application, resource, entitlement, relationship, and runtime context data.
+
+| Data type | Example |
+|---|---|
+| **Users** | User profile, status, department, risk level, or location |
+| **Groups** | Group membership and hierarchy |
+| **Roles** | Application roles assigned to users |
+| **Resources** | Accounts, documents, transactions, records, or application objects |
+| **Entitlements** | Permissions or grants assigned to users or services |
+| **Relationships** | Ownership, membership, manager relationship, or parent-child hierarchy |
+| **Runtime context** | Request amount, request time, region, device posture, or risk level |
+
+## Test policies and build the Access Map
+
+After test data or live data is available, use it to validate policy behavior and build the Access Map.
+
+Policy data and test data help Reva show which principals have access to which resources. This access view helps you understand the impact of a policy before publishing it to Git or Reva Managed.
+
+Use this flow to validate policies:
+
+1. Go to the **Policies** tab.
+2. Click on **Access Map** in policy browse view.
+3. Or Edit Policy and click on **Test** in the policy designer.
+4. Use natural language query to view access say "who has access to transaction?"
+6. Review the authorization result.
+7. Review the impact of the policy change before publish.
+8. Use **Access Map** to understand access relationships created by the policy and data.
+9. Update the policy or data if the result does not match the expected decision.
+
+## Data validation checklist
+
+Before testing policies or using Access Map, confirm that the data is aligned with the schema.
+
+| Check | Why it matters |
+|---|---|
+| **Entity types match the schema** | Policies can only reference entity types defined in the schema |
+| **Entity IDs are unique** | Duplicate IDs can cause confusing test results |
+| **Required attributes are present** | Missing attributes can cause policies to fail or return unexpected results |
+| **Attribute names match the schema** | Cedar policy evaluation depends on exact attribute names |
+| **Attribute values use the correct type** | String, Boolean, Long, and Set values must match the schema |
+| **Relationships are correct** | Group, ownership, and hierarchy checks depend on relationship data |
+| **Runtime context is included when required** | Policies that use context need matching context values during testing |
+
+## Publishing with data
+
+Data is not the same as the policy publish destination. Data is used in Reva to test, analyze, and visualize access before publishing.
+
+Cedar policy stores can be published to Git or Reva Managed.
+
+| Publish destination | How data helps |
+|---|---|
+| **Git** | Helps validate schema and policy files before publishing changes to GitHub, GitLab, or Azure DevOps |
+| **Reva Managed** | Helps validate policy behavior before publishing to Reva Managed for runtime policy evaluation |
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| **Start small** | Upload a small test dataset first, then expand it |
+| **Cover permit and deny cases** | Include data that should pass and data that should fail |
+| **Match production patterns** | Use realistic users, resources, and attributes |
+| **Test edge cases** | Include inactive users, missing attributes, high-risk requests, and boundary values |
+| **Keep data aligned with schema changes** | Update test data when schema attributes or entity types change |
+| **Validate before publishing** | Test policy decisions and review impact before publishing |
+| **Review Access Map output** | Confirm that access relationships match the intended authorization model |
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| **Uploaded data is not available for testing** | Upload is still processing or failed validation | Check the upload status and retry if needed |
+| **Policy test fails unexpectedly** | Entity or attribute names do not match the schema | Review the schema and uploaded data |
+| **Impact analysis does not show expected results** | Test data is incomplete or does not cover the policy scenario | Add missing principals, resources, attributes, or relationships |
+| **Access Map does not show expected access** | Policy, test data, or relationship data is missing | Review policy logic and confirm that the required data is available |
+| **Condition does not evaluate correctly** | Attribute type or context value does not match the policy | Check the expected Cedar data type |
+| **Relationship-based policy fails** | Hierarchy or relationship data is missing | Add the required relationship data |
+| **Live data is missing** | Data was not ingested or mapped to the policy store | Review the ingestion request and policy store mapping |
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create and edit Cedar policies using Reva AI or the manual code editor.
+  </Card>
+
+  <Card
+    title="Publish to Git"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/publish-to-git"
+  >
+    Publish schema and policy files to GitHub, GitLab, or Azure DevOps.
+  </Card>
+
+  <Card
+    title="Publish to Reva Managed"
+    icon="shield-check"
+    href="/custom-application-authorization/cedar-authorization/publish-to-reva-managed"
+  >
+    Publish schema and policies to Reva Managed, also referred to as Reva Trust Gateway.
+  </Card>
+</CardGroup>

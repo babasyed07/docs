@@ -1,0 +1,85 @@
+---
+title: "Onboard a Custom Application"
+description: "Start the Custom Application Authorization workflow by creating a custom application policy store in Reva."
+---
+
+Use the **Manage Policies** page to start onboarding a custom application. This is the entry point for creating a policy store for Custom Application Authorization.
+
+From this page, you can create a new custom application authorization workspace and choose whether to use **Amazon Verified Permissions Authorization** or **Cedar Authorization** during policy store setup.
+
+## Start from Manage Policies
+
+The **Manage Policies** page lists existing applications, portfolios, policy stores, schemas, and access control policies in one place.
+
+To onboard a custom application, select **Create** and choose **Custom Application**.
+
+<Frame>
+  <img src="/images/custom-application-create-entry.png" alt="Create Custom Application from Manage Policies" />
+</Frame>
+
+## Steps
+
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the basic application and policy store details.
+5. Choose the policy store type.
+6. Continue with the onboarding path that matches your application architecture.
+
+## Basic information
+
+During onboarding, Reva asks for the basic information needed to create the custom application policy store.
+
+| Field | Description |
+|---|---|
+| **Name** | Name of the policy store for the custom application |
+| **Description** | Description of the application or authorization use case |
+| **Portfolio** | Portfolio associated with the application |
+| **Application owner** | User or team responsible for the application policy store |
+| **Application tags** | Optional tags used to classify the application |
+| **Policy format** | Policy store type, such as AVP or Cedar |
+
+## Choose the policy store type
+
+After entering the basic information, choose the policy store type.
+
+| Policy store type | Use this when |
+|---|---|
+| **AVP** | You want to publish policies directly to Amazon Verified Permissions |
+| **Cedar** | You want to publish policies to Git or Reva Managed |
+
+<Note>
+Amazon Verified Permissions is Cedar-based. Reva shows AVP and Cedar as separate policy store types because each type has a different publishing and integration flow.
+</Note>
+
+## Onboarding paths
+
+The next step depends on whether you are linking an existing policy store or creating a new one.
+
+| Onboarding path | Description | Schema onboarding required |
+|---|---|---|
+| **Existing AVP policy store** | Link an existing Amazon Verified Permissions policy store to Reva | No |
+| **Existing Git policy store** | Connect an existing Git repository that contains schema and policy files | No |
+| **New policy store from scratch** | Create a new AVP or Cedar policy store in Reva | Yes |
+
+When you onboard an existing AVP or Git policy store, Reva uses the existing schema and policy structure from that source. You do not need to define the schema again.
+
+When you create a new policy store from scratch, Reva guides you through schema creation, AI-suggested policies, policy design, data setup, and developer integration.
+
+## What happens next
+
+After the custom application is created, Reva opens the policy store workspace.
+
+From the workspace, you can manage:
+
+| Tab | Purpose |
+|---|---|
+| **Insights** | View authorization insights for the policy store |
+| **Policies** | Create, edit, test, and publish policies |
+| **Data**| Upload test data or configure live data |
+| **Schema** | View and manage the authorization schema |
+| **Version History** | Review policy and schema versions |
+| **Decision Logs** | Review authorization decisions |
+| **Developer Integration** | Configure publishing and application integration |
+| **Settings** | Manage ownership, data settings, and certification settings |
+

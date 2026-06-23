@@ -1,0 +1,251 @@
+---
+title: "AVP Policy Design"
+description: "Create, edit, test, and manage Cedar policies for an Amazon Verified Permissions policy store."
+---
+
+Use the Policy Designer to create and manage authorization policies for an Amazon Verified Permissions policy store. AVP policies are written in Cedar and published to Amazon Verified Permissions after review and testing.
+
+Policy design starts after the schema is created or imported. The schema defines the principals, actions, resources, attributes, runtime attributes, and relationships that your policies can use.
+
+## Before you begin
+
+Make sure the AVP policy store has a valid schema. If you created the policy store from scratch, complete schema design before creating policies.
+
+| Requirement | Description |
+|---|---|
+| AVP policy store | The policy store where policies are created and managed |
+| Schema | Defines the principals, actions, resources, attributes, and relationships used by policies |
+| Policy authoring method | Choose AI-assisted authoring, AI-assisted editing, or manual code editing |
+| Test data or live data | Used to test and simulate policy behavior before publishing |
+| AVP publish destination | Used to publish validated policies to Amazon Verified Permissions |
+
+## Helpful references
+
+Review the schema and policy design concepts before creating policies. You can also use Cedar references to test and validate policy syntax.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Open the Cedar Playground to test Cedar policies and authorization scenarios.
+  </Card>
+
+  <Card
+    title="Cedar Policy Syntax"
+    icon="code"
+    href="https://docs.cedarpolicy.com/policies/syntax-policy.html"
+  >
+    Review the Cedar policy syntax guide.
+  </Card>
+</CardGroup>
+
+## Policy design options
+
+Reva supports three ways to create and update AVP policies.
+
+| Authoring option | Description |
+|---|---|
+| Create with AI | Use natural language instructions to generate Cedar policies |
+| Edit with AI | Select an existing policy and ask Reva AI to update it |
+| Code editor | Write and edit Cedar policies manually |
+
+## Open the Policy Designer
+
+1. Open the AVP policy store.
+2. Go to the **Policies** tab.
+3. Select **Start Policy Design**, or select **Policy** to create a new policy.
+4. Choose how you want to create or edit the policy.
+
+## Create policies with AI
+
+Use AI-assisted authoring when you want to describe the access rule in natural language and let Reva generate the Cedar policy.
+
+A good instruction should include:
+
+| Input | Example |
+|---|---|
+| Principal | Manager, employee, account holder, service account |
+| Action | View, approve, transfer, update, delete |
+| Resource | Expense report, document, transaction, account |
+| Condition | Same department, active user, amount limit, risk level |
+
+### Example prompts
+
+| Use case | Example instruction |
+|---|---|
+| Role-based access | Allow managers to approve expense reports for employees in their department |
+| Attribute-based access | Allow users to view documents only when the document classification is public |
+| Ownership-based access | Allow resource owners to edit their own records |
+| Risk-based access | Deny access when the user risk level is High |
+| Context-based access | Allow transfers only when the transaction amount is less than 5000 |
+
+### Steps
+
+1. Open the **Policies** tab.
+2. Select **Policy** or open **Ask Reva AI**.
+3. Enter a natural language instruction.
+4. Review the generated Cedar policy.
+5. Check the principal, action, resource, and condition.
+6. Save the policy.
+7. Test the policy before publishing.
+
+<Tip>
+Write the policy instruction with the actor, action, resource, and condition. This helps Reva generate a more accurate policy.
+</Tip>
+
+## Edit policies with AI
+
+Use AI-assisted editing when you want to update an existing policy without rewriting the Cedar policy manually.
+
+You can use this option to:
+
+- Add a condition.
+- Change the allowed action.
+- Change the resource scope.
+- Add a risk or status check.
+- Convert a broad policy into a more specific policy.
+- Fix a policy that does not match the intended access rule.
+
+### Example edit instructions
+
+| Goal | Example instruction |
+|---|---|
+| Add a condition | Add a condition so the user must be active |
+| Restrict by department | Allow access only when the user's department matches the resource department |
+| Add risk control | Deny the action when the risk level is High |
+| Reduce scope | Change this policy so it applies only to invoices owned by the user |
+| Add amount limit | Allow the action only when the transaction amount is less than 5000 |
+
+### Steps
+
+1. Open the **Policies** tab.
+2. Select the policy you want to edit.
+3. Open the AI edit option.
+4. Enter the change you want to make.
+5. Review the updated Cedar policy.
+6. Save the policy.
+7. Test the updated policy before publishing.
+
+## Write policies in the code editor
+
+Use the code editor when you want full control over the Cedar policy.
+
+The code editor is useful when:
+
+- You already know the Cedar syntax.
+- You want to fine-tune a generated policy.
+- You want to copy an existing Cedar policy.
+- You want to create a policy with complex conditions.
+- You want to validate the exact policy structure before publishing.
+
+### Basic Cedar policy structure
+
+```cedar
+permit (
+  principal,
+  action,
+  resource
+)
+when {
+  true
+};
+````
+
+A Cedar policy usually includes these parts.
+
+| Policy part | Description                                          |
+| ----------- | ---------------------------------------------------- |
+| Effect      | Defines whether the policy permits or forbids access |
+| Principal   | Defines who the policy applies to                    |
+| Action      | Defines the operation the principal wants to perform |
+| Resource    | Defines the object or asset the action applies to    |
+| Condition   | Defines when the policy applies                      |
+
+## Policy design best practices
+
+Use these practices when creating AVP policies.
+
+| Practice                      | Recommendation                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| Start with the schema         | Confirm that the principal, action, and resource exist in the schema               |
+| Be specific                   | Avoid broad access unless the use case requires it                                 |
+| Use conditions                | Add conditions for ownership, status, risk, department, region, or amount          |
+| Test before publishing        | Use test data or live data to validate policy behavior                             |
+| Review generated policies     | Always review AI-generated policies before saving or publishing                    |
+| Use forbid policies carefully | Forbid policies can override permit behavior, so test them with expected scenarios |
+
+## Test policy behavior
+
+Before publishing to AVP, test the policy with sample scenarios.
+
+1. Open the **Policies** tab.
+2. Select the policy or policy set to test.
+3. Select **Test**.
+4. Enter or select the principal, action, resource, and context.
+5. Run the test.
+6. Review the decision result.
+7. Update the policy if the result does not match the expected behavior.
+
+## Use test data or live data
+
+Policy testing can use either test data or live data.
+
+| Data source | Description                                                                   |
+| ----------- | ----------------------------------------------------------------------------- |
+| Test Data   | Uploaded entity datasets used for simulation, testing, and dry-run evaluation |
+| Live Data   | Entity and contextual data ingested through Reva Data Fabric APIs             |
+
+Use **Test Data** when you want to validate policies before connecting real application data.
+
+Use **Live Data** when you want policy evaluations to use current application context.
+
+## Publish policy changes to AVP
+
+After policies are created, reviewed, and tested, publish them to Amazon Verified Permissions.
+
+1. Open the AVP policy store.
+2. Go to **Developer Integration**.
+3. Confirm that the publish destination is **AVP**.
+4. Return to the **Policies** tab.
+5. Review the policies.
+6. Select **Publish**.
+7. Verify the publish status.
+
+<Note>
+For AVP policy stores, policies and schema are published directly to the linked Amazon Verified Permissions policy store.
+</Note>
+
+## Next steps
+
+After designing AVP policies, continue with:
+
+<CardGroup cols={2}>
+  <Card
+    title="AVP Data"
+    icon="database"
+    href="/custom-application-authorization/avp-authorization/avp-data"
+  >
+    Upload test data or configure live data for policy testing and evaluation.
+  </Card>
+
+<Card
+title="Publish to AVP"
+icon="upload"
+href="/custom-application-authorization/avp-authorization/publish-to-avp"
+
+>
+   Configure publishing and publish schema and policy changes to Amazon Verified Permissions.
+
+
+  </Card>
+</CardGroup>

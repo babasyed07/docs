@@ -1,0 +1,72 @@
+---
+title: "Overview"
+description: "Design, test, and publish fine-grained authorization policies for custom applications using Reva."
+---
+
+Custom Application Authorization helps you build and manage fine-grained access control for your applications. With Reva, you can model application access, create Cedar policies, test authorization behavior, connect application data, and publish policies to the right enforcement destination.
+
+Use this documentation when you want to manage authorization for a custom application using either **Amazon Verified Permissions Authorization** or **Cedar Authorization**.
+
+## What Custom Application Authorization provides
+
+Reva gives application teams a single workflow to manage the authorization lifecycle.
+
+| Capability | Description |
+|---|---|
+| Authorization modeling | Define principals, actions, resources, attributes, runtime attributes, and relationships in a schema |
+| Policy authoring | Create and edit Cedar policies using AI-assisted authoring or the manual code editor |
+| Policy testing | Validate policy behavior with test data, simulations, and dry-run evaluations |
+| Data integration | Use test data or live contextual data for policy evaluation |
+| Policy publishing | Publish policies to Amazon Verified Permissions, Git, or Reva Managed |
+| Operations | Review insights, decision logs, version history, and policy store settings |
+
+## Authorization paths
+
+Reva supports two authorization paths for custom applications.
+
+| Authorization path | Policy store type | Publish destinations | Use this when |
+|---|---|---|---|
+| Amazon Verified Permissions Authorization | AVP | AVP | You want to publish policies directly to Amazon Verified Permissions |
+| Cedar Authorization | Cedar | Git, Reva Managed | You want to publish policies to Git or use Reva Managed for policy evaluation |
+
+<Note>
+Amazon Verified Permissions is Cedar-based. Reva separates AVP and Cedar as policy store types because each path has a different publishing and integration flow.
+</Note>
+
+## Amazon Verified Permissions Authorization
+
+Use **Amazon Verified Permissions Authorization** when your application uses Amazon Verified Permissions as the policy decision and enforcement destination.
+
+In this path, Reva helps you design, test, manage, and publish Cedar policies directly to an AVP policy store.
+
+This path supports:
+
+| Area | Support |
+|---|---|
+| **Existing AVP policy store onboarding** | Supported |
+| **New policy store creation** | Supported |
+| **Policy language** | Cedar |
+| **Publish destination** | AVP |
+
+## Cedar Authorization
+
+Use **Cedar Authorization** when you want to manage Cedar policies in Reva and publish them to Git or Reva Managed.
+
+This path is useful when your organization manages policies through source control, CI/CD, or Reva Trust Gateway.
+
+This path supports:
+
+| Area | Support |
+|---|---|
+| **Existing Git policy store onboarding** | Supported |
+| **New policy store creation** | Supported |
+| **Policy language** | Cedar |
+| **Publish destinations** | Git, Reva Managed |
+
+<Note>
+Reva Managed is also referred to as Reva Trust Gateway.
+</Note>
+
+## Where to start
+
+To create a custom application policy store, start from **Manage Policies** and select **Create > Custom Application**.

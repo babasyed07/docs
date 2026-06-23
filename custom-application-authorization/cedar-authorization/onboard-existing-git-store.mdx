@@ -1,0 +1,274 @@
+---
+title: "Onboard an Existing Git Policy Store"
+description: "Connect an existing Git repository that contains Cedar schema and policy files to Reva."
+---
+
+Use this flow when your Cedar schema and policy files already exist in a Git repository and you want to manage the policy store in Reva.
+
+When you onboard an existing Git policy store, Reva connects to the selected repository and uses the schema and policy files from Git. You do not need to create a new schema during onboarding.
+
+<Note>
+This onboarding path is only for Cedar policy stores. If you want to publish directly to Amazon Verified Permissions, use the AVP authorization path.
+</Note>
+
+## When to use this flow
+
+Use this onboarding flow when:
+
+- Your Cedar schema and policy files already exist in Git.
+- Your team manages policy changes through source control.
+- You want Reva to connect to an existing Git repository.
+- You do not want to recreate the schema in Reva.
+- You want to review, edit, test, and publish Cedar policy changes through Reva.
+
+## Supported Git providers
+
+Reva supports the following Git providers for Cedar policy stores.
+
+| Git provider | Supported |
+|---|---|
+| GitHub | Yes |
+| GitLab | Yes |
+| Azure DevOps | Yes |
+
+## Helpful references
+
+Before onboarding an existing Git policy store, make sure the required Git integration is configured in Reva.
+
+<CardGroup cols={3}>
+  <Card
+    title="GitHub Integration"
+    icon="github"
+    href="/github-integration"
+  >
+    Configure GitHub as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+
+  <Card
+    title="GitLab Integration"
+    icon="gitlab"
+    href="/gitlab-integration"
+  >
+    Configure GitLab as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+
+  <Card
+    title="Azure DevOps Integration"
+    icon="code-branch"
+    href="/azure-devops-integration"
+  >
+    Configure Azure DevOps as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+</CardGroup>
+
+
+## Before you begin
+
+Make sure you have the required Git repository details before you start onboarding.
+
+| Requirement | Description |
+|---|---|
+| Git connection | A configured Git connection in Reva |
+| Git provider | GitHub, GitLab, or Azure DevOps |
+| Repository access | Access to the repository that contains the Cedar schema and policy files |
+| Branch | The branch Reva should use during onboarding |
+| Schema file | The Cedar schema file available in the repository |
+| Policy files | Cedar policy files available in the repository |
+| Portfolio | The portfolio where the custom application should be grouped |
+| Application owner | The user or team responsible for the policy store |
+
+## Repository content
+
+The Git repository should contain the schema and policy files that represent the existing Cedar policy store.
+
+| File type | Description |
+|---|---|
+| Schema file | Defines principals, actions, resources, attributes, runtime attributes, and relationships |
+| Policy files | Define Cedar permit or forbid policies |
+| Supporting files | Optional files used by your internal policy lifecycle or CI/CD process |
+
+<Tip>
+Before onboarding, confirm that the schema and policy files in the repository are valid and aligned with your application authorization model.
+</Tip>
+
+## Onboarding steps
+
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the policy store **Name**.
+5. Enter the policy store **Description**.
+6. Select the **Portfolio**.
+7. Select the **Application owner**.
+8. Select **Cedar** as the policy format.
+9. Select the Git connection.
+10. Choose the Git provider.
+11. Select the repository that contains the Cedar schema and policy files.
+12. Select the branch.
+13. Confirm the schema and policy file location.
+14. Select **Create**.
+
+After the policy store is created, Reva opens the Cedar policy store workspace.
+
+## Basic information fields
+
+| Field | Description |
+|---|---|
+| Name | Name of the policy store in Reva |
+| Description | Description of the application or authorization use case |
+| Portfolio | Portfolio associated with the application |
+| Application owner | User or team responsible for the policy store |
+| Application tags | Optional tags used to classify the application |
+| Policy format | Select Cedar |
+| Git connection | Existing Git connection used to onboard the policy store |
+| Git provider | GitHub, GitLab, or Azure DevOps |
+| Repository | Repository that contains the schema and policy files |
+| Branch | Branch Reva uses for onboarding and publishing |
+| File path | Repository path where schema and policy files are located |
+
+## What Reva imports from Git
+
+When you onboard an existing Git policy store, Reva uses the schema and policy files from the connected repository.
+
+| Item | Behavior |
+|---|---|
+| Schema | Reva uses the schema file from Git |
+| Policies | Reva uses the policy files from Git |
+| Policy store type | Set as Cedar |
+| Publish destination | Set to Git |
+| Schema onboarding | Skipped |
+| Policy authoring | Available after onboarding |
+| Policy testing | Available after onboarding |
+
+<Note>
+Because the schema already exists in Git, Reva does not take you through the schema design flow during this onboarding path.
+</Note>
+
+## Schema onboarding behavior
+
+Schema onboarding is skipped when you onboard an existing Git policy store.
+
+This means:
+
+- You do not need to create a schema manually.
+- You do not need to generate a schema with AI.
+- You do not need to import a schema JSON file separately.
+- Reva uses the schema already present in the connected Git repository.
+
+After onboarding, you can review the schema from the **Schema** tab.
+
+## Policy behavior after onboarding
+
+After onboarding, the policies from the connected repository are available in Reva for review and management.
+
+You can:
+
+- Review existing policies.
+- Create new policies.
+- Edit existing policies with Reva AI.
+- Edit policies manually in the code editor.
+- Test policy behavior with test data or live data.
+- Review impact analysis before publishing.
+- Publish policy changes back to Git.
+
+## Validate the imported policy store
+
+After the policy store is onboarded, review the imported schema and policies.
+
+| Validation area | What to check |
+|---|---|
+| Schema | Confirm that principals, actions, resources, attributes, and relationships are correct |
+| Policies | Confirm that imported policies match the repository content |
+| File mapping | Confirm that Reva is reading from the expected repository path |
+| Branch | Confirm that the correct branch is selected |
+| Data | Upload test data or configure live data for policy testing |
+| Publishing | Confirm the Git publish configuration in Developer Integration |
+
+## Configure data for testing
+
+After onboarding, configure data so that policies can be tested and analyzed.
+
+You can use:
+
+| Data option | Description |
+|---|---|
+| Test Data | Uploaded sample entity data used for simulation, impact analysis, and Access Map visibility |
+| Live Data | Entity and contextual data ingested through Reva Data Fabric APIs |
+
+Use data to test imported policies, review access impact, and confirm that the policy behavior matches the intended authorization model.
+
+## Developer Integration
+
+For an existing Git policy store, the publish destination is Git.
+
+Use **Developer Integration** to review or update the Git publishing configuration.
+
+| Setting | Description |
+|---|---|
+| Publish destination | Git |
+| Git provider | GitHub, GitLab, or Azure DevOps |
+| Repository | Repository where schema and policy changes are published |
+| Branch | Branch used for publishing |
+| File path | Repository path for schema and policy files |
+
+## Publish changes back to Git
+
+After you edit or create policies in Reva, you can publish changes back to the connected Git repository.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to **Policies**.
+3. Review the policy changes.
+4. Test the policy behavior.
+5. Review impact analysis.
+6. Go to **Developer Integration** and confirm the Git configuration.
+7. Select **Publish**.
+8. Review the publish summary.
+9. Confirm the publish action.
+10. Verify that the changes are available in the connected Git repository.
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| Repository is not visible | Git connection does not have access to the repository | Check repository permissions and Git connection scope |
+| Branch is not visible | Branch access is missing or branch name is incorrect | Confirm the branch exists and the connection has access |
+| Schema is not imported | Schema file path is incorrect or file is invalid | Check the schema file location and format |
+| Policies are not imported | Policy files are missing or not in the expected path | Confirm the policy file location and repository structure |
+| Policy validation fails | Policies reference schema elements that do not exist | Review policy references and schema definitions |
+| Publish fails | Git connection, branch, or repository permissions are incorrect | Review Git configuration in Developer Integration |
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| Use a dedicated branch | Use a controlled branch for policy authoring and review |
+| Keep schema and policies organized | Store schema and policy files in predictable repository paths |
+| Validate before onboarding | Confirm that schema and policy files are valid before connecting the repository |
+| Review imported policies | Check imported policies before making changes in Reva |
+| Test before publishing | Validate permit and deny scenarios before publishing changes back to Git |
+| Review impact | Use impact analysis to understand access changes before publishing |
+| Use source control review | Use your Git review process for policy change approval when required |
+
+## Next steps
+
+After onboarding the existing Git policy store, continue with:
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Review, create, edit, and test Cedar policies in Reva.
+  </Card>
+
+  <Card
+    title="Publish to Git"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/publish-to-git"
+  >
+    Configure Git publishing and publish schema or policy changes back to the connected repository.
+  </Card>
+</CardGroup>

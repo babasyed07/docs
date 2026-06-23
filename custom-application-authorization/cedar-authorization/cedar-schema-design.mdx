@@ -1,0 +1,242 @@
+---
+title: "Cedar Schema Design"
+description: "Create, import, review, and accept a schema for a Cedar policy store."
+---
+
+The schema defines the authorization model for a Cedar policy store. It describes the principals, actions, resources, attributes, runtime attributes, and relationships that policies can use.
+
+For a new Cedar policy store, schema design is required before you create policies.
+
+<Note>
+If you onboarded an existing Git policy store, schema onboarding is skipped because Reva uses the schema from the connected Git repository.
+</Note>
+
+## Before you begin
+
+Make sure you understand the application access model before creating the schema. A good schema should reflect how users, services, actions, and resources interact in the application.
+
+| Requirement | Description |
+|---|---|
+| **Application model** | Understand the users, services, resources, and actions in the application |
+| **Principal types** | Identify who or what performs actions, such as users, groups, roles, machines, or services |
+| **Resource types** | Identify the protected objects, such as accounts, documents, transactions, records, or application objects |
+| **Actions** | Identify the operations that can be performed on each resource |
+| **Attributes** | Identify the properties needed for policy conditions |
+| **Runtime context** | Identify values passed during authorization evaluation, such as risk level, amount, region, device posture, or request time |
+
+## Helpful references
+
+Review schema and policy design concepts before creating the schema. You can also use Cedar references to understand schema structure and test authorization models.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Open the Cedar Playground to test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+
+  <Card
+    title="Cedar Schema Documentation"
+    icon="code"
+    href="https://docs.cedarpolicy.com/schema/schema.html"
+  >
+    Review the Cedar schema format and schema modeling guidance.
+  </Card>
+</CardGroup>
+
+## When schema design is required
+
+Schema design depends on how the Cedar policy store is onboarded.
+
+| Onboarding path | Schema design required |
+|---|---|
+| **Existing Git policy store** | No |
+| **New Cedar policy store from scratch** | Yes |
+
+When you onboard an existing Git policy store, Reva uses the schema from the connected repository. When you create a new Cedar policy store from scratch, you must create or import the schema before policy design.
+
+## Schema design options
+
+Reva supports multiple ways to create or reuse a schema.
+
+| Schema option | Description |
+|---|---|
+| **Create with AI** | Generate a schema using Reva AI from DDL, SQL, OpenAPI 3.0, or natural language input |
+| **Design manually** | Build the schema using the Schema Designer |
+| **Import JSON** | Upload an existing Cedar schema JSON file |
+| **Import from Reva Library** | Start from a reusable schema template |
+
+## Create a schema with AI
+
+Use **Create with AI** when you want Reva to generate the schema from application inputs.
+
+You can provide:
+
+- DDL files
+- SQL files
+- OpenAPI 3.0 specifications
+- Natural language instructions that describe the application model
+
+Reva analyzes the input and suggests the principals, actions, resources, attributes, runtime attributes, and relationships that can be used for authorization.
+
+### Steps
+
+1. Open the new Cedar policy store.
+2. Start the schema onboarding flow.
+3. Select **Create with AI**.
+4. Upload or provide the source input.
+5. Review the generated schema.
+6. Update the schema if changes are needed.
+7. Accept the schema.
+
+<Tip>
+When using AI schema generation, include the application domain, key resources, user roles, allowed actions, and important conditions. This helps Reva generate a better authorization model.
+</Tip>
+
+## Design the schema manually
+
+Use **Design manually** when you want to build the authorization model yourself.
+
+The Schema Designer lets you define the main schema elements.
+
+| Schema element | Description |
+|---|---|
+| **Principal** | The actor that performs an action, such as a user, group, machine identity, or service |
+| **Action** | The operation the principal wants to perform |
+| **Resource** | The object or asset the action is performed on |
+| **Attributes** | Properties of principals, resources, or context used in policy conditions |
+| **Runtime attributes** | Context values passed during authorization evaluation |
+| **Hierarchy** | Relationships between entities, such as group membership, ownership, or parent-child structure |
+
+### Steps
+
+1. Open the new Cedar policy store.
+2. Select **Design**.
+3. Define the principal types.
+4. Define the resource types.
+5. Define the actions.
+6. Connect principals, actions, and resources.
+7. Add required attributes.
+8. Add runtime attributes if needed.
+9. Configure hierarchy if needed.
+10. Review and accept the schema.
+
+## Import schema JSON
+
+Use **Import JSON** when you already have a Cedar schema JSON file.
+
+### Steps
+
+1. Open the new Cedar policy store.
+2. Select **JSON**.
+3. Upload the schema JSON file.
+4. Review the imported schema.
+5. Update the schema if changes are needed.
+6. Accept the schema.
+
+## Import from Reva Library
+
+Use **Import from Reva Library** when you want to start from a reusable schema template.
+
+Reva Library contains schema templates that can help you start faster.
+
+### Steps
+
+1. Open the new Cedar policy store.
+2. Select **Import from Reva Library**.
+3. Choose a schema template.
+4. Review the schema.
+5. Update the schema if changes are needed.
+6. Accept the schema.
+
+## Review the schema
+
+Before accepting the schema, review the generated, imported, or manually created model.
+
+Check that:
+
+- Principal types are correct.
+- Resource types match protected application objects.
+- Actions match application operations.
+- Principal and resource relationships are accurate.
+- Required attributes are present.
+- Runtime attributes are defined where needed.
+- Hierarchy is configured correctly.
+- The schema supports the policies you plan to create.
+
+## Accept the schema
+
+After review, accept the schema to continue with policy design.
+
+Once the schema is accepted, Reva uses it to support:
+
+- AI-suggested policies
+- Manual policy authoring
+- AI-assisted policy creation
+- Policy testing
+- Test data mapping
+- Live data evaluation
+- Publishing to Git or Reva Managed
+
+## After schema acceptance
+
+After the schema is accepted, Reva can suggest starter policies based on the authorization model.
+
+| Option | Description |
+|---|---|
+| **Add AI-suggested policies** | Review generated policies and add selected ones |
+| **Skip suggested policies** | Continue without adding suggested policies |
+| **Start Policy Design** | Open the Policy Designer to create and edit policies |
+| **Upload Test Data** | Open the Data tab to add test data for simulations |
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| **Start from the application model** | Model the principals, resources, and actions that exist in the application |
+| **Keep entity names clear** | Use names that policy authors and developers can understand |
+| **Define required attributes early** | Add attributes needed for ownership, status, risk, department, region, or amount checks |
+| **Use runtime context carefully** | Use context for request-time values that are not stored on the principal or resource |
+| **Review generated output** | Always review AI-generated schemas before accepting them |
+| **Keep schema and policies aligned** | Update policies and test data when the schema changes |
+| **Test before publishing** | Validate policies with test data or live data before publishing to Git or Reva Managed |
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| **Schema generation is incomplete** | Input does not include enough application context | Add more details about users, resources, actions, and conditions |
+| **Policy references fail validation** | Policy references an entity, action, or attribute not defined in the schema | Update the schema or policy so they match |
+| **Access Map does not show expected results** | Relationships or required data are missing | Add the required relationship and attribute data |
+
+## Next steps
+
+After schema design, continue with:
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create and edit Cedar policies using Reva AI or the manual code editor.
+  </Card>
+
+  <Card
+    title="Cedar Data"
+    icon="database"
+    href="/custom-application-authorization/cedar-authorization/cedar-data"
+  >
+    Upload test data or configure live data for policy testing and evaluation.
+  </Card>
+</CardGroup>
