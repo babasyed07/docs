@@ -114,7 +114,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -223,7 +223,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -317,7 +317,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -391,7 +391,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -487,7 +487,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -578,7 +578,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -686,7 +686,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
@@ -770,7 +770,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to an Application -> Environment -> Policy Store\n- Click on the \"Data\" tab.\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, go to **Manage Policies**, select the target policy store, open the **Data** tab, and click the **Configure** spanner icon. You can also go to **Developer Integration** and open the **Data Fabric Ingestion** section to copy the Entity Type ID.",
             "required": true,
             "schema": {
               "type": "string"
