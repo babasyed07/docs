@@ -1,39 +1,28 @@
 ---
-title: "Onboard from a Repository"
-description: "Bring agents already discovered in a connected repository into your policy store."
+title: "Add Agents from the Inventory"
+description: "Add agents that are already in your Reva inventory when you create a policy store."
 ---
 
-If your agents are already present in a connected source-control repository, you can add them directly when creating the policy store — no template needed.
+When you create an agentic policy store, **Add from Repository** lets you pull in agents that are already in your **Reva inventory** — no template upload needed for this store.
 
-## Prerequisites
+Your inventory is populated by any of these:
 
-Connect the repository first:
+- **Entity ingestion API** — push agents, tools, models, and relationships programmatically. See [Developer Settings](/ai-workload-developer-settings) and [Create Entities](/api-reference/entity-ingestion/create-entities).
+- **Discovery sources** *(roadmap)* — Azure and other sources auto-add agents to your inventory. See [Azure Agent Integration](/azure-agent-integration).
+- **CSV upload** — register agents from the [metadata template](/ai-workload-schema-upload-template).
 
-<CardGroup cols={2}>
-  <Card title="GitHub Integration" icon="github" href="/github-integration">
-    Connect a GitHub repository to Reva.
-  </Card>
-  <Card title="GitLab Integration" icon="gitlab" href="/gitlab-integration">
-    Connect a GitLab repository to Reva.
-  </Card>
-</CardGroup>
-
-## Steps
+## Add from the Inventory
 
 <Steps>
   <Step title="Choose Add from Repository">
-    When creating the agentic policy store, select **Add from Repository**. Reva lists the agents and skills already discovered in the connected repo.
+    When creating the agentic policy store, select **Add from Repository**. Reva lists the agents already in your inventory.
 
-    <Frame caption="Agents available from the repository.">
-      <img src="images/ai-workload-add-from-repo.png" alt="Add from repository — available agents" />
+    <Frame caption="Agents available from your inventory.">
+      <img src="images/ai-workload-add-from-repo.png" alt="Add agents from the inventory" />
     </Frame>
   </Step>
-  <Step title="Select the agents and skills">
-    Choose the agents, tools, MCP servers, and skills to bring in.
-
-    <Frame caption="Select agents and their skills.">
-      <img src="images/ai-workload-add-skills.png" alt="Select agents and skills" />
-    </Frame>
+  <Step title="Select the agents to add">
+    Choose the agents, tools, MCP servers, and models to bring into this policy store.
   </Step>
   <Step title="Proceed to the topology">
     Confirm. The selected entities import into your **topology**, ready for [policy design](/ai-workload-topology-overview).
@@ -41,5 +30,5 @@ Connect the repository first:
 </Steps>
 
 <Tip>
-  After importing, open individual entities to fill in attributes the scan couldn't infer — risk tier, data classification, and so on. See [Entity Detail](/ai-workload-entity-detail).
+  After adding, refine each entity's attributes and skills — see [View & Edit Entity Details](/ai-workload-entity-detail).
 </Tip>

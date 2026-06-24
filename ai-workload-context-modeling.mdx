@@ -5,10 +5,6 @@ description: "Model your agents, tools, models, and MCP servers as Reva entities
 
 Before Reva can authorize your agents, it needs a model of your agentic system — the agents, the tools and models they call, and who is allowed to call whom. This model is your **context**. You build it once, Reva renders it as a **topology view** (the graph of who can invoke whom), and your policies reference these entities by `id`.
 
-<Note>
-  [Azure Agent Integration](/azure-agent-integration) (for Microsoft Copilot and Azure AI agents) is **coming soon**. In the meantime, onboard your agents using the options below.
-</Note>
-
 ## The Agentic Authorization Model
 
 Reva authorizes agent activity with the same Cedar shape used across the platform — **principal → action → resource** — plus runtime **context**.
@@ -64,25 +60,6 @@ Policies can test attributes on these entities — both Reva's standard attribut
   Add attributes for MCP/tool inputs and any custom field you want to write policy on.
 </Card>
 
-## Ways to Build Your Context
-
-You can build and maintain your topology in several ways — mix and match as your system grows.
-
-<CardGroup cols={2}>
-  <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
-    Download the metadata template, fill in your entities and relationships, and upload it.
-  </Card>
-  <Card title="Add from Repository" icon="code-branch" href="/ai-workload-schema-add-from-repository">
-    Scan a connected GitHub/GitLab repo to discover agents, tools, and MCP servers.
-  </Card>
-  <Card title="Add from Topology View" icon="diagram-project" href="/ai-workload-add-entity-from-topology">
-    Add a new entity directly on the graph and wire its connections visually.
-  </Card>
-  <Card title="Edit Entity Details" icon="pen-to-square" href="/ai-workload-entity-detail">
-    Review and edit an entity's attributes, relationships, and metadata.
-  </Card>
-</CardGroup>
-
-<Tip>
-  Start with [the metadata template](/ai-workload-metadata-template) to bootstrap your whole topology at once, then refine individual entities from the topology view.
-</Tip>
+<Card title="See the onboarding journey" icon="rocket" href="/ai-workload-getting-started">
+  How to bring these entities into Reva — upload a template, ingest via the API, or add from your inventory.
+</Card>
