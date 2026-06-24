@@ -1,17 +1,13 @@
 ---
-title: "Add from Repository"
-description: "Discover agents, tools, and MCP servers by scanning a connected GitHub or GitLab repository."
+title: "Onboard from a Repository"
+description: "Bring agents already discovered in a connected repository into your policy store."
 ---
 
-If your agents live in a codebase, Reva can scan the repository to discover agents, tools, and MCP servers and add them to your topology — no manual data entry required.
-
-<Frame caption="Add-from-repository flow — connect a repo, scan, review, and import discovered entities (from the product design).">
-  <img src="images/ai-workload-schema-add-from-repository.png" alt="Add from repository flow" />
-</Frame>
+If your agents are already present in a connected source-control repository, you can add them directly when creating the policy store — no template needed.
 
 ## Prerequisites
 
-Connect the source-control integration for the repository you want to scan:
+Connect the repository first:
 
 <CardGroup cols={2}>
   <Card title="GitHub Integration" icon="github" href="/github-integration">
@@ -24,13 +20,26 @@ Connect the source-control integration for the repository you want to scan:
 
 ## Steps
 
-1. In Reva, open your AI workload onboarding and choose **Add from repository**.
-2. Select the connected repository (and branch, if prompted).
-3. Start the scan. Reva inspects the code for agents, tools, and MCP servers.
-4. Review the discovered entities and their proposed relationships.
-5. Select the entities to import and confirm.
-6. The imported entities appear in your topology view, ready for [policy design](/ai-workload-policy-design).
+<Steps>
+  <Step title="Choose Add from Repository">
+    When creating the agentic policy store, select **Add from Repository**. Reva lists the agents and skills already discovered in the connected repo.
+
+    <Frame caption="Agents available from the repository.">
+      <img src="images/ai-workload-add-from-repo.png" alt="Add from repository — available agents" />
+    </Frame>
+  </Step>
+  <Step title="Select the agents and skills">
+    Choose the agents, tools, MCP servers, and skills to bring in.
+
+    <Frame caption="Select agents and their skills.">
+      <img src="images/ai-workload-add-skills.png" alt="Select agents and skills" />
+    </Frame>
+  </Step>
+  <Step title="Proceed to the topology">
+    Confirm. The selected entities import into your **topology**, ready for [policy design](/ai-workload-topology-overview).
+  </Step>
+</Steps>
 
 <Tip>
-  After importing, open individual entities to fill in attributes the scan couldn't infer (risk tier, data classification, custom fields) — see [Entity Detail](/ai-workload-entity-detail).
+  After importing, open individual entities to fill in attributes the scan couldn't infer — risk tier, data classification, and so on. See [Entity Detail](/ai-workload-entity-detail).
 </Tip>

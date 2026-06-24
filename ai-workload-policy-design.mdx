@@ -1,105 +1,108 @@
 ---
-title: "AI Workload Policy Design"
-description: "Author agentic authorization policies — context-based, on-behalf-of, and intent-based — in the Reva Policy Designer."
+title: "Design Policies"
+description: "Author agentic access policies — start from permit-all, then forbid to scope."
 ---
 
-Once your [agents are modeled](/ai-workload-context-modeling), you write policies that decide which calls in an agent chain are allowed. Reva's Policy Designer gives you a visual builder and a Cedar code editor, both backed by versioned policy stores with approval workflows.
+Once your agents are in the [topology](/ai-workload-topology-overview), you write policies that decide which interactions are allowed. Reva's Policy Designer gives you a visual builder and a Cedar editor, backed by versioned policy stores.
 
-## The Agentic Policy Model
+## Start from Permit-All, Then Forbid
 
-Every agentic policy answers the same four questions, plus runtime context:
+When a policy store is created, **every connected entity already has a full-access permit (allow-all) policy.** You tighten access by adding **forbid** policies that *reduce* scope — because in Cedar, an explicit `forbid` always overrides a `permit`.
+
+Every policy answers four questions, plus runtime context:
 
 | Component | In an agent chain | Example |
 |:----------|:------------------|:--------|
-| **Principal** | Who is making the call | `Agent::"shipment-supervisor-agent"`, `User::"john"` |
+| **Principal** | Who is making the call | an `Agent` or `User` |
 | **Action** | What kind of call | `invokeAgent`, `invokeTool`, `invokeModel` |
-| **Resource** | What is being called | `Agent::"billing-agent"`, `MCP::"reva-rate-mcp"` |
-| **Context** | Runtime facts to test | `context.onBehalfOf`, `context.environment`, `context.intent` |
+| **Resource** | What is being called | an `Agent`, `Tool`, `MCPServer`, or `Model` |
+| **Context** | Runtime facts to test | `onBehalfOf`, `promptIntent`, and runtime attributes |
 
 ## Two Ways to Author
 
-1. **Visual Mode (business-friendly)** — define principals, actions, resources, and conditions on a graph-based canvas. The Condition Builder constructs logic with attribute selectors and operators, no code required.
-2. **Developer Mode (Cedar)** — write Cedar directly for maximum control, with full syntax support.
+1. **Visual mode** — the **Edit Access Policy** form: set a **Name**, **Select Actions**, an **Access Type** (Permit or Forbid), and build conditions in the **When / Unless** condition groups — no code required.
+2. **Developer mode** — write Cedar directly.
 
 <Info>
-  **Schema first.** Before authoring policies, make sure your agentic entities and attributes exist in the schema (see [Context Modeling](/ai-workload-context-modeling) and [Add Runtime Attributes](/ai-workload-schema-runtime-attributes)). Policies can only reference entities and attributes the schema defines.
+  **Schema first.** A condition can only reference attributes that exist in the schema. To test a runtime value (like an MCP tool payload field), add it first — see [Schema & Runtime Attributes](/ai-workload-schema-runtime-attributes).
 </Info>
 
 ## Policy Styles
 
-Agentic authorization commonly uses three policy styles. You can combine them.
-
-| Style | Decides based on | Typical use |
-|:------|:-----------------|:------------|
-| **Context-based** | Runtime values passed with the call (`context.*`) | Restrict a tool call to a specific resource or condition |
-| **On-Behalf-Of (OBO)** | The delegating user carried in `context.onBehalfOf` | Make an agent act only within the user's risk/scope |
-| **Intent-based** | The purpose/intent of the request | Allow only calls whose intent the caller is permitted to make |
-
-<Note>
-  The examples below are **starting points** — adapt the entity ids, attributes, and conditions to your own schema, then validate them before publishing.
-</Note>
-
-### Context-Based Policies
-
-Decide using values supplied at runtime in `context`. Here, the rate tool may be invoked **only** for a specific container id:
-
-<CodeGroup>
-```cedar Context-based (example placeholder)
-permit (
-    principal,
-    action   == Action::"invokeTool",
-    resource == MCP::"reva-rate-mcp"
-)
-when { context.container_id == "MSCU4429881" };
-```
-</CodeGroup>
+Agentic forbid policies commonly use three styles. The examples below are the real conditions from the Policy Designer (note the `AgenticAI::` namespace).
 
 ### On-Behalf-Of (OBO) Policies
 
-Decide using the delegating user carried in `context.onBehalfOf`. Here, an agent may act **only** when it is operating on behalf of a low-risk user:
+Decide using the delegating user carried in `context.onBehalfOf`. Here, the underwriter copilot **cannot** fetch the risk score when acting on behalf of `amit`:
+
+<Frame caption="An on-behalf-of forbid policy in the Policy Designer.">
+  <img src="images/ai-workload-policy-obo.png" alt="On-behalf-of forbid policy" />
+</Frame>
 
 <CodeGroup>
-```cedar On-behalf-of (example placeholder)
-permit (
+```cedar On-behalf-of
+forbid (
     principal,
-    action == Action::"invokeAgent",
+    action   == AgenticAI::Action::"invokeTool",
     resource
 )
-when { context.onBehalfOf.riskTier == "LOW" };
+when { context.onBehalfOf == AgenticAI::User::"amit" };
 ```
 </CodeGroup>
 
-### Intent-Based Policies
+### Intent / Skill-Based Policies
 
-Decide using the purpose of the request. Here, a tool call is allowed **only** when its intent is one the caller is permitted to make:
+Decide using the purpose of the request via `context.promptIntent`. Here, `amit` **cannot** invoke the underwriter copilot when the prompt intent is the `risk-score-lookup` skill:
+
+<Frame caption="An intent/skill-based forbid policy.">
+  <img src="images/ai-workload-policy-intent.png" alt="Intent/skill-based forbid policy" />
+</Frame>
 
 <CodeGroup>
-```cedar Intent-based (example placeholder)
-permit (
+```cedar Intent / skill
+forbid (
     principal,
-    action == Action::"invokeTool",
+    action   == AgenticAI::Action::"invokeAgent",
     resource
 )
-when { context.intent in principal.allowedIntents };
+when { context.promptIntent.contains(AgenticAI::Skill::"risk-score-lookup") };
+```
+</CodeGroup>
+
+### Context-Based Policies
+
+Decide using runtime values — including guardrail signals — passed in `context`. Here, the tool call is **forbidden** when a blocked term is detected in the user's message:
+
+<Frame caption="A context-based forbid policy using a guardrail signal.">
+  <img src="images/ai-workload-policy-context.png" alt="Context-based forbid policy" />
+</Frame>
+
+<CodeGroup>
+```cedar Context-based
+forbid (
+    principal,
+    action   == AgenticAI::Action::"invokeTool",
+    resource
+)
+when { context has blockedTermInUserMessage && context.blockedTermInUserMessage };
 ```
 </CodeGroup>
 
 ## Generate Policies with Reva AI
 
-You don't have to start from a blank canvas. Reva AI can draft agentic policies from a plain-English description, which you then review and refine.
+You don't have to start from scratch — describe the access you want and let Reva AI draft (or edit) the policy.
 
-<Card title="AI-Generated Access Policy" icon="wand-magic-sparkles" href="/ai-workload-policy-generated">
-  Describe the access you want and let Reva AI draft the policy for you.
+<Card title="Generate & Edit Policies with Reva AI" icon="wand-magic-sparkles" href="/ai-workload-policy-generated">
+  Author and refine agentic policies in plain English.
 </Card>
 
-## Publish Policies
+## Publish
 
-1. Review your draft policies in the **Summary of Policies** view and use **Impact** to preview the access relationships.
-2. Click **Publish** to activate. If approval is required (for non-owner contributors), the draft moves to **Pending Actions** for review.
+Review your draft policies, then **Publish** to activate. If approval is required (for non-owner contributors), the draft moves to Pending Actions for review.
 
-<Info>
-  Before publishing, configure **Policy Publish settings** in the policy store (policy type and connection details). Without this configuration, publishing is not possible.
-</Info>
+<Frame caption="Publishing the policy store.">
+  <img src="images/ai-workload-policy-publish.png" alt="Publish status" />
+</Frame>
 
 ## Sample Policies
 

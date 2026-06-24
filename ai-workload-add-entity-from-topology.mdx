@@ -1,22 +1,28 @@
 ---
-title: "Add an Entity from the Topology View"
-description: "Create a new agent, tool, model, or MCP server directly on the topology graph and wire its connections."
+title: "Build a Topology Manually"
+description: "Add agents, tools, and other entities directly on the graph and wire their connections."
 ---
 
-As your agentic system grows, you can add new entities right from the topology view and connect them visually — no template re-upload required.
+You can start from a **blank topology** or extend an existing one — adding entities by hand and wiring their connections. This is useful when you're modeling a system Reva hasn't discovered.
 
-<Frame caption="Adding an entity from the topology view (from the product design).">
-  <img src="images/ai-workload-add-entity-from-topology.png" alt="Add entity from topology view flow" />
-</Frame>
+<Steps>
+  <Step title="Open the topology and click +">
+    On the topology canvas, click **+** to add an entity.
 
-## Steps
-
-1. Open the **topology** view for your AI workload.
-2. Choose **Add entity** (the **+** control).
-3. Select the **entity type** — `Agent`, `Tool`, `MCPServer`, `Model`, or `API`.
-4. Fill in the entity's details (id, name, and key attributes). For full attribute editing, see [Entity Detail](/ai-workload-entity-detail).
-5. Draw the **connections** — wire the new entity to the agents, tools, or models it interacts with. Only valid edges are allowed (for example, only an `Agent` can invoke a `Model`).
-6. **Save**. The new entity and its edges appear in the topology and become available for [policy design](/ai-workload-policy-design).
+    <Frame caption="Add an entity on the topology canvas.">
+      <img src="images/ai-workload-topology-add-entity.png" alt="Add an entity from the topology" />
+    </Frame>
+  </Step>
+  <Step title="Pick the entity type">
+    Choose the entity type — **User**, **Agent**, **Tool**, **MCPServer**, **Model**, or **API**. The new node appears on the canvas.
+  </Step>
+  <Step title="Connect it yourself">
+    Reva doesn't know your topology, so **you draw the connections** — wire the new node to the agents, tools, or models it interacts with. Only valid source → target edges are allowed (for example, only an `Agent` can invoke a `Model`).
+  </Step>
+  <Step title="Write policies and publish">
+    Add policies on the new edges (see [Policy Design](/ai-workload-policy-design)), then **Publish**.
+  </Step>
+</Steps>
 
 <Note>
   Reva validates connections against the agentic model — see the legal source → target edges in [Context Modeling](/ai-workload-context-modeling#entity-relationships--topology).
@@ -25,8 +31,8 @@ As your agentic system grows, you can add new entities right from the topology v
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Edit Entity Details" icon="pen-to-square" href="/ai-workload-entity-detail">
-    Refine attributes and relationships after adding.
+  <Card title="View & Edit Entity Details" icon="pen-to-square" href="/ai-workload-entity-detail">
+    Refine an entity's attributes after adding it.
   </Card>
   <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
     Bootstrap many entities at once instead.

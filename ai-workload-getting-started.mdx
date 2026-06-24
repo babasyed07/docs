@@ -1,0 +1,70 @@
+---
+title: "Getting Started with AI Workload Security"
+description: "Onboard your agentic workloads and govern every agent action — end to end."
+---
+
+This guide takes you from the empty day-one screen to published, least-privilege policies for an agentic AI workload.
+
+## The Journey
+
+<CardGroup cols={3}>
+  <Card title="1 · Create a policy store" icon="folder-plus" href="/ai-workload-create-policy-store">
+    The container for one agentic workload.
+  </Card>
+  <Card title="2 · Onboard your agents" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
+    Upload a template, add from a repo, or ingest via API.
+  </Card>
+  <Card title="3 · Work in the topology" icon="diagram-project" href="/ai-workload-topology-overview">
+    The hub for assigning policies.
+  </Card>
+  <Card title="4 · Design policies" icon="shield-halved" href="/ai-workload-policy-design">
+    Start from permit-all, then forbid to scope.
+  </Card>
+  <Card title="5 · Integrate" icon="plug" href="/ai-workload-integration-options">
+    SDK, Evaluation API, or native plugin.
+  </Card>
+  <Card title="6 · Operate" icon="list-check" href="/decision-logs">
+    Audit every decision in the logs.
+  </Card>
+</CardGroup>
+
+## Three Ways to Bring Agents into Reva
+
+Before you start, know your options for getting agents, tools, models, and MCP servers into Reva:
+
+| Method | What it is | Where |
+|:-------|:-----------|:------|
+| **1. Upload a CSV template** | Download the metadata template, fill it, upload, and review. Best for manual registration. | [Upload from Template](/ai-workload-schema-upload-template) |
+| **2. Ingest via the API** | Push entities programmatically with the Data Fabric entity API, using your **Store ID** + **PDP Auth Token**. | [Developer Settings](/ai-workload-developer-settings) → [API Reference](/api-reference/introduction) |
+| **3. Discovery integrations** *(Roadmap)* | Azure and other discovery sources auto-add agents to your repository; you then **Add from Repository**. | [Azure Agent Integration](/azure-agent-integration) |
+
+<Note>
+  Already have agents in a connected repository? Use [Add from Repository](/ai-workload-schema-add-from-repository) when you create the policy store.
+</Note>
+
+## Your First Run
+
+<Steps>
+  <Step title="Open AI Insights">
+    On the Home page, switch to the **AI** view. On day one, the **Agentic Workload** panel is empty.
+
+    <Frame caption="The empty Agentic Workload panel on the AI Insights home.">
+      <img src="images/ai-workload-home-empty.png" alt="Empty Agentic Workload panel with Add Agentic Workloads button" />
+    </Frame>
+  </Step>
+  <Step title="Add an agentic workload">
+    Click **Add Agentic Workloads** to create your first agentic policy store. (You can also start from **Manage Policies → + → Agent**.) See [Create an Agentic Policy Store](/ai-workload-create-policy-store).
+  </Step>
+  <Step title="Onboard your agents">
+    Upload the metadata template or add agents from a connected repository, then **review** the parsed entities before proceeding.
+  </Step>
+  <Step title="Land on the topology">
+    Reva renders your agentic **topology** — the hub where you assign policies. Guardrails are auto-applied to the new store.
+
+    <Frame caption="A populated agentic workload inventory.">
+      <img src="images/ai-workload-home-filled.png" alt="Populated agentic workload inventory" />
+    </Frame>
+  </Step>
+</Steps>
+
+Ready? Start with [Create an Agentic Policy Store](/ai-workload-create-policy-store).

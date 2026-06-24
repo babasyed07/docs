@@ -78,17 +78,26 @@
             "pages": [
               "ai-workload-security-overview",
               "ai-workload-capability-matrix",
+              "ai-workload-getting-started",
               {
-                "group": "Onboard & Model Your Agents",
+                "group": "Onboard Your Agents",
                 "expanded": true,
                 "pages": [
-                  "ai-workload-context-modeling",
-                  "ai-workload-metadata-template",
+                  "ai-workload-create-policy-store",
                   "ai-workload-schema-upload-template",
+                  "ai-workload-metadata-template",
                   "ai-workload-schema-add-from-repository",
-                  "ai-workload-schema-runtime-attributes",
-                  "ai-workload-entity-detail",
-                  "ai-workload-add-entity-from-topology"
+                  "ai-workload-developer-settings",
+                  "ai-workload-context-modeling"
+                ]
+              },
+              {
+                "group": "Build & Manage the Topology",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-topology-overview",
+                  "ai-workload-add-entity-from-topology",
+                  "ai-workload-entity-detail"
                 ]
               },
               {
@@ -96,7 +105,8 @@
                 "expanded": true,
                 "pages": [
                   "ai-workload-policy-design",
-                  "ai-workload-policy-generated"
+                  "ai-workload-policy-generated",
+                  "ai-workload-schema-runtime-attributes"
                 ]
               },
               {

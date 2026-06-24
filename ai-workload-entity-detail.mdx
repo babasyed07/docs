@@ -1,36 +1,26 @@
 ---
-title: "Entity Detail View & Edit"
+title: "View & Edit Entity Details"
 description: "Review and edit an entity's attributes, relationships, and metadata."
 ---
 
-Each entity in your topology — an agent, tool, model, MCP server, or API — has a detail view where you can review and edit its attributes, relationships, and metadata. Keeping these accurate is what makes your policies precise.
+Each entity in your topology has a detail view where you review and edit its attributes, relationships, and metadata. Accurate attributes make your policies precise — many policies test values like `riskTier` or a custom field.
 
-<Frame caption="Entity detail view and edit (from the product design).">
-  <img src="images/ai-workload-entity-detail.png" alt="Entity detail view and edit flow" />
-</Frame>
+<Steps>
+  <Step title="Select an entity">
+    In the topology (or the agent inventory), select an entity to open its detail panel.
+  </Step>
+  <Step title="Review and edit">
+    Review the entity's **attributes**, **relationships** (what it invokes and is invoked by), and **metadata**. Click **Edit** to change any field.
 
-## Steps
-
-1. Open the **topology** view (or the agent inventory) and select an entity.
-2. Review the entity's detail panel:
-   - **Attributes** — e.g., `riskTier`, `dataClassification`, `connectionType`, and any custom attributes.
-   - **Relationships** — what this entity can invoke, and what can invoke it.
-   - **Metadata** — name, description, version, status.
-3. Choose **Edit** to update any field.
-4. Adjust attributes or relationships as needed.
-5. **Save** your changes. Updated attributes are immediately available to policies that reference them.
+    <Frame caption="Edit an entity's metadata and attributes.">
+      <img src="images/ai-workload-entity-edit.png" alt="Edit entity metadata" />
+    </Frame>
+  </Step>
+  <Step title="Save">
+    **Save** your changes. Updated attributes are immediately available to policies that reference them.
+  </Step>
+</Steps>
 
 <Tip>
-  Set `riskTier` and `dataClassification` thoughtfully — these attributes are commonly used in conditions, so accurate values make your context-based and OBO policies more effective.
+  Set `riskTier` and `dataClassification` thoughtfully — these attributes are commonly used in on-behalf-of and context-based policy conditions.
 </Tip>
-
-## Related
-
-<CardGroup cols={2}>
-  <Card title="Context Modeling" icon="diagram-project" href="/ai-workload-context-modeling">
-    The entity and attribute model behind these details.
-  </Card>
-  <Card title="Add from Topology View" icon="circle-plus" href="/ai-workload-add-entity-from-topology">
-    Create a new entity directly on the graph.
-  </Card>
-</CardGroup>

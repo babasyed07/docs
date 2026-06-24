@@ -1,30 +1,68 @@
 ---
-title: "AI-Generated Access Policy"
-description: "Describe the access you want in plain English and let Reva AI draft the agentic policy."
+title: "Generate & Edit Policies with Reva AI"
+description: "Draft and refine agentic policies in plain English with Reva AI."
 ---
 
-Reva AI can draft agentic access policies from a plain-English description. You describe the access you want, review the generated policy, refine it, and publish — a fast way to start without writing Cedar by hand.
+Reva AI can draft **and** edit agentic policies from a plain-English description — you describe the access you want, review what Reva proposes, and publish.
 
-<Frame caption="AI-generated access policy flow — describe, generate, review, and refine (from the product design).">
-  <img src="images/ai-workload-policy-generated.png" alt="AI-generated access policy flow" />
-</Frame>
+## Create a Policy with AI
 
-## Steps
+<Steps>
+  <Step title="Open the Policy Designer and choose Create with AI">
+    In your policy store, open the **Policies** tab → **Policy Designer**, then choose **Create with AI**.
 
-1. Open your AI workload policy store and go to the **Policies** tab, then open the **Policy Designer**.
-2. Choose **Create with Reva AI**.
-3. Describe the access in plain English — for example:
-   > Allow the billing agent to invoke the rate MCP tool only when acting on behalf of a low-risk user.
-4. Reva AI drafts a policy with the **principal**, **action**, **resource**, and **conditions** it inferred.
-5. Review and refine the draft in Visual or Developer mode — confirm the entities and conditions match your intent.
-6. Review the policy against your topology, then **Publish**.
+    <Frame caption="Create a policy with Reva AI.">
+      <img src="images/ai-workload-ai-create.png" alt="Create policy with AI" />
+    </Frame>
+  </Step>
+  <Step title="Describe the access in plain English">
+    For example: *"Forbid the underwriter copilot from invoking the risk-lookup tool when acting on behalf of amit."*
+  </Step>
+  <Step title="Review the drafted policy">
+    Reva drafts the principal, action, resource, and conditions. Refine it in Visual or Cedar mode.
+
+    <Frame caption="The AI-drafted policy in the panel.">
+      <img src="images/ai-workload-ai-create-panel.png" alt="AI-drafted policy panel" />
+    </Frame>
+  </Step>
+  <Step title="Publish">
+    Once it's right, **Publish** to activate.
+  </Step>
+</Steps>
+
+## Edit a Policy with AI
+
+<Warning>
+  Edit-with-AI acts on the policy you have **open**. Select and open the specific policy first — you can't edit from a blank state.
+</Warning>
+
+<Steps>
+  <Step title="Open the policy you want to change">
+    Select the policy in the list so it's open in the editor.
+  </Step>
+  <Step title="Ask Reva AI for the change">
+    Describe the edit — for example, *"Edit this policy to forbid the send-notification skill instead of risk-score-lookup."* Reva AI returns the **Changes**, **Impact**, and **Why**.
+
+    <Frame caption="Ask Reva AI — Changes, Impact, and Why.">
+      <img src="images/ai-workload-ai-edit.png" alt="Edit policy with AI" />
+    </Frame>
+  </Step>
+  <Step title="Review and accept">
+    Review the proposed change and **Accept** it.
+
+    <Frame caption="Accept the AI's changes.">
+      <img src="images/ai-workload-ai-edit-accept.png" alt="Accept AI policy changes" />
+    </Frame>
+  </Step>
+  <Step title="Confirm the update">
+    The policy is updated and ready to publish.
+
+    <Frame caption="The edited policy.">
+      <img src="images/ai-workload-ai-edit-done.png" alt="AI edit completed" />
+    </Frame>
+  </Step>
+</Steps>
 
 <Note>
-  Always review AI-generated policies before publishing. Treat the draft as a starting point and validate it the same way you would a hand-written policy.
+  Always review AI-generated and AI-edited policies before publishing. Reva AI explains its Changes / Impact / Why, but you own the final policy.
 </Note>
-
-## Related
-
-<Card title="Policy Design" icon="shield-halved" href="/ai-workload-policy-design">
-  The full guide to agentic policy styles — context-based, on-behalf-of, and intent-based.
-</Card>
