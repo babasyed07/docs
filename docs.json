@@ -218,16 +218,10 @@
             ]
           },
           {
-            "group": "AI Workload Authorization APIs",
-            "expanded": true,
-            "pages": [
-              "ai-workload-developer-evaluation-api"
-            ]
-          },
-          {
             "group": "Authorization APIs",
             "expanded": true,
             "pages": [
+              "ai-workload-developer-evaluation-api",
               {
                 "group": "AuthZEN Compliant Evaluation",
                 "expanded": true,
