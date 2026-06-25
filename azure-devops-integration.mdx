@@ -1,0 +1,112 @@
+---
+title: "Azure DevOps Integration"
+description: "Connect Reva to an Azure DevOps repository to store and manage Cedar policies and schema files."
+---
+
+Azure DevOps integration allows Reva to connect to an Azure DevOps Git repository for policy and schema management.
+
+After the integration is configured, Reva stores policy store files in the connected repository using the policy store ID as the root folder.
+
+## Repository structure
+
+Reva uses the following folder structure in Azure DevOps:
+
+<Info>
+    &lt;policyStoreId&gt;/<br />
+    &nbsp;&nbsp;policies/<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;policyId&gt;_json<br />
+    &nbsp;&nbsp;schema/<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;schema_json
+</Info>
+
+| Folder or file | Description |
+|---|---|
+| `<policyStoreId>` | Root folder for the policy store. The folder name matches the Reva policy store ID. |
+| `policies` | Stores all Cedar policy files for the policy store. |
+| `<policyId>_json` | Stores one policy per file. Each file is saved in JSON format. |
+| `schema` | Stores the Cedar schema for the policy store. |
+| `schema_json` | Stores the schema file in JSON format. |
+
+Each policy is stored as a separate JSON file under the policies directory.
+
+Example policy file:
+<Info> &#123;<br /> &nbsp;&nbsp;"policyId": "0642dc92-9d6b-4847-af03-c05f83c18c0c",<br /> &nbsp;&nbsp;"policyObject": "permit (principal is TokenEnrichment::User, action == TokenEnrichment::Action::\"getApplication\", resource);"<br /> &#125; </Info>
+
+
+## Prerequisites
+
+Before you configure the Azure DevOps integration, make sure you have:
+
+- An Azure DevOps organization and project.
+- A Git repository created in Azure DevOps.
+- A Personal Access Token with code read and write access.
+- The Azure DevOps repository URL.
+- The branch where Reva should publish policies and schema files.
+
+The repository URL must include _git.
+
+<Info>
+https://dev.azure.com/{organization}/{project}/_git/{repository}
+</Info>
+
+## Configure Azure DevOps integration
+
+1. In Reva, go to `Integrations`.
+2. Click `+ Integration`.
+3. Select `Policy Store` from dropdown and then select `Azure DevOps`.
+4. Click Next.
+5. Enter the integration details.
+   <Info>
+    | Field | Description |
+    |---|---|
+    | Integration Name | Enter a name for the Azure DevOps integration. |
+    | Description | Enter a short description for the integration. |
+    | Personal Access Token | Enter the Azure DevOps PAT. The token must have code read and write access. |
+    | Email | Enter the email address associated with the Azure DevOps account. |
+    | Username | Enter the Azure DevOps username. |
+    | Policy Type | Select the policy type as `CEDAR`. |
+    | Repository URL | Enter the Azure DevOps repository URL. The URL must include `_git`. |
+   </Info>
+6. Click Next.
+7. In Choose your branch, select the target branch.
+8. Click Activate.
+
+After activation, Reva creates the integration and displays it on the **Integrations** page.
+
+## Test the Azure DevOps integration
+
+After the Azure DevOps integration is created, you can view the integration details and test the connection.
+
+1. Go to **Integrations**.
+2. Find the Azure DevOps integration card.
+3. Click the three-dot menu on the integration card.
+4. Click **Details**.
+
+The **Integration Details** page opens. This page shows the integration name, description, repository URL, policy type, and managed policy stores.
+
+5. Click **Test**.
+
+If the connection is successful, Reva displays the following success message:
+
+<Info>
+Azure_DevOps is ready to use.
+</Info>
+
+## Update the Azure DevOps Personal Access Token
+
+You can update the Azure DevOps Personal Access Token (PAT) from the **Integration Details** page. Use this option when the existing token has expired, has been revoked, or needs to be replaced.
+
+1. Go to **Integrations**.
+2. Open the Azure DevOps integration.
+3. Click **Details**.
+4. On the **Integration Details** page, click the three-dot menu next to **Test**.
+5. Click **Update Access Token**.
+6. Enter the new Azure DevOps Personal Access Token.
+7. Update the changes.
+8. Click **Test** to validate the updated token.
+
+If the token is valid and Reva can connect to Azure DevOps, Reva displays the following success message:
+
+<Info>
+Azure_DevOps is ready to use.
+</Info>

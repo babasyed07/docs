@@ -191,6 +191,7 @@
               "scim-integration",
               "github-integration",
               "gitlab-integration",
+              "azure-devops-integration",
               "okta-identity-integration"
             ]
           },
