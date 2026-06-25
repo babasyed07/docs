@@ -1,51 +1,56 @@
 ---
-title: "Policy Settings"
+title: "Settings"
 ---
-The Policy Settings Tab is the central workspace for configuring ownership, environment details, data sources, and policy publishing destinations in Reva. It allows administrators and developers to control how policies are managed, tested, and deployed across environments. From here, you can set who owns or collaborates on a policy store, decide which dataset powers simulations and analytics, and choose the policy engine type (AVP, Cedar, OPA) for publishing.  
+
+The **Settings** tab is used to manage policy store ownership, permissions, data source configuration, and certification settings in Reva.
+
+From this page, administrators can update policy store information, assign owners and collaborators, and select the preferred data source used for policy evaluation, simulations, and analytics.
+
+## Access Policy Store Settings
+
+To open policy store settings:
+
+1. Go to the required policy store.
+2. Click the **Settings** tab from the top navigation.
+3. Use the left-side menu to configure:
+   - **Info & Ownership**
+   - **Data**
 
 ## Info & Ownership
-Manage the identity, description, and permissions for the policy store.  
-1. **Environment Name**  
-   A unique label for the environment where the policy store runs.  
-   Example: dev, qa, or production.
-2. **Description**  
-   A free-text field describing the application or system linked to this policy store.
-   Example:  
-   “Comprehensive banking platform for customer account management and internal staff operations with advanced security controls.”
-3. **Owners**  
-   Users with full control over the policy store. Owners can create, update, and delete policies and configuration.
-   Example: appadmin.
-4. **Collaborators**  
-   Define who can view or edit the policy store:  
-   **Viewers:** Read-only access, suitable for auditors or compliance reviewers.  
-   Example: auditor-user  
-   **Editors:** Can update configurations and policies but not delete the store.  
-   Example: developer1.
-## Policy Simulation Data configuration
-Configure the preferred dataset for policy evaluation, simulations, and analytics.
-1. Preferred Data Source
-   Select the data environment for running policies:
-   - **Simulation:** Test policies against simulated datasets before going live.  
-     Example: Use “Simulation” while drafting rules to check impact without affecting production.
-   - **Production:** Apply live datasets for real policy enforcement and monitoring.  
-     Example: Use “Production” when finalizing authorization checks for SecureBank transactions.  
-## Policy Publish
-Set destinations and integrations for publishing and running policies.
-1. **Policy Type Selection** (when creating new store or linking an existing policy store)  
-   Choose the engine or framework for policy enforcement:  
-   - **AVP** (Amazon Verified Permissions)
-   - **Cedar** (Cedar policy language)
-   - **OPA** (Open Policy Agent).
-<Info>Example: Select “AVP” if integrating with Amazon Verified Permissions) to manage the policy store.</Info>
-2. **Connection Settings** (when publishing with AVP)
-   - **Connection Name:** A user-friendly name for the publishing connection.  
-     Example: east-2.
-   - **Connection Type:** Indicates the enforcement engine, e.g., AVP.
-   - **External ID:** Unique identifier for cross-account trust and API calls.  
-     Example: LD4qdTVkc6ZAmExtVJxHnG.
-   - **Account ID:** AWS account or system identifier for integration.  
-     Example: 123456789012.
-   - **Region:** Region where the policy engine is deployed.  
-     Example: us-east-2.
-3. **History Button**  
-   Allows you to view the publish history of policies, including timestamps and status.
+
+Use **Info & Ownership** to manage basic policy store information and user access.
+
+This section includes the following fields:
+
+| Field | Description |
+| --- | --- |
+| Portfolio Name | The name of the portfolio or policy store. This identifies the policy store within Reva. |
+| Owners | Users with ownership access to the policy store. Owners can manage policy store configuration and access permissions. |
+| Description | A short description of the policy store and its purpose. |
+| Viewers | Users who can view the policy store, policies, schema, test data, and configuration settings. |
+| Editors | Users who can edit policy store configuration, policies, schema, test data, and related settings. |
+
+<Info>
+Owners, viewers, and editors can be selected from the available user list. Click **Save** after making changes.
+</Info>
+
+## Data
+
+Use **Data** to configure which dataset is available for policy evaluation, simulations, and analytics.
+
+This section allows you to select the preferred data source for the policy store. You can connect datasets from external sources or use uploaded datasets within Reva.
+
+| Field | Description |
+| --- | --- |
+| Preferred Data Source | The dataset used by Reva for policy evaluation, simulations, and analytics. |
+
+The available data source options are:
+
+| Data Source | Description |
+| --- | --- |
+| Simulation | Uses simulation data for testing and validating policies before using them in live workflows. |
+| Live | Uses live data for policy evaluation, analytics, and operational policy workflows. |
+
+<Info>
+Use **Simulation** while drafting or testing policies. Use **Live** when the policy store needs to evaluate policies against live data.
+</Info>
