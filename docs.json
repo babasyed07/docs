@@ -87,8 +87,7 @@
                   "ai-workload-create-policy-store",
                   "ai-workload-schema-add-from-repository",
                   "ai-workload-schema-upload-template",
-                  "ai-workload-metadata-template",
-                  "ai-workload-developer-settings"
+                  "ai-workload-metadata-template"
                 ]
               },
               {
@@ -114,6 +113,7 @@
                 "expanded": true,
                 "pages": [
                   "ai-workload-integration-options",
+                  "ai-workload-developer-settings",
                   "ai-workload-developer-sdk",
                   "ai-workload-native-plugins"
                 ]
