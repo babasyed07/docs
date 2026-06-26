@@ -37,7 +37,7 @@ Reva authorizes agent activity with the same Cedar shape used across the platfor
 
 ## Entity Relationships & Topology
 
-Reva connects entities into a **topology**: the directed graph of who may invoke whom. Only certain source → target combinations are valid, mirroring the actions in the schema:
+Reva connects entities into a **topology**: the directed graph of who may invoke whom. Only certain source → target combinations are valid, mirroring the actions in the schema (`invokeAgent`, `invokeModel`, `invokeTool`, `listTools`, `read`/`write`/`delete`):
 
 | Target | Allowed sources | Meaning |
 |:-------|:----------------|:--------|
@@ -47,7 +47,11 @@ Reva connects entities into a **topology**: the directed graph of who may invoke
 | **MCPServer** | Agent, User, ServiceAccounts | list tools on an MCP server |
 | **API** | User, UserGroup, ServiceAccounts, CloudFunctions, Agent | read / write / delete an API |
 
-For the complete edge rules and how to express them, see [Fill the Agentic Workload Metadata Template](/ai-workload-metadata-template).
+<Note>
+  Edge **targets** are always one of `Agent`, `Model`, `Tool`, `MCPServer`, or `API`. `User`, `UserGroup`, `ServiceAccounts`, `CloudFunctions`, and `Skill` are never targets — a `Skill` attaches to an Agent (via its `skills` attribute) and `UserGroup` membership is an attribute of `User`; neither is a topology edge.
+</Note>
+
+To express these edges when you onboard, see [the topology file](/ai-workload-metadata-template) in the metadata template guide.
 
 ## Runtime Attributes
 

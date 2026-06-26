@@ -86,7 +86,7 @@ e.g. `billing-agent`). Reva uses `id` as the join key across all files. It is
 
 ## 3. Entity field reference
 
-Legend for the **Required** column: ✅ = required, ⬜ = optional.
+This is the **field-level** guide for each entity's CSV. For what each entity *represents* and how they relate, see [AI Workload Context Modeling](/ai-workload-context-modeling). Legend for the **Required** column: ✅ = required, ⬜ = optional.
 
 ### 3.1 User — `entities/User/User.csv`
 
@@ -287,22 +287,13 @@ producing one arrow in the graph.
 
 ### 4.1 Which connections are legal
 
-Reva's schema only allows certain source → target combinations (these mirror the
-actions in the schema: `invokeAgent`, `invokeModel`, `invokeTool`, `listTools`,
-`read`/`write`/`delete`). Use this table to keep your edges valid:
+Only certain source → target pairs are valid: `target_type` is always one of
+`Agent`, `Model`, `Tool`, `MCPServer`, or `API`, and each accepts a specific set
+of source types. Every row in `topology.csv` must match one of those pairs.
 
-| Target (`target_type`) | Allowed sources (`source_type`) | Meaning |
-|------------------------|---------------------------------|---------|
-| `Agent` | `User`, `ServiceAccounts`, `CloudFunctions`, `UserGroup`, `Agent` | invoke an agent |
-| `Model` | `Agent` | agent invokes a model |
-| `Tool` | `Agent`, `User`, `ServiceAccounts` | invoke a tool |
-| `MCPServer` | `Agent`, `User`, `ServiceAccounts` | list tools on an MCP server |
-| `API` | `User`, `ServiceAccounts`, `CloudFunctions`, `UserGroup`, `Agent` | read / write / delete an API |
-
-> Targets are always one of `Agent`, `Model`, `Tool`, `MCPServer`, or `API`.
-> `Skill`, `UserGroup`, `ServiceAccounts`, `CloudFunctions`, and `User` are never
-> edge **targets** (`Skill` is attached via the Agent `skills` column, and
-> `UserGroup` via the User `memberOf:UserGroup` column — not via topology).
+**See the full table of legal edges in [Entity Relationships & Topology](/ai-workload-context-modeling#entity-relationships--topology).**
+(`Skill` and `UserGroup` are never topology targets — `Skill` attaches via the
+Agent `skills` column and `UserGroup` via the User `memberOf:UserGroup` column.)
 
 ### 4.2 Worked example (from the supply-chain sample)
 
