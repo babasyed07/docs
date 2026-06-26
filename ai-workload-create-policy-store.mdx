@@ -5,6 +5,10 @@ description: "Create the policy store that holds your agents, schema, and polici
 
 An **agentic policy store** is the container for one agentic workload — its agents and entities, schema, policies, and decision logs. Create one before you onboard agents.
 
+<Tip>
+  Your tenant already includes a global **`GlobalAgentWorkloadApp`** store where every ingested entity lands. You create your own store here to scope a specific workload's schema, policies, and decision logs — then add agents to it from your [inventory](/ai-workload-getting-started#the-inventory-and-your-policy-stores). You don't have to author policies in `GlobalAgentWorkloadApp`.
+</Tip>
+
 ## Two Ways In
 
 <Steps>

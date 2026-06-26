@@ -3,7 +3,11 @@ title: "Developer Settings & Credentials"
 description: "Get your Store ID and PDP Auth Token, and ingest entities via the Data Fabric API."
 ---
 
-Every agentic policy store has a **Developer Integration** tab that gives you the credentials and ingestion surface your code needs — the **Store ID**, the **PDP Auth Token**, and **Data Fabric Ingestion**. The same credentials drive the [Python SDK](/ai-workload-developer-sdk), the [Evaluation API](/ai-workload-developer-evaluation-api), and direct entity ingestion.
+Every agentic policy store has a **Developer Integration** tab that gives you the credentials and ingestion surface your code needs — the **Store ID**, the **PDP Auth Token**, and **Data Fabric Ingestion**. These credentials drive the [Python SDK](/ai-workload-developer-sdk), the [Evaluation API](/ai-workload-developer-evaluation-api), and direct entity ingestion.
+
+<Info>
+  **Which store's credentials?** For **runtime authorization** (SDK / Evaluation API), use the credentials of the store whose policies you're evaluating. For **entity ingestion**, use the **`GlobalAgentWorkloadApp`** store's credentials — every ingested entity lands in that tenant-wide [inventory](/ai-workload-getting-started#the-inventory-and-your-policy-stores).
+</Info>
 
 ## Get Your Credentials
 
@@ -33,7 +37,7 @@ Every agentic policy store has a **Developer Integration** tab that gives you th
 
 ## Ingest Entities via the API
 
-The **Data Fabric Ingestion** section lists the entity data types you can push directly. This is the programmatic alternative to the [CSV upload](/ai-workload-schema-upload-template) — create your agents, tools, models, and relationships with the Data Fabric entity API.
+Open the **`GlobalAgentWorkloadApp`** store's **Developer Integration** tab — ingested entities land in your tenant-wide inventory, so ingestion uses **its** **Store ID** and **PDP Auth Token**. The **Data Fabric Ingestion** section lists the entity data types you can push directly. This is the programmatic alternative to the [CSV upload](/ai-workload-schema-upload-template) — create your agents, tools, models, and relationships with the Data Fabric entity API.
 
 <Frame caption="Data Fabric Ingestion — entity data types you can push via the API.">
   <img src="images/ai-workload-devsettings-datafabric.png" alt="Data Fabric Ingestion keys and entity types" />
