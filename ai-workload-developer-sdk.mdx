@@ -7,6 +7,31 @@ The `reva-ai` SDK adds Reva authorization to an agentic system with two primitiv
 
 Prefer no code? You can call the [PDP evaluation API](/ai-workload-developer-evaluation-api) directly instead.
 
+## How the SDK Enforces
+
+The SDK authorizes **both** sides of every agent and forwards a short-lived transaction token across hops, so each boundary re-checks on its own:
+
+```
+                ┌──────────────────────────────┐
+                │   Reva Trust Guardian (PDP)   │
+                │   allow / deny · issue token  │
+                └──────────────────────────────┘
+                       ▲                ▲
+        evaluate       │                │   issue a
+        inbound call   │                │   transaction token
+                       │                │
+  User ───▶  Agent A  ───────────▶  Agent B  ───────────▶  Tool / MCP / Model
+            (inbound decorator)     (outbound proxy)
+```
+
+1. The **inbound decorator** (`@reva_ai_authorise`) checks each incoming call with the PDP before your handler runs.
+2. The **outbound proxy** authorizes every call your agent makes and forwards a short-lived, task-scoped **transaction token** to the next hop.
+3. Each hop re-evaluates on its own boundary, and every decision — allow or deny — is written to the [decision logs](/decision-logs), correlated by a thread id.
+
+<Note>
+  This inbound/outbound + transaction-token model is specific to the SDK. With the [Evaluation API](/ai-workload-developer-evaluation-api), you make a single `allow`/`deny` call yourself at your enforcement point — no token is issued.
+</Note>
+
 ## Install
 
 ```bash

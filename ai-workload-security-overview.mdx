@@ -33,50 +33,28 @@ Reva evaluates each hop in an agent chain as a distinct authorization decision:
 
 ## How Enforcement Works
 
-Whatever kind of agent you run, the model is the same: every hop is evaluated by the **Reva Trust Guardian** — Reva's Policy Decision Point (PDP) — *before* it happens.
+Whatever kind of agent you run, the core model is the same: **every hop is evaluated by the Reva Trust Guardian — Reva's Policy Decision Point (PDP) — before it happens.**
 
-```
-                ┌──────────────────────────────┐
-                │   Reva Trust Guardian (PDP)   │
-                │   allow / deny · issue token  │
-                └──────────────────────────────┘
-                       ▲                ▲
-        evaluate       │                │   issue a
-        inbound call   │                │   transaction token
-                       │                │
-  User ───▶  Agent A  ───────────▶  Agent B  ───────────▶  Tool / MCP / Model
-             (inbound check)         (outbound check)
-```
+1. A call is about to be made — a user invokes an agent, or an agent invokes another agent, a tool, an MCP server, or a model.
+2. Its details — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — are evaluated against your Cedar policies in the Trust Guardian.
+3. The Trust Guardian returns **allow** or **deny**. On allow the call proceeds; on deny it's rejected — Reva is **fail-closed** by default.
+4. Every decision is written to the [decision logs](/decision-logs), correlated by a thread id so you can trace an entire agent chain end to end.
 
-1. A request reaches an agent (from a user or an upstream agent), carrying its credentials.
-2. Before the agent acts, the call is evaluated — subject, action, resource, principal, and context (such as `onBehalfOf`, environment, and the prompt/intent) — against your Cedar policies in the Trust Guardian.
-3. The Trust Guardian returns **allow** or **deny**. On allow the agent proceeds; on deny the call is rejected — Reva is **fail-closed** by default.
-4. For each outbound call, the Trust Guardian issues a short-lived, task-scoped **transaction token** that travels to the next hop, which re-evaluates on its own boundary.
-5. Every decision — allow or deny — is written to the [decision logs](/decision-logs), correlated by a `threadId` so you can trace an entire agent chain end to end.
+**What differs is *how* you make that check** — and that depends on how you integrate:
 
-How your agents *connect* to the Trust Guardian depends on how they're built — see below.
+| Integration | How enforcement happens |
+|:------------|:------------------------|
+| **Python SDK** | Authorizes *both* sides automatically: an inbound decorator checks incoming calls, and an outbound proxy checks each call your agent makes and forwards a short-lived, task-scoped **transaction token** to the next hop for chain-of-custody. |
+| **Evaluation API** | You call the Trust Guardian yourself at your enforcement point and act on the **allow / deny** result — a single synchronous check, with **no transaction-token issuance**. |
 
-## Connect Your Agents
-
-The right integration depends on the kind of agent. Reva meets each where it lives:
-
-| Your agent | Integrate via | Status |
-|:-----------|:--------------|:-------|
-| **Pro-code** (LangChain, LangGraph, CrewAI, custom services) | [Python SDK](/ai-workload-developer-sdk) — inbound decorator + outbound proxy | Available |
-| **Low-code** (Microsoft Copilot Studio) | [Evaluation API](/ai-workload-developer-evaluation-api) — call the Trust Guardian at hook points | Available |
-| **No-code / SaaS agents** (Salesforce Agentforce) | [Native plugin](/ai-workload-native-plugins) | Coming soon |
-| **Coding agents** (Claude Code, Cursor, Kiro) | [Native plugin / agent skill](/ai-workload-native-plugins) | Coming soon |
-
-<Card title="Compare integration approaches" icon="plug" href="/ai-workload-integration-options">
-  See which approach fits your stack and how to wire it up.
-</Card>
+Native plugins for no-code and coding agents are coming soon. See [Connect Your Agents](/ai-workload-integration-options) to find the right approach for your stack and wire it up.
 
 ## Precision Enforcement and Audit
 
 Because enforcement is policy-driven, Reva stays in control even when the agent isn't:
 
 - **Deterministic** — an inappropriate action is blocked even if the agent's reasoning or LLM is compromised by prompt injection.
-- **Zero Standing Privileges** — each hop is authorized just-in-time for the task's intent, and the scoped transaction token expires immediately, so privileges never linger.
+- **Zero Standing Privileges** — each hop is authorized just-in-time for the task's intent; nothing is granted ahead of time. With the SDK, the scoped transaction token expires immediately, so privileges never linger.
 - **Chain-of-custody** — every hop shares a `threadId`, giving you an end-to-end, replayable record of who did what, on whose behalf, and why.
 - **Guarded at runtime** — pair policies with [runtime guardrails](/guardrails/overview) to screen content, context, behavior, and intent on every request, and route risky actions to human approval.
 

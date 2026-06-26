@@ -9,7 +9,7 @@ An **agentic policy store** is the container for one agentic workload — its ag
   Your tenant already includes a global **`GlobalAgentWorkloadApp`** store where every ingested entity lands. You create your own store here to scope a specific workload's schema, policies, and decision logs — then add agents to it from your [inventory](/ai-workload-getting-started#the-inventory-and-your-policy-stores). You don't have to author policies in `GlobalAgentWorkloadApp`.
 </Tip>
 
-## Two Ways In
+## Where to Start
 
 <Steps>
   <Step title="From the Home page (first time)">
@@ -24,6 +24,13 @@ An **agentic policy store** is the container for one agentic workload — its ag
 
     <Frame caption="Create an agentic policy store from Manage Policies → + → Agent.">
       <img src="images/ai-workload-manage-policies-plus-agent.png" alt="Manage Policies plus dropdown with Agent option" />
+    </Frame>
+  </Step>
+  <Step title="From the inventory (agents already ingested)">
+    If your agents are already in your inventory (via the [ingestion API](/ai-workload-developer-settings) or discovery), click **Manage** on an entity and choose **+ Create new policy store** from the **Select Policy Store** dropdown. The store opens with that entity pre-selected — you then add the rest with **Add from Repository**.
+
+    <Frame caption="Create a new store from Manage Entity → Select Policy Store.">
+      <img src="images/ai-workload-manage-entity-select-store.png" alt="Select Policy Store dropdown with a create-new option" />
     </Frame>
   </Step>
 </Steps>
@@ -52,18 +59,16 @@ An **agentic policy store** is the container for one agentic workload — its ag
 
 ## Choose How to Add Agents
 
-After the store is created, pick how to bring agents in:
+After the store is created, how you add agents depends on what's already in your inventory:
 
 <CardGroup cols={2}>
-  <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
-    Manually register agents from the metadata CSV template.
-  </Card>
   <Card title="Add from Repository" icon="code-branch" href="/ai-workload-schema-add-from-repository">
-    Select agents already discovered in a connected repository.
+    **Inventory already populated** (you ran the ingestion API or discovery, or arrived via **Manage**) — pull the agents you need straight from your inventory.
+  </Card>
+  <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
+    **Starting fresh** (empty inventory) — register agents from the metadata CSV template.
   </Card>
 </CardGroup>
-
-You can also [ingest entities programmatically via the API](/ai-workload-developer-settings).
 
 <Note>
   **Guardrails are auto-applied** to every new agentic policy store. Review and manage them in the [Guardrails](/guardrails/overview) section.

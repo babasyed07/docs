@@ -7,26 +7,13 @@ This guide takes you from the empty day-one screen to published, least-privilege
 
 ## The Journey
 
-<CardGroup cols={3}>
-  <Card title="1 · Create a policy store" icon="folder-plus" href="/ai-workload-create-policy-store">
-    The container for one agentic workload.
-  </Card>
-  <Card title="2 · Onboard your agents" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
-    Upload a template, add from your inventory, or ingest via API.
-  </Card>
-  <Card title="3 · Work in the topology" icon="diagram-project" href="/ai-workload-topology-overview">
-    The hub for assigning policies.
-  </Card>
-  <Card title="4 · Design policies" icon="shield-halved" href="/ai-workload-policy-design">
-    Start from permit-all, then forbid to scope.
-  </Card>
-  <Card title="5 · Integrate" icon="plug" href="/ai-workload-integration-options">
-    SDK, Evaluation API, or native plugin.
-  </Card>
-  <Card title="6 · Operate" icon="list-check" href="/decision-logs">
-    Audit every decision in the logs.
-  </Card>
-</CardGroup>
+The path from zero to governed agents — read on for the details of each stage:
+
+1. **Onboard your agents** — pre-populate your inventory, then create a policy store and add agents to it.
+2. **Work in the topology** — the hub where you assign policies.
+3. **Design policies** — start from permit-all, then forbid to scope.
+4. **Integrate** — connect your agents via the SDK, Evaluation API, or a native plugin.
+5. **Operate** — audit every decision in the logs.
 
 ## The Inventory and Your Policy Stores
 
@@ -44,21 +31,55 @@ From the inventory, click **Manage** on any entity to work on its access. Becaus
   <img src="images/ai-workload-manage-entity-select-store.png" alt="Manage Entity dialog with a Select Policy Store dropdown" />
 </Frame>
 
-## Three Ways to Fill Your Inventory
+## How Agents Get Into Reva
 
-Bring agents, tools, models, and MCP servers into your inventory in any of three ways:
+Getting agents into a governed policy store happens in two stages.
+
+**Stage 1 — Pre-populate your inventory** *(optional, ahead of time).* These land entities directly in `GlobalAgentWorkloadApp`, with no policy store required yet:
 
 | Method | What it is | Where |
 |:-------|:-----------|:------|
-| **1. Upload a CSV template** | Download the metadata template, fill it, upload, and review. Best for manual registration. | [Upload from Template](/ai-workload-schema-upload-template) |
-| **2. Ingest via the API** | Push entities programmatically with the Data Fabric entity API, using the **`GlobalAgentWorkloadApp`** **Store ID** + **PDP Auth Token**. | [Developer Settings](/ai-workload-developer-settings) → [Create Entities API](/api-reference/entity-ingestion/create-entities) |
-| **3. Discovery integrations** *(Roadmap)* | Azure and other discovery sources auto-add agents to your inventory; you then **Add from Repository**. | [Azure Agent Integration](/azure-agent-integration) |
+| **Ingestion API** | Push agents, tools, models, and relationships programmatically with the Data Fabric entity API, using the **`GlobalAgentWorkloadApp`** **Store ID** + **PDP Auth Token**. | [Developer Settings](/ai-workload-developer-settings) → [Create Entities API](/api-reference/entity-ingestion/create-entities) |
+| **Discovery integrations** *(Roadmap)* | Azure and other discovery sources auto-add agents to your inventory. | [Azure Agent Integration](/azure-agent-integration) |
+
+**Stage 2 — Onboard agents into a policy store** *(when you create one).* Choose one:
+
+| Method | What it is | Where |
+|:-------|:-----------|:------|
+| **Add from Repository** | Pull agents that are already in your inventory into the new store. Best after Stage 1. | [Add from the Inventory](/ai-workload-schema-add-from-repository) |
+| **Upload a CSV template** | Download the metadata template, fill it, upload, and review. The way in when your inventory is empty. | [Upload from Template](/ai-workload-schema-upload-template) |
 
 <Note>
-  Already have agents in your inventory? Use [Add from Repository](/ai-workload-schema-add-from-repository) when you create the policy store to pull them in.
+  **Upload** and **Add from Repository** appear only *inside* the store-creation flow (after **Add Agentic Workloads** or **Manage Policies → + → Agent**). Ingestion and discovery populate the inventory independently, before any store exists.
 </Note>
 
 ## Your First Run
+
+How you start depends on whether your inventory already has agents.
+
+### If your inventory is already populated
+
+You've run the **ingestion API** or a **discovery integration**, so your agents are already sitting in `GlobalAgentWorkloadApp`. Bring them into a purpose-specific store straight from the inventory:
+
+<Steps>
+  <Step title="Open the inventory">
+    On the Home page, switch to the **AI** view. The **Agentic Workload** panel lists your ingested agents, tools, models, and MCP servers.
+
+    <Frame caption="A populated agentic workload inventory.">
+      <img src="images/ai-workload-home-filled.png" alt="Populated agentic workload inventory" />
+    </Frame>
+  </Step>
+  <Step title="Manage an entity, pick or create a store">
+    Click **Manage** on an agent, then use the **Select Policy Store** dropdown (shown above) to choose an existing store — or **+ Create new policy store** to start a fresh one with this entity pre-selected. See [Create an Agentic Policy Store](/ai-workload-create-policy-store).
+  </Step>
+  <Step title="Add the rest from the inventory">
+    In the store, use **Add from Repository** to pull in the other agents you need, then proceed to the topology. See [Add from the Inventory](/ai-workload-schema-add-from-repository).
+  </Step>
+</Steps>
+
+### If you're starting fresh
+
+Nothing is ingested yet, so you create a store and upload your agents:
 
 <Steps>
   <Step title="Open AI Insights">
@@ -68,17 +89,13 @@ Bring agents, tools, models, and MCP servers into your inventory in any of three
       <img src="images/ai-workload-home-empty.png" alt="Empty Agentic Workload panel with Add Agentic Workloads button" />
     </Frame>
   </Step>
-  <Step title="Add an agentic workload">
-    Click **Add Agentic Workloads** to create your first agentic policy store. (You can also start from **Manage Policies → + → Agent**.) See [Create an Agentic Policy Store](/ai-workload-create-policy-store).
+  <Step title="Create an agentic policy store">
+    Click **Add Agentic Workloads** (or **Manage Policies → + → Agent**) and fill the onboarding form. See [Create an Agentic Policy Store](/ai-workload-create-policy-store).
   </Step>
-  <Step title="Onboard your agents">
-    Upload the metadata template or add agents from your inventory, then **review** the parsed entities before proceeding.
+  <Step title="Upload the metadata template">
+    Because your inventory is empty, **Upload CSV** is your way in: download the template, fill it, upload, and **review** the parsed entities before proceeding. See [Onboard by Uploading the Template](/ai-workload-schema-upload-template).
   </Step>
   <Step title="Land on the topology">
     Reva renders your agentic **topology** — the hub where you assign policies. Guardrails are auto-applied to the new store.
-
-    <Frame caption="A populated agentic workload inventory.">
-      <img src="images/ai-workload-home-filled.png" alt="Populated agentic workload inventory" />
-    </Frame>
   </Step>
 </Steps>
