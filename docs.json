@@ -79,16 +79,16 @@
               "ai-workload-security-overview",
               "ai-workload-capability-matrix",
               "ai-workload-getting-started",
+              "ai-workload-context-modeling",
               {
                 "group": "Onboard Your Agents",
                 "expanded": true,
                 "pages": [
                   "ai-workload-create-policy-store",
+                  "ai-workload-schema-add-from-repository",
                   "ai-workload-schema-upload-template",
                   "ai-workload-metadata-template",
-                  "ai-workload-schema-add-from-repository",
-                  "ai-workload-developer-settings",
-                  "ai-workload-context-modeling"
+                  "ai-workload-developer-settings"
                 ]
               },
               {
