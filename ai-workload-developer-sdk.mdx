@@ -1,9 +1,9 @@
 ---
 title: "Developer Integration — Python SDK"
-description: "Add drop-in authorization to your agents with the reva-ai Python SDK."
+description: "Add drop-in authorization to your agents with the reva-ai-authz Python SDK."
 ---
 
-The `reva-ai` SDK adds Reva authorization to an agentic system with two primitives: a **decorator** on the inbound side of every agent or MCP tool, and a **proxy** on the outbound side of every call to another protected service. Both consult the Reva PDP before work happens.
+The `reva-ai-authz` SDK adds Reva authorization to an agentic system with two primitives: a **decorator** on the inbound side of every agent or MCP tool, and a **proxy** on the outbound side of every call to another protected service. Both consult the Reva PDP before work happens.
 
 Prefer no code? You can call the [PDP evaluation API](/ai-workload-developer-evaluation-api) directly instead.
 
@@ -35,14 +35,7 @@ The SDK authorizes **both** sides of every agent and forwards a short-lived tran
 ## Install
 
 ```bash
-# Core (FastAPI + httpx + Pydantic)
-pip install reva-ai
-
-# With OpenTelemetry tracing
-pip install "reva-ai[otel]"
-
-# Everything
-pip install "reva-ai[all]"
+pip install reva-ai-authz
 ```
 
 The SDK does not install your agent framework (LangChain, LangGraph, CrewAI, AutoGen, MCP) — those remain your dependencies.
@@ -95,8 +88,7 @@ mcp = FastMCP("billing-tools")
 
 @mcp.tool()
 @reva_ai_authorise(
-    agent_name="reva-rate-mcp",   # the MCP server's PDP id
-    agent_type="MCP",
+    tool_name="get_freight_quote",  # the tool's PDP id
     action="invokeTool",
     prompt_key="origin_code",
 )
@@ -113,13 +105,13 @@ def get_freight_quote(origin_code: str, destination_code: str) -> dict:
 
 | Option | Purpose |
 |:-------|:--------|
-| `agent_name` | The agent's (or MCP server's) PDP id. |
-| `agent_type` | `Agent` (default) or `MCP`. |
+| `agent_name` | The agent's PDP id (used for FastAPI/HTTP routes). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
+| `agent_type` | Sub-type option for custom routing. |
 | `action` | PDP action — defaults to `invokeAgent`; use `invokeTool` for tools and MCP servers. |
 | `auth_key` | Header carrying the caller's bearer token (usually `Authorization`). |
 | `prompt_key` | Body field (or JSON path) holding the prompt text. |
-| `tool_name` | Tool id when protecting an individual tool. |
-| `crew_name` | Crew id when protecting a CrewAI crew. |
+| `tool_name` | The tool's PDP id (used for MCP tools). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
+| `crew_name` | The crew's PDP id (used for CrewAI crew factories). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
 | `conversation_key` / `conversation_key_location` | Where to read the thread/conversation id (`body`, `header`, or `query`). |
 | `principal_claim` | JWT claim to use as the principal id (default `sub`). |
 
