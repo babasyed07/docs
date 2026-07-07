@@ -1,7 +1,7 @@
 # AGENTS.md — Reva AI Security SDK
 
 **Audience.** Engineers (and AI coding assistants like Cursor / Claude Code /
-Codex) integrating `reva-ai` into an agentic system. This is the canonical
+Codex) integrating `reva-ai-authz` into an agentic system. This is the canonical
 how-to-build-with-this-SDK guide. Read it once before writing integration
 code; refer back to it when you need a specific recipe.
 
@@ -66,9 +66,12 @@ above onto that framework's native API.
 | **Tool** | A function the agent calls (in-process) | `invokeTool` | `Agent` (sub-agent) or `MCP` |
 | **MCP server** | A Model Context Protocol server | `invokeTool` | `MCP` |
 
-MCP **discovery** (`tools/list`, `prompts/list`, `resources/list`,
-`initialize`) is NOT policy-checked. Only **invocations** (`tools/call`,
-`prompts/get`, `resources/read`) hit PDP.
+MCP **lifecycle and discovery** methods are NOT policy-checked. The SDK
+exempts the following (set `MCP_NO_PDP_METHODS`): `initialize`,
+`notifications/initialized`, `ping`, `tools/list`, `prompts/list`,
+`resources/list`, `resources/templates/list`, `completion/complete`. Only
+**invocations** (`tools/call`, and likewise `prompts/get` /
+`resources/read`) hit PDP.
 
 ---
 
@@ -76,21 +79,25 @@ MCP **discovery** (`tools/list`, `prompts/list`, `resources/list`,
 
 ```bash
 # Core (FastAPI + httpx + Pydantic)
-pip install reva-ai
+pip install reva-ai-authz
 
 # With OpenTelemetry tracing
-pip install "reva-ai[otel]"
+pip install "reva-ai-authz[otel]"
 
 # With test deps (for contributors)
-pip install "reva-ai[test]"
+pip install "reva-ai-authz[test]"
 
 # Everything
-pip install "reva-ai[all]"
+pip install "reva-ai-authz[all]"
 ```
 
 The SDK does NOT install LangChain / LangGraph / CrewAI / AutoGen / MCP —
 those are your dependencies. The adapters duck-type on framework classes
 so the SDK imports cleanly without them.
+
+**Compatibility.** Current release: `reva-ai-authz` **1.2.17**. Requires Python
+3.10+ (tested on 3.10 – 3.13). Runtime dependencies are intentionally
+minimal: `fastapi>=0.109`, `httpx>=0.25`, `pydantic>=2.5`.
 
 ---
 
@@ -103,11 +110,18 @@ Every service running the SDK must set these. Missing config fails closed.
 | `RTG_URL` | yes | Base URL of the Reva PDP service, e.g. `https://api.your-tenant.reva.ai` |
 | `POLICYSTORE_ID` | yes | The policy store this service evaluates against |
 | `RTG_AUTH_TOKEN` | yes | Platform API key. Sent as `X-API-Token` on every PDP call. |
-| `RTG_DISABLED` | no | `true` to disable PDP entirely. **Defaults to false (PDP enabled)**. Never set in production — see §13. |
+| `RTG_DISABLED` | no | A truthy value (`1`/`true`/`yes`/`on`, case-insensitive) disables PDP entirely. **Defaults to false (PDP enabled — fail-closed)**. Never set in production — see §14. |
 | `REVA_AI_TOKEN_LEEWAY_SECONDS` | no | Clock-skew tolerance when validating `exp` on PDP-issued transaction tokens. Default `5`. |
 | `REVA_AI_LOG_FILE` | no | Path for the SDK's structured log. Default: `reva_ai_sdk.log` next to the install. |
 | `REVA_AI_LOG_STDOUT` | no | `1` to also echo SDK logs to stdout. Default `0`. |
-| `REVA_AI_LOG_LEVEL` | no | `TRACE` for full PDP request/response dumps. Default `INFO`. |
+| `REVA_AI_LOG_LEVEL` | no | `INFO` (default), `DEBUG`, or `TRACE` (a custom level = 5 that dumps full PDP request/response bodies). |
+| `REVA_AI_ALLOW_EXTERNAL_CONTEXT_WRITES` | no | `1`/`true` lets code outside the SDK call the internal `RequestContext.set_*` mutators. For the SDK's own test suite only — never set in application code. |
+
+> **Discovery uses a separate, lowercase env-var family** —
+> `reva_ai_rtg_url`, `reva_ai_service_name`, `reva_ai_pod_id`,
+> `reva_ai_cluster_name`, `reva_ai_policy_store_id` — distinct from the
+> uppercase `RTG_URL` / `POLICYSTORE_ID` used by the auth/proxy hot path.
+> See §10.
 
 Put these in `.env` (loaded via `python-dotenv` or your platform's secrets
 manager) and resolve them once at startup.
@@ -287,13 +301,18 @@ async def run(body: dict, request: Request):
 
 | Kwarg | Required | Purpose |
 |---|---|---|
-| `agent_name` | yes | The agent's PDP id (Cedar resource id). |
-| `auth_key` | yes | Header name carrying the caller's bearer token. Almost always `"Authorization"`. |
-| `prompt_key` | yes | Path to the prompt text in the body. Simple field name (`"query"`) or JSON-path (`"params.message.parts[0].text"`). |
-| `action` | no | PDP action name. Default `"invokeAgent"`. |
-| `conversation_key` / `conversation_key_location` | no | Where to read a thread/conversation id from. |
-| `principal_claim` | no | JWT claim name to use as the principal id. Default: `sub`. Common override: `"cognito:username"`. |
-| `agent_type` | no | Defaults to `"Agent"`. Set `"MCP"` on FastMCP servers. |
+| `agent_name` | one of\* | HTTP agent's PDP id (Cedar resource id). Selects the **HTTP route** code path. |
+| `tool_name` | one of\* | MCP tool/server PDP id. Selects the **MCP tool** code path; `action` auto-defaults to `invokeTool`. |
+| `crew_name` | one of\* | CrewAI **Crew factory** PDP id (decorate a function annotated `-> Crew`). Selects the **CrewAI** code path. |
+| `auth_key` | recommended | Header name carrying the caller's bearer token. Almost always `"Authorization"`. |
+| `prompt_key` | recommended | Path to the prompt text in the body. Simple field name (`"query"`) or JSON-path (`"params.message.parts[0].text"`). |
+| `action` | no | PDP action name. Default `"invokeAgent"` (HTTP) / `"invokeTool"` (MCP). |
+| `conversation_key` / `conversation_key_location` | no | Where to read a thread/conversation id from — `conversation_key_location` is `"header"` or `"body"`. Enables final-turn RTG recording (see §15). |
+| `principal_claim` | no | JWT claim name to use as the principal id. Default: `sub`. Common override: `"cognito:username"`. Forwarded as the `X-Principal-Claim` header on every hop. **Strict**: if set and the claim is missing/non-string, PDP denies — there is no fallback to `sub`. |
+| `agent_type` | no | **HTTP routes only.** Marks the agent's framework — must be `"crew"` or `"langgraph"` (any other value raises `ValueError`). Stored for audit/future use; does **not** change PDP evaluation. **Do NOT use this for MCP** — MCP servers use `tool_name`. |
+
+\* Pass **exactly one** of `agent_name`, `tool_name`, or `crew_name`. Passing
+zero or more than one raises `ValueError`.
 
 **What the decorator does, in order:**
 
@@ -320,14 +339,22 @@ mcp = FastMCP("billing-tools")
 
 @mcp.tool()
 @reva_ai_authorise(
-    agent_name="reva-rate-mcp",   # the MCP server's PDP id
-    agent_type="MCP",
-    action="invokeTool",
+    tool_name="reva-rate-mcp",    # the MCP server's PDP id (shared by all its tools)
+    action="invokeTool",          # optional — auto-set when tool_name is used
     prompt_key="origin_code",
 )
 def get_freight_quote(origin_code: str, destination_code: str) -> dict:
     ...
 ```
+
+> **Note:** MCP tools are identified by `tool_name`, **not**
+> `agent_name`/`agent_type`. The `tool_name` value is the MCP **server's**
+> PDP entity id — all tools on one server share it (the server is the unit
+> of policy, not the individual tool).
+
+The Reva-internal `rtg/a2a` argument that `proxy.mcp` injects into the
+tool-call body is stripped before your tool function runs, so your tool
+only ever sees its declared parameters (plus an optional `headers`).
 
 `tools/list`, `prompts/list`, `resources/list`, `initialize` are NOT
 gated — only `tools/call`.
@@ -426,6 +453,24 @@ async with revaclient.proxy.agent(..., stream=True) as r:
         ...
 ```
 
+**Parameters** (all keyword-only):
+
+| Param | Default | Purpose |
+|---|---|---|
+| `endpoint_url` | — (required) | Target agent URL. |
+| `method` | `"GET"` | HTTP method — pass `"POST"` for typical `/v1/run` calls. |
+| `body` | `None` | Payload. `dict`/`list` → sent as JSON and (for dicts) wrapped in the `rtg/a2a` envelope; other types → raw bytes. |
+| `prompt_key` | `None` | Field name carrying the prompt (falls back to the inbound decorator's value). |
+| `resource_id` | `None` | The target's PDP id (`rtg/a2a.resource`). |
+| `auth_key` | `None` | Per-call override of the header name carrying the user JWT. |
+| `headers` | `None` | Extra headers, merged last. |
+| `stream` | `False` | Return a streaming context manager instead of a buffered response. |
+| `transport` | `"httpx"` | Only `"httpx"` is supported (anything else raises `NotImplementedError`). |
+
+Sync vs async is auto-detected: if an event loop is running you get an
+awaitable (or `async with` for streams); otherwise you get a blocking
+`httpx.Response` (or `with` for streams). There is no flag to force it.
+
 **What it does:**
 
 1. POST to PDP `/token/enrich` with a body containing your business
@@ -448,13 +493,40 @@ result = await revaclient.proxy.mcp(
     mcp_client="http://127.0.0.1:9101/mcp",
     resource_id="reva-carrier-mcp",      # MCP server's PDP id
     endpoint_protected=True,             # run the full Reva-mediated MCP lifecycle
-    headers=request_headers.get(),
+    headers=RequestContext.get_propagation_headers(),  # see §9.6
 )
 ```
 
-Transports supported via `transport=`: `streamable_http` (default),
-`sse`, `stdio`. The SDK handles MCP `initialize` → `notifications/initialized`
-→ `tools/call` automatically when `endpoint_protected=True`.
+> ⚠️ **`endpoint_protected` defaults to `False`.** When `False` (or when
+> `RTG_DISABLED` is set), `proxy.mcp` invokes the tool **directly with no
+> PDP check** — it just calls the underlying client tool. You **must** pass
+> `endpoint_protected=True` to get the Reva-mediated, PDP-authorized MCP
+> lifecycle. This is the single most common way to accidentally bypass
+> policy on MCP calls.
+
+**Key parameters** (keyword-only):
+
+| Param | Default | Purpose |
+|---|---|---|
+| `tool` | — (required) | A client tool object (LangChain MCP adapter / CrewAI tool) **or** a non-empty tool-name string (string form needs `endpoint_protected=True` + `mcp_client`). |
+| `arguments` | — (required) | The tool-call arguments (`dict`, or a JSON-object string). |
+| `resource_id` | `None` | MCP server's PDP id (`rtg/a2a.resource`; falls back to the tool name). |
+| `endpoint_protected` | `False` | **Set `True`** to run the PDP-mediated MCP lifecycle (see warning above). |
+| `mcp_client` | `""` | MCP URL / `MultiServerMCPClient` / connection dict / JSON. |
+| `client_type` | `"langchain"` | `"langchain"` or `"crewai"`. |
+| `transport` | `"streamable_http"` | `streamable_http` (default), `sse`, or `stdio`. `websocket` raises `NotImplementedError`. |
+| `headers` | `None` | Extra headers merged onto the connection. |
+| `mcp_session_id` | `None` | Reuse an existing MCP session (skips `initialize`). |
+| `protocol_version` | `"2024-11-05"` | MCP protocol version sent on `initialize`. |
+| `client_name` / `client_version` | `"reva-ai"` / `"1.0.0"` | `clientInfo` on `initialize`. |
+| `timeout` | `30.0` | Per-call HTTP timeout (seconds). |
+| `stdio_command` / `stdio_env` | `None` | argv + env for the `stdio` transport. |
+| `sse_post_url` | `None` | JSON-RPC POST URL for the `sse` transport. |
+
+When `endpoint_protected=True` the SDK runs the full MCP lifecycle for you
+(`initialize` → `notifications/initialized` → `tools/call`) over the chosen
+transport, carrying the transaction token. The Reva metadata travels only
+inside `params.arguments["rtg/a2a"]` — never at the JSON-RPC top level.
 
 ### 8.3 `revaclient.proxy.api` — call an arbitrary external API
 
@@ -470,6 +542,15 @@ async with revaclient.proxy.api(
 
 Same PDP path as `proxy.agent`, but the body shape is preserved as-is
 (no `rtg/a2a` reshaping — for APIs that aren't Reva-aware).
+
+**Parameters** (keyword-only): `endpoint_url` (required), `method`
+(`"GET"`), `body`, `query_params` (sent as URL query string), `headers`,
+`stream` (`False`), `endpoint_type` (`"Api"` — the destination type sent to
+PDP), `auth_key`, `prompt_key`. The PDP **action is derived from the HTTP
+method**: `GET`/`HEAD`/`OPTIONS` → `read`, `POST`/`PUT`/`PATCH` → `write`,
+`DELETE` → `delete`.
+
+`revaclient.proxy.http(...)` is an alias of `revaclient.proxy.api(...)`.
 
 ### 8.4 Choosing the right proxy
 
@@ -652,9 +733,72 @@ def build_app() -> FastAPI:
     return fastapi_app
 ```
 
+### 9.6 Propagating identity to non-Reva transports
+
+`@reva_ai_authorise` and the proxy handle identity propagation for you. When
+you must step outside them — a custom HTTP client, a background task, or a
+transport the SDK doesn't wrap — use the one supported propagation API:
+
+```python
+from reva_ai.sdk.ai.utils.context import RequestContext
+
+headers = RequestContext.get_propagation_headers()
+# Returns the session token (Authorization: Bearer ... OR X-Transaction-Token),
+# X-Principal-Claim, the domain/username audit headers, and the W3C trace
+# context (traceparent / tracestate / baggage). Returns {} outside a request.
+```
+
+Don't hand-roll header forwarding or read `Authorization` yourself —
+`get_propagation_headers()` is the supported seam and keeps the wire contract
+correct as the SDK evolves.
+
 ---
 
-## 10. Worked example — 4-agent chain
+## 10. Service discovery (optional)
+
+Beyond per-call authorization, the SDK can **self-register** a FastAPI service
+with the Reva control plane so it appears in the platform's inventory of agents
+and MCP servers. This is optional and independent of the authorization hot
+path.
+
+```python
+from fastapi import FastAPI
+from reva_ai.sdk.ai.discovery import reva_ai_discover, get_discovery_info
+
+app = FastAPI()
+
+# As a one-shot call …
+reva_ai_discover(app, service_type="Agent", service_name="shipment-supervisor-agent")
+
+# … or as a decorator on a factory that returns the app:
+@reva_ai_discover(service_type="MCP")
+def build_app() -> FastAPI:
+    return FastAPI()
+```
+
+`service_type` is the workload kind — `"Agent"` or `"MCP"`. On registration the
+SDK POSTs a discovery record to `{reva_ai_rtg_url}/discovery-logs` and caches a
+`DiscoveryConfig` on `app.state` (retrievable with `get_discovery_info(request)`).
+Discovery failures are swallowed — they never break your service.
+
+**Discovery configuration env vars** (note the lowercase naming — these are
+distinct from the uppercase auth/proxy vars in §4):
+
+| Variable | Purpose |
+|---|---|
+| `reva_ai_rtg_url` | Base URL for the discovery endpoint (required for discovery). |
+| `reva_ai_service_name` | Default service name when not passed to `reva_ai_discover`. |
+| `reva_ai_pod_id` | Pod identifier recorded in the discovery payload. |
+| `reva_ai_cluster_name` | Cluster name recorded in the discovery payload. |
+| `reva_ai_policy_store_id` | Policy store id recorded in the discovery payload. |
+| `RTG_AUTH_TOKEN` | If set, sent as `X-API-Token` on the discovery POST. |
+
+Public API (`reva_ai.sdk.ai.discovery`): `reva_ai_discover`,
+`get_discovery_info`, `DiscoveryConfig`.
+
+---
+
+## 11. Worked example — 4-agent chain
 
 Walking through one full chat turn to make the moving pieces concrete.
 
@@ -726,7 +870,7 @@ via `threadId`.
 
 ---
 
-## 11. Policy authoring (Cedar)
+## 12. Policy authoring (Cedar)
 
 PDP evaluates Cedar policies. For the chain above to succeed, your
 policy store needs:
@@ -768,16 +912,42 @@ with whichever id form you registered.
 
 ---
 
-## 12. Exception handling
+## 13. Exception handling
 
 ```python
 from reva_ai.sdk.ai.utils.exceptions import (
-    RevaAIError,                  # base class
-    RevaAuthorizationError,       # PDP deny / missing creds (HTTPException 401/403)
-    AuthenticationError,          # token format invalid
+    RevaAIError,                  # base class for every SDK error (alias: FastAPISDKError)
+    RevaAuthorizationError,       # PDP deny / missing creds (also a FastAPI HTTPException)
+    AuthenticationError,          # authentication / token-format problem
+    AuthorizationError,           # base for authorization failures
     ConfigurationError,           # missing RTG_URL / POLICYSTORE_ID
+    ValidationError,              # invalid input (URL / header validation)
+    InvocationError,              # downstream invocation failure
+    NetworkError, TimeoutError,   # subclasses of InvocationError
+    CircuitBreakerError,          # subclass of InvocationError
 )
+from reva_ai.sdk.ai.adapters import AdapterError  # non-PDP adapter-layer failures
 ```
+
+**Hierarchy:**
+
+```text
+RevaAIError                         (alias: FastAPISDKError)
+├── AuthenticationError
+├── AuthorizationError
+│   └── RevaAuthorizationError      (+ fastapi.HTTPException)
+├── ValidationError
+├── ConfigurationError
+└── InvocationError
+    ├── NetworkError
+    │   └── TimeoutError
+    └── CircuitBreakerError
+
+AdapterError                        (in reva_ai.sdk.ai.adapters — adapter-layer errors)
+```
+
+Only `RevaAuthorizationError` carries an HTTP `status_code` (401 for missing
+credentials, 403 for a policy deny). The rest are plain Python exceptions.
 
 FastAPI handles `RevaAuthorizationError` automatically — it inherits
 from `HTTPException`. The response body is:
@@ -822,17 +992,18 @@ except RevaAuthorizationError as e:
 
 ---
 
-## 13. Security model — what the SDK guarantees
+## 14. Security model — what the SDK guarantees
 
 1. **Fail-closed by default.** Missing `RTG_URL` / `POLICYSTORE_ID`
    raises at first PDP call. `RTG_DISABLED` defaults to false. **Do not
    set `RTG_DISABLED=true` in production** — it disables PDP entirely
    and emits a one-shot WARNING at startup. Useful only for local
    integration testing where PDP isn't reachable.
-2. **Transaction tokens are short-lived.** PDP issues tokens with a
-   small TTL (default 3 seconds). The SDK validates `exp` locally before
-   sending the token downstream — expired tokens never reach the next
-   agent.
+2. **Transaction tokens are short-lived.** PDP (RTG) issues each
+   transaction token with a small TTL. The SDK validates the token's `exp`
+   locally — with a configurable clock-skew leeway
+   (`REVA_AI_TOKEN_LEEWAY_SECONDS`, default `5`) — before sending it
+   downstream, so an already-expired token never reaches the next agent.
 3. **Customer body is never mutated.** The SDK only **adds** one key
    (`rtg/a2a`) to your outbound body. Your existing fields, including
    any named `prompt`, `history`, `subject`, `principal`, etc., are
@@ -847,12 +1018,17 @@ except RevaAuthorizationError as e:
 6. **Deny reasons are surfaced.** `RevaAuthorizationError.reason` /
    `.code` / `.pdp_response` carry PDP's deny payload so callers and
    operators can diagnose policy failures without grepping PDP logs.
+7. **Platform key is separated from the user identity.** When
+   `RTG_AUTH_TOKEN` is set, the SDK sends it as the `X-API-Token` header for
+   perimeter authentication and leaves `Authorization` carrying the
+   end-user JWT that PDP needs for policy evaluation. The two are never
+   conflated.
 
 ---
 
-## 14. Observability
+## 15. Observability
 
-### 14.1 Audit logs
+### 15.1 Audit logs
 
 Every PDP decision (allow OR deny) lands in Reva's decision-log
 pipeline. From the SOC dashboard you'll see one row per hop:
@@ -867,12 +1043,13 @@ timestamp  principal           type    action       resource              type  
 
 Same `threadId` ties a chain together.
 
-### 14.2 OpenTelemetry (optional)
+### 15.2 OpenTelemetry (optional)
 
-`pip install "reva-ai[otel]"`. The SDK then emits spans:
+`pip install "reva-ai-authz[otel]"`. The SDK then emits spans:
 
 - `reva.agent.authorize` (server) — inbound decorator
-- `reva.proxy.tokenEnrich` (client) — outbound proxy enrichment
+- `reva.proxy.tokenEnrich` (client) — outbound proxy PDP enrichment
+- `reva.proxy.downstream` (client) — the outbound call to the target after enrichment
 
 Standard attributes: `reva.agent.name`, `reva.action`,
 `reva.resource.id`, `reva.resource.type`, `reva.decision`, `reva.hop`,
@@ -883,26 +1060,38 @@ On deny, span status → ERROR with the deny reason.
 W3C trace context (`traceparent` / `tracestate` / `baggage`) propagates
 on every outbound call regardless of whether OTel is installed.
 
-### 14.3 SDK structured log
+### 15.3 SDK structured log
 
 The SDK writes a JSONL log to `REVA_AI_LOG_FILE` (default `reva_ai_sdk.log`).
 Useful grep markers:
 
+Every line is prefixed `[reva_ai]`. Useful markers:
+
 | Event | Marker |
 |---|---|
 | Inbound auth entered | `[reva_ai] authorize inbound HTTP:` |
-| Outbound proxy entered | `[reva_ai] proxy_agent started...` |
-| PDP token enrich request | `[reva_ai] pdp_token_enrichment payload:` |
-| PDP token enrich response | `[reva_ai] pdp_token_enrichment response:` |
-| Token expired locally | `rejecting expired transaction token` |
-| RTG disabled warning | `WARNING: RTG_DISABLED is set` |
+| Inbound PDP decision | `[reva_ai] pdp_token_validation decision:` |
+| Structured auth / PDP records | `[reva_ai] auth ::` / `[reva_ai] pdp ::` |
+| Full PDP request/response (TRACE only) | `[reva_ai] TRACE pdp_token_validation request:` / `... response:` |
+| Token rejected as expired | deny `reason=transaction_token_expired` (`code=token_expired`) |
+| RTG disabled warning | `[reva_ai] WARNING: RTG_DISABLED is set` |
 
 Set `REVA_AI_LOG_LEVEL=TRACE` to capture full PDP request/response
 bodies (useful for debugging policy issues).
 
+### 15.4 Final-turn recording (conversation correlation)
+
+When you pass `conversation_key` (and `conversation_key_location`) to
+`@reva_ai_authorise`, the decorator captures the agent's final response —
+including the tail of a `StreamingResponse` — and posts it to RTG for
+conversation-level audit correlation, keyed by the conversation id. This is
+optional: leave `conversation_key` unset to skip it. Recording is also
+skipped when the inbound call already carries an `X-Transaction-Token` (i.e.
+an inner hop), so only the outermost turn of a chain is recorded.
+
 ---
 
-## 15. Migration from raw `httpx`
+## 16. Migration from raw `httpx`
 
 If you have existing agent code making raw HTTP calls between services:
 
@@ -926,9 +1115,9 @@ unchanged. Streaming behaves the same as `httpx.stream(...)`.
 
 ---
 
-## 16. Common patterns
+## 17. Common patterns
 
-### 16.1 An agent that doesn't make outbound calls (leaf agent)
+### 17.1 An agent that doesn't make outbound calls (leaf agent)
 
 ```python
 @app.post("/v1/run")
@@ -938,7 +1127,7 @@ async def run(body: dict, request: Request):
     return {"reply": llm.invoke(body["query"])}
 ```
 
-### 16.2 An agent that fans out to several downstream agents
+### 17.2 An agent that fans out to several downstream agents
 
 ```python
 @reva_ai_authorise(agent_name="orchestrator", prompt_key="query")
@@ -955,7 +1144,7 @@ Each fan-out call gets its own PDP `/token/enrich`. If any denies, the
 gather raises immediately — wrap with `return_exceptions=True` if you
 want to continue past denies.
 
-### 16.3 A streaming SSE agent
+### 17.3 A streaming SSE agent
 
 ```python
 @reva_ai_authorise(agent_name="streaming-agent", prompt_key="query")
@@ -972,28 +1161,28 @@ async def stream(body: dict, request: Request):
             yield line
 ```
 
-### 16.4 An MCP server with multiple tools
+### 17.4 An MCP server with multiple tools
 
 ```python
 mcp = FastMCP("freight-tools")
 
 @mcp.tool()
-@reva_ai_authorise(agent_name="reva-rate-mcp", agent_type="MCP",
+@reva_ai_authorise(tool_name="reva-rate-mcp",
                     action="invokeTool", prompt_key="origin_code")
 def get_freight_quote(origin_code: str, destination_code: str):
     ...
 
 @mcp.tool()
-@reva_ai_authorise(agent_name="reva-rate-mcp", agent_type="MCP",
+@reva_ai_authorise(tool_name="reva-rate-mcp",
                     action="invokeTool", prompt_key="tracking_number")
 def get_shipment_status(tracking_number: str):
     ...
 ```
 
-All tools on the same MCP server share `agent_name="reva-rate-mcp"` —
+All tools on the same MCP server share `tool_name="reva-rate-mcp"` —
 the **server** is the PDP entity, not the individual tool.
 
-### 16.5 Calling a Reva-protected agent from a non-Reva client (test harness)
+### 17.5 Calling a Reva-protected agent from a non-Reva client (test harness)
 
 ```python
 import httpx
@@ -1011,7 +1200,7 @@ constructs one from the access token + decorator config.
 
 ---
 
-## 17. Troubleshooting
+## 18. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -1020,6 +1209,9 @@ constructs one from the access token + decorator config.
 | 403 `authorization denied by policy` | PDP found the entities but no policy permits the call | Add the right `permit (...)` to your policy store. |
 | All requests succeed but no audit rows | Caller is using raw `httpx`, bypassing the proxy | Replace with `revaclient.proxy.agent` / `.mcp`. |
 | MCP `tools/list` showing up in audit log | The MCP server's tool decorator was applied to a list handler by mistake | Decorate only `tools/call` handlers (the actual tool functions). |
+| MCP call succeeds but no PDP check / no audit row | `proxy.mcp` was called without `endpoint_protected=True` (the default `False` invokes the tool directly) | Pass `endpoint_protected=True` to run the PDP-mediated MCP lifecycle. |
+| `ValueError: agent_type must be one of: crew, langgraph` | Used `agent_type="MCP"` (the old, removed pattern) on a tool | Use `tool_name="<mcp-server-id>"` for MCP servers. `agent_type` is only for `crew`/`langgraph` HTTP agents. |
+| `ValueError: Pass exactly one of agent_name … tool_name … crew_name` | Zero or multiple of these kwargs were passed | Pass exactly one: `agent_name` (HTTP), `tool_name` (MCP), or `crew_name` (CrewAI crew factory). |
 | Token rejected with `transaction_token_expired` | Clock skew or slow downstream | Bump `REVA_AI_TOKEN_LEEWAY_SECONDS` to `10`, or fix the clock skew. |
 | `PermissionError: RequestContext.set_X is an SDK-internal API` | User code is calling a context mutator | Use `set_caller_identity()` from `adapters` instead. |
 | `WARNING: RTG_DISABLED is set` | The env is true in this pod | Remove from deployment manifest. Never set this in prod. |
@@ -1028,7 +1220,7 @@ constructs one from the access token + decorator config.
 
 ---
 
-## 18. Coding standards
+## 19. Coding standards
 
 When integrating the SDK, follow these rules. Customer-side reviews will
 expect them.
@@ -1061,7 +1253,7 @@ expect them.
 
 ---
 
-## 19. Quick reference card
+## 20. Quick reference card
 
 ```python
 # Inbound (FastAPI agent)
@@ -1071,7 +1263,7 @@ async def run(body, request): ...
 
 # Inbound (FastMCP tool)
 @mcp.tool()
-@reva_ai_authorise(agent_name="my-mcp", agent_type="MCP", action="invokeTool", prompt_key="container_id")
+@reva_ai_authorise(tool_name="my-mcp", action="invokeTool", prompt_key="container_id")
 def my_tool(...): ...
 
 # Outbound (agent → agent)
@@ -1108,7 +1300,7 @@ await authorise_inner_call_async(resource_name="my-agent", action="invokeAgent")
 
 ---
 
-## 20. Where to file issues / get help
+## 21. Where to file issues / get help
 
 - SDK source repository: ask your Reva representative for access.
 - Sample integrations: see the `pm_demo` repos shared with your tenant
