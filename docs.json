@@ -128,7 +128,7 @@
               "customize-the-schema-for-token-enrichment",
               "configure-data-fabric-integration",
               "extend-policies-to-use-custom-source-data",
-              "token-enrichment-developer-configuration",
+              "token-enrichment-settings",
               "validate-token-enrichment"
             ]
           },
