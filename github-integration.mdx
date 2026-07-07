@@ -34,3 +34,17 @@ Reva integrates with GitHub to automate policy lifecycle management. Policies au
    - Click Activate (bottom-right corner)  
 
 <Info>Tip: Use GitHub’s "Protected Branches" feature with Reva to prevent unauthorized policy changes.</Info>
+
+## Use the connection in a policy store
+
+After the Git connection is created, assign it to a policy store.
+
+1. Go to **Manage Policies**.
+2. Open the required policy store.
+3. Click **Settings**.
+4. Select **Policy Store Configuration**.
+5. In **Policy Distribution**, select **Git Repository**.
+6. Under **Deliver your Policy Updates**, select the Git connection.
+7. Click **Save**.
+
+After this configuration is saved, Reva publishes policy and schema updates to the selected Git repository.

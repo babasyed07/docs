@@ -59,15 +59,15 @@ https://dev.azure.com/{organization}/{project}/_git/{repository}
    <Info>
     | Field | Description |
     |---|---|
-    | Integration Name | Enter a name for the Azure DevOps integration. |
-    | Description | Enter a short description for the integration. |
-    | Personal Access Token | Enter the Azure DevOps PAT. The token must have code read and write access. |
-    | Email | Enter the email address associated with the Azure DevOps account. |
-    | Username | Enter the Azure DevOps username. |
-    | Policy Type | Select the policy type as `CEDAR`. |
-    | Repository URL | Enter the Azure DevOps repository URL. The URL must include `_git`. |
+    | **Integration Name** | Enter a name for the Azure DevOps integration. |
+    | **Description** | Enter a short description for the integration. |
+    | **Personal Access Token** | Enter the Azure DevOps PAT. The token must have code read and write access. |
+    | **Email** | Enter the email address associated with the Azure DevOps account. |
+    | **Username** | Enter the Azure DevOps username. |
+    | **Policy Type** | Select the policy type as `CEDAR`. |
+    | **Repository URL** | Enter the Azure DevOps repository URL. The URL must include `_git`. |
    </Info>
-6. Click Next.
+6. Click **Next**.
 7. In Choose your branch, select the target branch.
 8. Click Activate.
 
@@ -110,3 +110,17 @@ If the token is valid and Reva can connect to Azure DevOps, Reva displays the fo
 <Info>
 Azure_DevOps is ready to use.
 </Info>
+
+## Use the connection in a policy store
+
+After the Git connection is created, assign it to a policy store.
+
+1. Go to **Manage Policies**.
+2. Open the required policy store.
+3. Click **Settings**.
+4. Select **Policy Store Configuration**.
+5. In **Policy Distribution**, select **Git Repository**.
+6. Under **Deliver your Policy Updates**, select the Git connection.
+7. Click **Save**.
+
+After this configuration is saved, Reva publishes policy and schema updates to the selected Git repository.
