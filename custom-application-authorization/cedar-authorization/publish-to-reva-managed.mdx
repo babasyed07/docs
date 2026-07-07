@@ -81,17 +81,17 @@ Reva publishes the accepted schema and validated Cedar policies to Reva Managed.
 Publishing to Reva Managed does not write schema or policy files to Git. Use the Git publish destination if your organization wants schema and policy files published to GitHub, GitLab, or Azure DevOps.
 </Note>
 
-## Configure Reva Managed as the publish destination
+## Configure Reva Trust Guardian as the publish destination
 
-Use **Developer Integration** to configure Reva Managed publishing for the Cedar policy store.
+To publish Cedar schema and policies to Reva-managed runtime authorization, configure **Reva Trust Guardian** as the publish destination from **Settings > Policy Store Configuration > Policy Distribution**.
 
 ### Steps
 
 1. Open the Cedar policy store.
-2. Go to **Developer Integration**.
-3. Select **Reva Managed** as the publish destination.
-4. Review the generated integration details.
-5. Save the configuration.
+2. Go to **Settings > Policy Store Configuration**.
+3. Click **Edit**.
+4. In **Policy Distribution**, select **Reva Trust Guardian**.
+5. Click **Save**.
 
 ## Publish schema and policy changes
 
@@ -132,7 +132,7 @@ Review the publish summary before confirming the publish action. This helps prev
 
 ## Validate before publishing
 
-Before publishing to Reva Managed, confirm that policy behavior matches the intended authorization outcome.
+Before publishing to Reva Trust Guardian, confirm that policy behavior matches the intended authorization outcome.
 
 | Check | Why it matters |
 |---|---|
@@ -143,27 +143,28 @@ Before publishing to Reva Managed, confirm that policy behavior matches the inte
 | **Impact analysis is reviewed** | Impact review shows how access may change |
 | **Access Map is reviewed** | Access Map helps show which principals have access to which resources |
 | **Policy errors are resolved** | Policies with validation errors should not be published |
-| **Developer Integration is configured** | Applications need the correct Reva Managed integration details |
+| **Reva Trust Guardian connection details are available** | Applications or enforcement points need the correct runtime connection details |
+|
 
 ## Application integration
 
-After publishing to Reva Managed, use the **Developer Integration** tab to connect your application to the Reva-hosted decision path.
+After publishing to Reva Trust Guardian, use **Settings > Connect to Reva Trust Guardian** to copy the runtime connection details required by your application or policy enforcement point.
 
-Developer Integration provides the configuration details needed by the application or policy enforcement point.
+The **Connect to Reva Trust Guardian** section provides the configuration details needed by the application or enforcement point to call the Reva-hosted decision path.
 
 | Integration item | Description |
 |---|---|
 | **Policy store details** | Identifies the policy store used for runtime authorization |
 | **Decision endpoint** | Endpoint used by the application or enforcement layer to request authorization decisions |
-| **Authentication details** | Credentials or token configuration used to call the decision endpoint |
+| **Authentication details** | Credentials or OAuth token configuration used to call the decision endpoint |
 | **Request format** | Expected request structure for principal, action, resource, and context |
-| **Response format** | Authorization decision response returned by Reva Managed |
+| **Response format** | Authorization decision response returned by Reva Trust Guardian |
 
 <Note>
 Use the integration details from the Reva UI for the active environment. Do not copy local development URLs into production documentation or application configuration.
 </Note>
 
-## Publishing a new Cedar policy store to Reva Managed
+## Publishing a new Cedar policy store to Reva Trust Guardian
 
 If you created a new Cedar policy store in Reva, complete the schema and policy design flow before publishing.
 
@@ -177,9 +178,9 @@ The recommended flow is:
 6. Upload test data or configure live data.
 7. Test policy behavior.
 8. Review policy impact.
-9. Configure Reva Managed as the publish destination.
-10. Publish schema and policies to Reva Managed.
-11. Connect the application using Developer Integration.
+9. Configure **Reva Trust Guardian** as the publish destination from **Settings > Policy Store Configuration > Policy Distribution**.
+10. Publish schema and policies to Reva Trust Guardian.
+11. Use **Settings > Connect to Reva Trust Guardian** to copy the runtime connection details required by the application or enforcement point.
 
 ## After publishing
 
@@ -191,7 +192,7 @@ After the publish is complete, verify the result.
 | **Schema** | Confirm that the published schema matches the accepted schema |
 | **Policies** | Confirm that new, updated, or deleted policies match the publish summary |
 | **Decision behavior** | Test expected authorization decisions |
-| **Developer Integration** | Confirm the application uses the correct Reva Managed integration details |
+| **Reva Trust Guardian connection** | Confirm the application uses the correct runtime connection details from **Settings > Connect to Reva Trust Guardian** |
 | **Decision Logs** | Review decision activity after application traffic starts using the published policy version |
 | **Version History** | Review the published version for audit and rollback context |
 
@@ -204,7 +205,7 @@ After the publish is complete, verify the result.
 | **Use Access Map** | Review access relationships created by policies and data |
 | **Keep changes focused** | Publish smaller policy changes when possible |
 | **Review generated policies** | Review AI-generated policies before publishing |
-| **Confirm integration details** | Make sure the application uses the correct Reva Managed endpoint and authentication |
+| **Confirm connection details** | Make sure the application uses the correct Reva Trust Guardian endpoint and authentication details |
 | **Track versions** | Use Version History to review published changes |
 | **Validate after publishing** | Confirm expected decisions after the publish is complete |
 
@@ -212,13 +213,13 @@ After the publish is complete, verify the result.
 
 | Issue | Possible cause | Recommended action |
 |---|---|---|
-| **Reva Managed destination is not available** | The policy store is not configured as Cedar or the destination is not enabled | Confirm the policy store type and Developer Integration settings |
-| **Publish fails** | Schema, policy validation, or integration configuration issue | Review validation errors and retry after resolving them |
+| **Reva Trust Guardian destination is not available** | The policy store is not configured as Cedar or the destination is not enabled | Confirm the policy store type and review **Settings > Policy Store Configuration > Policy Distribution** |
+| **Publish fails** | Schema, policy validation, or publish destination configuration issue | Review validation errors and retry after resolving them |
 | **Policy validation fails** | Policy syntax or schema references are invalid | Review the policy and confirm that entities, actions, and attributes match the schema |
 | **Schema validation fails** | Schema contains missing or invalid elements | Review and accept a valid schema before publishing |
 | **Runtime decision is unexpected** | Policy logic, data, or request context does not match the intended scenario | Review policy tests, impact analysis, Access Map, and decision logs |
-| **Application cannot call Reva Managed** | Endpoint, authentication, or request format is incorrect | Review Developer Integration details and update the application configuration |
-| **Decision Logs are empty** | Application traffic is not reaching Reva Managed | Confirm application integration and request routing |
+| **Application cannot call Reva Trust Guardian** | Endpoint, authentication, or request format is incorrect | Review **Settings > Connect to Reva Trust Guardian** and update the application configuration |
+| **Decision Logs are empty** | Application traffic is not reaching Reva Trust Guardian | Confirm application integration, authentication, and request routing |
 
 ## Related pages
 

@@ -84,29 +84,31 @@ Reva publishes Cedar schema and policy files to the connected Git repository.
 |---|---|
 | **Policy store type** | Cedar |
 | **Policy language** | Cedar |
-| **Publish destination** | Git |
+| **Publish destination** | Git Repository |
 | **Supported providers** | GitHub, GitLab, Azure DevOps |
-| **Publish target** | Repository, branch, and file path configured in Developer Integration |
+| **Publish target** | Repository, branch, and file path configured in **Settings > Policy Store Configuration > Policy Distribution** |
 | **Runtime decision path** | Managed by your application, pipeline, or deployment process |
 
 <Note>
 Publishing to Git stores the schema and policy files in source control. Your application or deployment pipeline is responsible for using those files in the runtime authorization path.
 </Note>
 
-## Configure Git as the publish destination
+## Configure Git Repository as the publish destination
 
-Use **Developer Integration** to configure Git publishing for the Cedar policy store.
+Use **Settings > Policy Store Configuration > Policy Distribution** to configure Git publishing for the Cedar policy store.
 
 ### Steps
 
 1. Open the Cedar policy store.
-2. Go to **Developer Integration**.
-3. Select **Git** as the publish destination.
-4. Choose the Git connection.
-5. Select the repository.
-6. Select the branch.
-7. Confirm the file path for schema and policy files.
-8. Save the configuration.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. Click **Edit**.
+5. In **Policy Distribution**, select **Git Repository**.
+6. Under **Deliver your Policy Updates**, choose the Git connection.
+7. Select the repository.
+8. Select the branch.
+9. Confirm the file path for schema and policy files.
+10. Click **Save**.
 
 ## Git publishing configuration
 
@@ -236,13 +238,13 @@ After publishing to Git, verify that the expected files are available in the rep
 
 | Issue | Possible cause | Recommended action |
 |---|---|---|
-| **Git publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
+| **Git Repository publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
 | **Repository is not visible** | Reva does not have access to the repository | Check repository permissions and integration scope |
 | **Branch is not visible** | Branch access is missing or the branch does not exist | Confirm the branch exists and Reva has access |
-| **Publish fails** | Repository, branch, file path, or permission issue | Review Git configuration in Developer Integration |
+| **Publish fails** | Repository, branch, file path, or permission issue | Review the Git Repository configuration in **Settings > Policy Store Configuration > Policy Distribution** |
 | **Schema validation fails** | Schema contains missing or invalid elements | Review and accept a valid schema before publishing |
 | **Policy validation fails** | Policy syntax or schema references are invalid | Review the policy and confirm that entities, actions, and attributes match the schema |
-| **Published files are not in the expected path** | File path configuration is incorrect | Update the file path in Developer Integration and publish again |
+| **Published files are not in the expected path** | File path configuration is incorrect | Update the file path in **Settings > Policy Store Configuration > Policy Distribution** and publish again |
 
 ## Related pages
 

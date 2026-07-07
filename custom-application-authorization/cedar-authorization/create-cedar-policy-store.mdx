@@ -33,7 +33,7 @@ Make sure you have the required details before creating the Cedar policy store.
 | **Portfolio** | Portfolio associated with the custom application |
 | **Application owner** | User or team responsible for the policy store |
 | **Policy format** | Select Cedar |
-| **Publish destination** | Choose Git or Reva Managed during Developer Integration setup |
+| **Publish destination** | Choose **Git Repository** or **Reva Trust Guardian** from **Settings > Policy Store Configuration > Policy Distribution** |
 | **Git integration** | Required only when publishing to GitHub, GitLab, or Azure DevOps |
 
 ## Helpful references
@@ -170,14 +170,14 @@ Upload test data early so you can validate the schema, test policies, review imp
 
 ## Configure the publish destination
 
-Use **Developer Integration** to configure where the Cedar policy store publishes schema and policy changes.
+Use **Settings > Policy Store Configuration > Policy Distribution** to configure where the Cedar policy store publishes schema and policy changes.
 
 Cedar policy stores support two publish destinations.
 
 | Publish destination | Description |
 |---|---|
-| **Git** | Publishes schema and policy files to GitHub, GitLab, or Azure DevOps |
-| **Reva Managed** | Publishes schema and policies to Reva Managed, also referred to as Reva Trust Gateway |
+| **Git Repository** | Publishes schema and policy files to a connected Git repository, such as GitHub, GitLab, or Azure DevOps |
+| **Reva Trust Guardian** | Publishes schema and policies to Reva Trust Guardian for Reva-managed runtime authorization |
 
 ## Publish to Git
 
@@ -235,8 +235,8 @@ Use this flow when creating a Cedar policy store from scratch.
 | **Schema creation cannot continue** | Required schema elements are missing | Review principal, action, and resource definitions |
 | **AI-generated schema is incomplete** | Input file or prompt does not include enough application context | Add more details about users, resources, actions, and conditions |
 | **Policy testing fails** | Test data does not match the schema | Review entity types, attribute names, and value types |
-| **Git publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
-| **Reva Managed publish is not available** | Publish destination is not configured for the policy store | Review Developer Integration settings |
+| **Git Repository publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
+| **Reva Trust Guardian publish is not available** | Publish destination is not configured for the policy store | Review **Settings > Policy Store Configuration > Policy Distribution** |
 
 ## Next steps
 

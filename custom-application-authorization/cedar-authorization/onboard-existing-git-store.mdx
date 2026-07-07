@@ -182,7 +182,7 @@ After the policy store is onboarded, review the imported schema and policies.
 | File mapping | Confirm that Reva is reading from the expected repository path |
 | Branch | Confirm that the correct branch is selected |
 | Data | Upload test data or configure live data for policy testing |
-| Publishing | Confirm the Git publish configuration in Developer Integration |
+| Publishing | Confirm the Git publish configuration in **Settings > Policy Store Configuration > Policy Distribution** |
 
 ## Configure data for testing
 
@@ -197,15 +197,15 @@ You can use:
 
 Use data to test imported policies, review access impact, and confirm that the policy behavior matches the intended authorization model.
 
-## Developer Integration
+## Policy Distribution
 
-For an existing Git policy store, the publish destination is Git.
+For an existing Git policy store, the publish destination is **Git Repository**.
 
-Use **Developer Integration** to review or update the Git publishing configuration.
+Use **Settings > Policy Store Configuration > Policy Distribution** to review or update the Git publishing configuration.
 
 | Setting | Description |
 |---|---|
-| Publish destination | Git |
+| Publish destination | Git Repository |
 | Git provider | GitHub, GitLab, or Azure DevOps |
 | Repository | Repository where schema and policy changes are published |
 | Branch | Branch used for publishing |
@@ -222,11 +222,12 @@ After you edit or create policies in Reva, you can publish changes back to the c
 3. Review the policy changes.
 4. Test the policy behavior.
 5. Review impact analysis.
-6. Go to **Developer Integration** and confirm the Git configuration.
-7. Select **Publish**.
-8. Review the publish summary.
-9. Confirm the publish action.
-10. Verify that the changes are available in the connected Git repository.
+6. Go to **Settings > Policy Store Configuration > Policy Distribution** and confirm the Git Repository configuration.
+7. Return to **Policies**.
+8. Select **Publish**.
+9. Review the publish summary.
+10. Confirm the publish action.
+11. Verify that the changes are available in the connected Git repository.
 
 ## Troubleshooting
 
@@ -237,7 +238,7 @@ After you edit or create policies in Reva, you can publish changes back to the c
 | Schema is not imported | Schema file path is incorrect or file is invalid | Check the schema file location and format |
 | Policies are not imported | Policy files are missing or not in the expected path | Confirm the policy file location and repository structure |
 | Policy validation fails | Policies reference schema elements that do not exist | Review policy references and schema definitions |
-| Publish fails | Git connection, branch, or repository permissions are incorrect | Review Git configuration in Developer Integration |
+| Publish fails | Git connection, branch, or repository permissions are incorrect | Review Git configuration in **Settings > Policy Store Configuration > Policy Distribution** |
 
 ## Best practices
 

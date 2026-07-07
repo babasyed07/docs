@@ -1,15 +1,13 @@
 ---
 title: "Configure Token Enrichment Settings"
 ---
-Use the **Settings** tab to configure the runtime parts of token enrichment.
+
+Use the **Settings** tab to configure the runtime and integration settings for token enrichment.
 
 Token enrichment settings include:
 
 1. **Identity & Token Setup**
-2. **Connect Data Fabric**
-3. **Policy Store Configuration**
-
-These settings were previously available from Developer Integration. They are now configured from the policy store **Settings** tab.
+2. **Connect to Reva Trust Guardian**
 
 ## Identity & Token Setup
 
@@ -61,18 +59,17 @@ The **Token Enrichment Integration** section provides the values required to con
 
 Use these values when configuring Okta Inline Hooks, Microsoft Entra custom claims providers, or another Identity Provider token enrichment workflow.
 
-## Configure Reva Trust Guardian
+## Connect to Reva Trust Guardian
 
-Reva Trust Guardian is the Reva-managed runtime used for token enrichment.
+Use **Connect to Reva Trust Guardian** to copy the runtime connection values required by the Identity Provider or application.
 
 To configure Reva Trust Guardian:
 
 1. Open the token enrichment policy store.
 2. Go to **Settings**.
-3. Select **Policy Store Configuration**.
-4. Click on **Edit**
-5. Select **Reva Trust Guardian**
-4. Click **Save** if you make changes.
+3. Select **Connect to Reva Trust Guardian**.
+4. Copy the required runtime connection values.
+5. Click **Regenerate Key** only when you need to rotate the authentication secret or OAuth token.
 
 After you save the configuration, Reva enables the managed Trust Guardian destination for the policy store. This allows Reva to publish and evaluate token enrichment policies through Reva Trust Guardian.  
 

@@ -253,27 +253,26 @@ Cedar policy stores support two publish destinations.
 Use Git publishing when your organization manages policy lifecycle through source control, code review, pull requests, or CI/CD workflows.
 
 1. Open the Cedar policy store.
-2. Go to **Developer Integration**.
-3. Confirm that the publish destination is **Git**.
-4. Review the Git provider, repository, branch, and file path.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. In **Policy Distribution**, confirm that the publish destination is **AVP**.
 5. Return to the **Policies** tab.
-6. Review the policy changes.
+6. Review the policies.
 7. Select **Publish**.
-8. Review the publish summary.
-9. Confirm the publish action.
+8. Verify the publish status.
 
 ### Publish to Reva Managed
 
 Use Reva Managed when you want Reva to host and manage the policy decision path.
 
 1. Open the Cedar policy store.
-2. Go to **Developer Integration**.
-3. Confirm that the publish destination is **Reva Managed**.
-4. Return to the **Policies** tab.
-5. Review the policy changes.
-6. Select **Publish**.
-7. Review the publish summary.
-8. Confirm the publish action.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. In **Policy Distribution**, confirm that the publish destination is **AVP**.
+5. Return to the **Policies** tab.
+6. Review the policies.
+7. Select **Publish**.
+8. Verify the publish status.
 
 <Note>
 Reva Managed is also referred to as Reva Trust Gateway.
@@ -287,8 +286,8 @@ Reva Managed is also referred to as Reva Trust Gateway.
 | **AI-generated policy is incomplete**        | The instruction does not include enough detail                                                  | Add the actor, action, resource, and condition        |
 | **Policy test returns an unexpected result** | Test data or context does not match the policy condition                                        | Review the test data, context, and policy logic       |
 | **Access Map does not show expected access** | Policy data or relationship data is missing                                                     | Review policies, data, and relationships              |
-| **Git publish fails**                        | Repository, branch, path, or permission issue                                                   | Review the Git configuration in Developer Integration |
-| **Reva Managed publish fails**               | Publish destination or integration setup is incomplete                                          | Review Developer Integration settings                 |
+| **Git publish fails**                        | Repository, branch, path, or permission issue                                                   | Review the Git configuration in Settings |
+| **Reva Managed publish fails**               | Publish destination or integration setup is incomplete                                          | Review Settings                 |
 
 ## Next steps
 
