@@ -1,0 +1,66 @@
+---
+title: "Choose Your Use Case"
+description: "Reva supports several authorization use cases on one platform. Find the path that matches your goal."
+---
+
+Reva applies the same Cedar policy engine to several authorization use cases. Each one has its own guided path in this documentation, but they share the same concepts, policy language, and governance tools — so what you learn in one carries over to the next.
+
+Pick the use case that matches your goal.
+
+## Pick Your Use Case
+
+<CardGroup cols={2}>
+  <Card title="Custom Application Authorization" icon="layer-group" href="/manage-policies">
+    Add fine-grained access control to your own applications and APIs. Model RBAC, ABAC, and ReBAC with Cedar, test with the Access Map, and enforce via the Reva SDK or Amazon Verified Permissions.
+  </Card>
+  <Card title="AI Workload Security" icon="robot" href="/ai-workload-security-overview">
+    Authorize every call in your agentic AI systems — user → agent, agent → agent, agent → tool, MCP server, and model — at runtime through the Reva Trust Guardian.
+  </Card>
+  <Card title="Token Enrichment" icon="key" href="/enrich-identity-tokens-with-policy-based-claims">
+    Add policy-based claims, roles, applications, and entitlements to identity tokens during sign-in, so downstream apps can decide access without a separate call.
+  </Card>
+  <Card title="Infrastructure / OPA (coming soon)" icon="circle-plus">
+    OPA-based infrastructure authorization and additional use cases are on the roadmap. Reva's vertical model is built to extend.
+  </Card>
+</CardGroup>
+
+## Compare Use Cases
+
+| Use case | What it secures | Where it's enforced | Start here |
+|:---------|:----------------|:--------------------|:-----------|
+| **Custom Application Authorization** | Your applications and APIs | In your app (Reva SDK / AVP PEP) | [Manage Policies](/manage-policies) |
+| **AI Workload Security** | Agent chains — agents, tools, MCP servers, models | At runtime, via the Reva Trust Guardian + `reva-ai-authz` SDK | [AI Workload Security Overview](/ai-workload-security-overview) |
+| **Token Enrichment** | Identity tokens at sign-in | At the Identity Provider, via the Reva Trust Guardian | [Enrich Identity Tokens](/enrich-identity-tokens-with-policy-based-claims) |
+
+## Shared Foundations
+
+No matter which use case you choose, these concepts apply across all of Reva. New to authorization? Start here.
+
+<CardGroup cols={2}>
+  <Card title="Access Control Models" icon="diagram-project" href="/access-control-models">
+    RBAC, ABAC, and ReBAC — the models Reva policies are built on.
+  </Card>
+  <Card title="Authorization Concepts" icon="lock" href="/authorization">
+    Coarse-grained vs. fine-grained enforcement, and when to use each.
+  </Card>
+  <Card title="Reva, AVP & Cedar" icon="sitemap" href="/understanding-reva-avp-cedar">
+    How Reva maps to the PAP/PIP/PDP/PEP model and the Cedar policy language.
+  </Card>
+  <Card title="Navigating Reva" icon="folder-tree" href="/navigating-reva">
+    The main sections of the platform — Insights, Policies, Integrations, Library, Guardrails, and more.
+  </Card>
+</CardGroup>
+
+## Not Sure Where to Start?
+
+<Tip>
+  If you're new to Reva, read the [Shared Foundations](#shared-foundations) first, then follow the use case that matches what you're building.
+</Tip>
+
+| If you want to… | Go to |
+|:----------------|:------|
+| Protect a web app, service, or API you own | [Custom Application Authorization](/manage-policies) |
+| Stop an AI agent from calling tools or agents it shouldn't | [AI Workload Security](/ai-workload-security-overview) |
+| Put roles or entitlements into a user's token at login | [Token Enrichment](/enrich-identity-tokens-with-policy-based-claims) |
+| Learn the policy language before building | [Reva, AVP & Cedar](/understanding-reva-avp-cedar) |
+| Understand how to structure policy stores | [Platform Hierarchy](/platform-hierarchy) |

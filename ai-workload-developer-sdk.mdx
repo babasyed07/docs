@@ -1,0 +1,244 @@
+---
+title: "Developer Integration — Python SDK"
+description: "Add drop-in authorization to your agents with the reva-ai-authz Python SDK."
+---
+
+The `reva-ai-authz` SDK adds Reva authorization to an agentic system with two primitives: a **decorator** on the inbound side of every agent or MCP tool, and a **proxy** on the outbound side of every call to another protected service. Both consult the Reva PDP before work happens.
+
+Prefer no code? You can call the [PDP evaluation API](/ai-workload-developer-evaluation-api) directly instead.
+
+## How the SDK Enforces
+
+The SDK authorizes **both** sides of every agent and forwards a short-lived transaction token across hops, so each boundary re-checks on its own:
+
+```
+                ┌──────────────────────────────┐
+                │   Reva Trust Guardian (PDP)   │
+                │   allow / deny · issue token  │
+                └──────────────────────────────┘
+                       ▲                ▲
+        evaluate       │                │   issue a
+        inbound call   │                │   transaction token
+                       │                │
+  User ───▶  Agent A  ───────────▶  Agent B  ───────────▶  Tool / MCP / Model
+            (inbound decorator)     (outbound proxy)
+```
+
+1. The **inbound decorator** (`@reva_ai_authorise`) checks each incoming call with the PDP before your handler runs.
+2. The **outbound proxy** authorizes every call your agent makes and forwards a short-lived, task-scoped **transaction token** to the next hop.
+3. Each hop re-evaluates on its own boundary, and every decision — allow or deny — is written to the [decision logs](/decision-logs), correlated by a thread id.
+
+<Note>
+  This inbound/outbound + transaction-token model is specific to the SDK. With the [Evaluation API](/ai-workload-developer-evaluation-api), you make a single `allow`/`deny` call yourself at your enforcement point — no token is issued.
+</Note>
+
+## Install
+
+```bash
+pip install reva-ai-authz
+```
+
+The SDK does not install your agent framework (LangChain, LangGraph, CrewAI, AutoGen, MCP) — those remain your dependencies.
+
+## Environment Variables
+
+Every service running the SDK sets these. Missing config **fails closed**.
+
+| Variable | Required | Purpose |
+|:---------|:---------|:--------|
+| `RTG_URL` | yes | Base URL of the Reva Trust Guardian (PDP), e.g. `https://api.your-tenant.reva.ai` |
+| `POLICYSTORE_ID` | yes | The policy store this service evaluates against |
+| `RTG_AUTH_TOKEN` | yes | Platform API key, sent as `X-API-Token` on every PDP call |
+| `RTG_DISABLED` | no | `true` disables PDP entirely. Defaults to `false`. **Never set in production.** |
+
+<Tip>
+  Get the **Store ID** (`POLICYSTORE_ID`) and **PDP Auth Token** (`RTG_AUTH_TOKEN`) from [Developer Settings](/ai-workload-developer-settings).
+</Tip>
+
+Optional tuning variables include `REVA_AI_TOKEN_LEEWAY_SECONDS` (clock-skew tolerance for transaction tokens) and the logging controls `REVA_AI_LOG_LEVEL`, `REVA_AI_LOG_FILE`, and `REVA_AI_LOG_STDOUT`.
+
+## Inbound Authorization
+
+Decorate the inbound boundary of each agent or MCP tool with `@reva_ai_authorise`. It checks the incoming request with the PDP before your handler runs.
+
+<CodeGroup>
+```python FastAPI agent
+from fastapi import FastAPI, Request
+from reva_ai.sdk.ai import reva_ai_authorise
+
+app = FastAPI()
+
+@app.post("/v1/run")
+@reva_ai_authorise(
+    agent_name="shipment-supervisor-agent",  # the agent's PDP id
+    auth_key="Authorization",                # header with the caller's bearer token
+    prompt_key="query",                      # body field carrying the prompt
+    action="invokeAgent",                    # default
+)
+async def run(body: dict, request: Request):
+    # PDP allowed. Your handler runs.
+    return {"reply": "..."}
+```
+
+```python FastMCP tool
+from mcp.server.fastmcp import FastMCP
+from reva_ai.sdk.ai import reva_ai_authorise
+
+mcp = FastMCP("billing-tools")
+
+@mcp.tool()
+@reva_ai_authorise(
+    tool_name="get_freight_quote",  # the tool's PDP id
+    action="invokeTool",
+    prompt_key="origin_code",
+)
+def get_freight_quote(origin_code: str, destination_code: str) -> dict:
+    ...
+```
+</CodeGroup>
+
+<Note>
+  Decorate the route, not the application, and place `@reva_ai_authorise` **below** `@app.post(...)`. MCP discovery (`tools/list`, `initialize`) is never gated — only invocations (`tools/call`).
+</Note>
+
+### Decorator options
+
+| Option | Purpose |
+|:-------|:--------|
+| `agent_name` | The agent's PDP id (used for FastAPI/HTTP routes). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
+| `agent_type` | Sub-type option for custom routing. |
+| `action` | PDP action — defaults to `invokeAgent`; use `invokeTool` for tools and MCP servers. |
+| `auth_key` | Header carrying the caller's bearer token (usually `Authorization`). |
+| `prompt_key` | Body field (or JSON path) holding the prompt text. |
+| `tool_name` | The tool's PDP id (used for MCP tools). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
+| `crew_name` | The crew's PDP id (used for CrewAI crew factories). Exactly one of `agent_name`, `tool_name`, or `crew_name` must be set. |
+| `conversation_key` / `conversation_key_location` | Where to read the thread/conversation id (`body`, `header`, or `query`). |
+| `principal_claim` | JWT claim to use as the principal id (default `sub`). |
+
+## Outbound Authorization
+
+Replace raw `httpx`/`requests` calls between protected services with the proxy. It mints a short-lived transaction token from the Trust Guardian and forwards it.
+
+<Note>
+  The transaction token is minted by the Reva Trust Guardian and consumed by the SDK internally (forwarded downstream as `X-Transaction-Token`). This token-minting is **not** a public API — to authorize calls without the SDK, use the [evaluation API](/ai-workload-developer-evaluation-api).
+</Note>
+
+<CodeGroup>
+```python Agent → Agent
+from reva_ai.sdk.ai.proxy import revaclient
+
+resp = await revaclient.proxy.agent(
+    endpoint_url="http://billing-agent.internal/v1/run",
+    method="POST",
+    body={"text": "Get freight quote..."},
+    prompt_key="text",
+    resource_id="billing-agent",     # the target's PDP id
+)
+```
+
+```python Agent → MCP tool
+result = await revaclient.proxy.mcp(
+    tool=langchain_mcp_tool,
+    arguments={"container_id": "MSCU7841293"},
+    mcp_client="http://127.0.0.1:9101/mcp",
+    resource_id="reva-carrier-mcp",  # MCP server's PDP id
+    endpoint_protected=True,
+)
+```
+
+```python Agent → API
+async with revaclient.proxy.api(
+    endpoint_url="https://internal-api.example.com/users",
+    method="GET",
+    headers={"Accept": "application/json"},
+) as response:
+    response.raise_for_status()
+    return response.json()
+```
+</CodeGroup>
+
+On **deny**, the proxy raises `RevaAuthorizationError` and no downstream call is made.
+
+## Framework Adapters
+
+Each adapter maps the two primitives onto a framework's native API.
+
+<Tabs>
+  <Tab title="LangChain">
+    ```python
+    from reva_ai.sdk.ai.adapters.langchain import protect_runnable, protect_tool
+
+    protected_planner = protect_runnable(planner_chain, agent_name="planner-subagent")
+    protected_lookup = protect_tool(lookup_customer, tool_name="lookup_customer")
+    ```
+  </Tab>
+  <Tab title="LangGraph">
+    ```python
+    from reva_ai.sdk.ai.adapters.langgraph import protect_node
+
+    @protect_node(agent_name="planner-node")
+    async def planner(state, config):
+        ...
+    ```
+  </Tab>
+  <Tab title="CrewAI">
+    CrewAI uses the core decorator (`agent_name` for an agent, `crew_name` for a crew); object-level helpers live under `revaclient.crewai.proxy`.
+
+    ```python
+    from crewai import Agent, Crew
+    from reva_ai.sdk.ai import reva_ai_authorise
+
+    @reva_ai_authorise(agent_name="research-agent")
+    def make_research_agent() -> Agent:
+        return Agent(role="Researcher", goal="Investigate", backstory="...")
+
+    @reva_ai_authorise(crew_name="research-crew")
+    def make_research_crew() -> Crew:
+        ...
+    ```
+  </Tab>
+  <Tab title="AutoGen">
+    ```python
+    from reva_ai.sdk.ai.adapters.autogen import protect_agent
+
+    protected = protect_agent(assistant, agent_name="assistant")
+    ```
+  </Tab>
+</Tabs>
+
+For non-FastAPI inbound paths (queue workers, the a2a-sdk), seed identity with `set_caller_identity(...)` and call `authorise_inner_call_async(...)`.
+
+## Register a Service for Discovery
+
+Register a FastAPI agent or MCP server with Reva at startup so it can be discovered and appear in your inventory. Apply `reva_ai_discover` to the app:
+
+```python
+from fastapi import FastAPI
+from reva_ai.sdk.ai.discovery import reva_ai_discover, get_discovery_info
+
+app = FastAPI()
+reva_ai_discover(app, service_type="Agent", service_name="shipment-supervisor-agent")
+```
+
+`service_type` is `Agent` or `MCP`. Reva records the registration metadata (service name, pod/cluster, policy store, framework) and forwards it to the discovery log. Read it back from app state with `get_discovery_info(request)`.
+
+## Add Reva to Your Coding Agent
+
+Drop the SDK's agent guide into your project so AI coding assistants (Cursor, Claude Code, Codex) integrate the SDK correctly.
+
+<a href="/reva_agent.md" className="text-blue-600 font-semibold underline" download>Download reva_agent.md</a>
+
+- No `AGENTS.md` yet? Download it and rename to `AGENTS.md` in your project root.
+- Already have one? Add a single line to it: `@import reva_agent.md`.
+
+## Security Model
+
+- **Fail-closed by default** — missing config or an unreachable PDP denies.
+- **Short-lived transaction tokens** — the SDK validates `exp` locally before forwarding.
+- **Your request body is never mutated** — the SDK only adds one key (`rtg/a2a`) to outbound calls.
+
+## Next Steps
+
+<Card title="Agent Authorization Evaluation API" icon="plug" href="/ai-workload-developer-evaluation-api">
+  Prefer no SDK? Call the PDP directly — see the **API Documentation** tab.
+</Card>

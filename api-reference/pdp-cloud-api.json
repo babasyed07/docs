@@ -20,18 +20,14 @@
     "url": "https://swagger.io/resources/open-api/"
   },
   "servers": [
-      {
-          "url": "https://api.app.reva.ai",
-          "description": "Customer Server"
-      },
-      {
-          "url": "https://api.dev.reva.ai",
-          "description": "For internal engineering team requester @sarthak"
-      },
-      {
-          "url": "https://api.preview.reva.ai",
-          "description": "For Customer Preview request"
-      }
+    {
+      "url": "https://api.pr06.preview.reva.ai",
+      "description": "Preview"
+    },
+    {
+      "url": "https://api.dv06.dev.reva.ai",
+      "description": "Development"
+    }
   ],
   "paths": {
     "/access/v1/search/action": {

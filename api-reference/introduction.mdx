@@ -1,22 +1,162 @@
 ---
-title: 'Reva API Documentation Overview'
+title: "Reva API Reference Overview"
+description: "Use Reva APIs to evaluate authorization decisions, secure AI workload execution, manage guardrails, ingest authorization data, search access, and refresh access maps."
 ---
-The Reva API provides a complete set of services to manage fine-grained access control, policy evaluation, data ingestion, and access map management for authorization governance.  
 
-The APIs are organized into the following functional categories:
-1. Authorization APIs - AuthZEN Compliant  
-Provides real-time access evaluation based on subject, action, resource, and context. This enables fine-grained, policy-based access decisions for applications.
-   - Evaluate access requests.
-   - Supports contextual data for dynamic decisions.
-   - Fully compatible with AuthZEN evaluation models.
-2. Data Ingestion APIs  
-Allows bulk management of entities, attributes, relationships, and parent-child hierarchies that are used during policy evaluation.
-   - Create, update, replace, and delete entities.
-   - Bulk ingestion support for efficient data synchronization.
-   - Entity models align with policy schemas.
-3. Access Map APIs  
-Manages and refreshes the Access Map, which represents the resolved permissions and relationships for optimized policy evaluations.
-   - Refresh Access Map for active policy versions.
-   - Keep authorization decisions performant by maintaining the latest entity relationships.
+# Reva API Reference Overview  
+The Reva API provides programmatic access to core Reva platform services. Use these APIs to evaluate authorization decisions, secure AI workload execution, manage guardrails, ingest authorization context, search access relationships, and refresh access maps.
 
-<Info>**Security:** All APIs are secured using Bearer Token authentication (Authorization: Bearer **token**), ensuring that only authorized clients can interact with the system.</Info>
+The API reference is organized by functional area so developers can quickly find the right API for each integration use case.
+
+## API groups  
+| API group | Purpose |
+|---|---|
+| **AI Workload Authorization APIs** | Evaluate agent, tool, model, and AI workload authorization requests. |
+| **Authorization APIs** | Evaluate access decisions using AuthZEN-compatible requests or PDP Edge authorization calls. |
+| **Access Search APIs** | Search subjects, actions, and resources based on resolved access. |
+| **Data Fabric APIs** | Create, update, replace, and delete authorization context data used by Reva policies. |
+| **Access Map APIs** | Refresh access maps for active policy store versions and drafts. |
+| **Guardrail APIs** | Manage guardrail templates, rules, rule drafts, rule testing, rule builder sessions, and guardrail stores. |
+
+## Common use cases  
+Use the API reference when you want to:
+
+* Evaluate whether a subject can perform an action on a resource.
+* Send AuthZEN-compatible authorization requests to Reva.
+* Authorize AI agent and tool execution.
+* Search which users, actions, or resources are reachable under current policies.
+* Ingest entities, attributes, and relationships into Reva Data Fabric.
+* Refresh access maps after policy or data changes.
+* Create and manage design-time and runtime guardrails.
+* Test guardrail rules before enforcement.
+* Link guardrail stores to policy stores.
+
+## Authorization APIs  
+Authorization APIs evaluate access requests against Reva policies and authorization context.
+
+Reva supports two authorization API patterns:
+
+| API type | Description |
+|---|---|
+| **AuthZEN Compliant Evaluation** | Uses an AuthZEN-style subject, action, resource, and context request format. |
+| **PDP Edge Authorization** | Supports PDP Edge authorization calls for one or many requests. |
+
+Use these APIs when your application, gateway, service, or integration needs a real-time allow or deny decision.
+
+## AI Workload Authorization APIs  
+AI Workload Authorization APIs are used to evaluate agentic workload activity. These APIs help authorize AI agents, tools, models, and multi-hop workload calls before execution.
+
+Use these APIs when you need to control:
+
+* Which agent can call a tool.
+* Which user authority is carried into an agent workflow.
+* Which actions are allowed at each step of an AI workload.
+* Whether an AI workflow should continue, be blocked, or require additional review.
+
+## Access Search APIs  
+Access Search APIs help discover resolved access relationships.
+
+Use these APIs to answer questions such as:
+
+* Which subjects can perform this action on this resource?
+* Which actions can this subject perform?
+* Which resources can this subject access for a given action?
+
+These APIs are useful for access review, policy validation, entitlement discovery, and governance workflows.
+
+## Data Fabric APIs  
+Data Fabric APIs are used to ingest authorization context into Reva. This context can include users, groups, applications, roles, entitlements, resources, and relationships.
+
+Use these APIs to:
+
+* Create a single entity.
+* Create entities in bulk.
+* Update entity attributes or relationships.
+* Replace existing entity data.
+* Delete one entity or all entities for an entity type.
+
+The ingested data becomes part of the authorization context used during policy evaluation.
+
+## Access Map APIs  
+Access Map APIs refresh resolved access relationships for a policy store. Use these APIs after policy, schema, or data changes when access map results need to be recalculated.
+
+Access maps help security, governance, and application teams understand effective access across users, actions, resources, and policy conditions.
+
+## Guardrail APIs  
+Guardrail APIs manage design-time and runtime guardrail controls in Reva.
+
+Use Guardrail APIs to:
+
+* List, create, update, and delete guardrail templates.
+* Create and manage guardrail rules.
+* Create and manage guardrail rule drafts.
+* Test guardrail rules before applying them.
+* Retrieve guardrail violations.
+* Manage guardrail stores.
+* Resolve guardrails linked to policy stores or drafts.
+
+Guardrails help enforce policy quality, prevent risky authorization changes, detect misconfigurations, and control runtime behavior.
+
+## Authentication  
+Most Reva APIs require authentication. Include the required token in the request header.
+
+```bash
+Authorization: Bearer <token>
+```
+
+Some APIs may use an API token or service-specific authentication method depending on the integration. Review the endpoint-level authentication requirements before calling an API.
+
+## Base URLs  
+Use the base URL for your Reva environment.  
+| Environment | Base URL |
+|---|---|
+| **Preview** | `https://api.pr06.preview.reva.ai` |  
+| **Development** | `https://api.dv06.dev.reva.ai` | 
+
+## Request and response format
+
+Most Reva APIs use JSON request and response bodies.
+
+```bash
+Content-Type: application/json
+Accept: application/json
+```
+
+File upload or download APIs may use `multipart/form-data` or binary response formats. Review the endpoint details before sending a request.
+
+## Error handling
+
+Reva APIs return standard HTTP status codes.
+
+| Status code | Meaning |
+|---|---|
+| `200` | Request completed successfully. |
+| `201` | Resource was created successfully. |
+| `204` | Request completed successfully and no response body was returned. |
+| `400` | Request payload, parameter, or input value is invalid. |
+| `401` | Authentication is missing or invalid. |
+| `403` | Caller is authenticated but not authorized to perform the action. |
+| `404` | Requested resource was not found. |
+| `409` | Request conflicts with an existing resource. |
+| `500` | Internal server error. |
+
+Error responses usually include a key, message, and optional data field.
+
+```json
+{
+  "key": "INVALID.REQUEST",
+  "message": "Request body is invalid",
+  "data": "fieldName"
+}
+```
+
+## Recommended integration flow  
+For most integrations, follow this sequence:
+
+1. Configure the application, environment, and policy store in Reva.
+2. Define or import the authorization schema.
+3. Ingest entities, attributes, and relationships using Data Fabric APIs.
+4. Create and test policies in Reva.
+5. Configure guardrails for design-time or runtime enforcement.
+6. Use Authorization APIs or AI Workload Authorization APIs to evaluate access.
+7. Use Access Search and Access Map APIs for validation, governance, and review.

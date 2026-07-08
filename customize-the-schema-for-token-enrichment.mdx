@@ -1,0 +1,76 @@
+---
+title: "Customize the Schema for Token Enrichment"  
+---
+Open the Schema tab to review the starter schema created for token enrichment.  
+The starter schema provides the base model for Identity Provider data. To support token enrichment use cases, customize the schema to include the actions and resources that Reva should evaluate during token generation.  
+
+Common token enrichment schema components include:  
+| Schema Component | Description |
+| --- | --- |
+| **MachineId** | Represents a machine or service identity. |
+| **AppRole** | Represents an application role that can be returned as a token claim. |
+| **Entitlement** | Represents a permission or entitlement that can be returned as a token claim. |
+| **SuspendedApps** | Represents applications where a user is suspended or blocked. |  
+
+Common token enrichment actions include:  
+| Action | Description |
+| --- | --- |
+| **getApplication** | Retrieves application claims for token enrichment. |
+| **getRole** | Retrieves application role claims for token enrichment. |
+| **getEntitlement** | Retrieves entitlement claims for token enrichment. |
+
+## Customize the Schema for Custom Source Data
+Token enrichment can use data from the Identity Provider and from custom source systems.
+Custom source data can include:  
+- Application data from a target application
+- Application-specific roles
+- Entitlements
+- Suspension or Blacklist records
+- Machine identity permissions
+- Risk or access status from an external source
+
+To use this data during token enrichment, customize the Cedar schema to represent the required entities, attributes, and relationships.  
+
+For example, a user may be assigned to an application in the Identity Provider, but the target application may maintain a separate suspension database. By modeling suspension data in the schema, Reva can prevent the user from receiving application or role claims for that application.
+
+<Info>
+Open the **Schema** tab to review the starter schema created for token enrichment.     
+The starter schema provides the base model for Identity Provider data. To support token enrichment use cases, customize the schema to include the actions, entity types, attributes, and relationships that Reva should evaluate during token enrichment.  
+The customized schema should model the data needed to return application, role, and entitlement claims to the Identity Provider.  
+### Token enrichment actions  
+| Action | Principal | Resource | Description |
+| --- | --- | --- | --- |
+| **getApplication** | User | Application | Retrieves application claims for token enrichment. |
+| **getRole** | User | AppRole | Retrieves application role claims for token enrichment. |
+| **getEntitlement** | MachineId | Entitlement | Retrieves entitlement claims for machine or service identities. |  
+### Token enrichment entity types  
+| Entity Type | Description |
+| --- | --- |
+| **User** | Represents a user from the Identity Provider. |
+| **UserGroup** | Represents a user group from the Identity Provider. |
+| **MachineId** | Represents a machine or service identity. |
+| **Application** | Represents an application evaluated during token enrichment. |
+| **AppRole** | Represents an application role that can be returned as a token claim. |
+| **Entitlement** | Represents a permission or entitlement that can be returned as a token claim. |
+| **SuspendedApps** | Represents a user and application suspension relationship. |  
+### Important schema relationships  
+| Relationship | Description |
+| --- | --- |
+| **User memberOf UserGroup** | Allows policies to evaluate group membership. |
+| **User.suspendedApps** | Stores the applications where the user is suspended or blocked. |
+| **User.assignedGroups** | Stores the groups assigned to the user. |
+| **Application.clientId** | Links the application to a machine or service identity. |
+| **Application.appcode** | Stores the application code used during token enrichment. |
+| **Application.allowedUsers** | Stores users directly allowed for the application. |
+| **Application.assignedGroups** | Stores groups assigned to the application. |
+| **AppRole.parentApplication** | Links an application role to its parent application. |
+| **Entitlement.parentApplication** | Links an entitlement to its parent application. |
+| **SuspendedApps.user** | Links a suspension record to a user. |
+| **SuspendedApps.application** | Links a suspension record to an application. |
+
+<Note>
+  Use the starter schema as the base model, then extend it based on the claims, custom source data, and access rules required by the token enrichment flow.  
+  A sample customized token enrichment schema is available for reference.  
+  Download the sample schema: <a href="/token-enrichment-sample-schema.json" className="text-blue-600 font-semibold underline" download>Token Enrichment Schema</a>
+</Note> 
+</Info>

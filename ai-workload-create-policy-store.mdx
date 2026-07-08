@@ -1,0 +1,75 @@
+---
+title: "Create an Agentic Policy Store"
+description: "Create the policy store that holds your agents, schema, and policies."
+---
+
+An **agentic policy store** is the container for one agentic workload — its agents and entities, schema, policies, and decision logs. Create one before you onboard agents.
+
+<Tip>
+  Your tenant already includes a global **`GlobalAgentWorkloadApp`** store where every ingested entity lands. You create your own store here to scope a specific workload's schema, policies, and decision logs — then add agents to it from your [inventory](/ai-workload-getting-started#the-inventory-and-your-policy-stores). You don't have to author policies in `GlobalAgentWorkloadApp`.
+</Tip>
+
+## Where to Start
+
+<Steps>
+  <Step title="From the Home page (first time)">
+    In the **AI** view, the empty **Agentic Workload** panel shows an **Add Agentic Workloads** button. Click it.
+
+    <Frame caption="Add Agentic Workloads from the empty AI Insights home.">
+      <img src="images/ai-workload-home-empty.png" alt="Empty Agentic Workload panel" />
+    </Frame>
+  </Step>
+  <Step title="From Manage Policies">
+    Open **Manage Policies**, click **+**, and choose **Agent**.
+
+    <Frame caption="Create an agentic policy store from Manage Policies → + → Agent.">
+      <img src="images/ai-workload-manage-policies-plus-agent.png" alt="Manage Policies plus dropdown with Agent option" />
+    </Frame>
+  </Step>
+  <Step title="From the inventory (agents already ingested)">
+    If your agents are already in your inventory (via the [ingestion API](/ai-workload-developer-settings#ingest-entities-via-the-api) or discovery), click **Manage** on an entity and choose **+ Create new policy store** from the **Select Policy Store** dropdown. The store opens with that entity pre-selected — you then add the rest with **Add from Repository**.
+
+    <Frame caption="Create a new store from Manage Entity → Select Policy Store.">
+      <img src="images/ai-workload-manage-entity-select-store.png" alt="Select Policy Store dropdown with a create-new option" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Fill the Workload Details
+
+<Steps>
+  <Step title="Open the onboarding form">
+    Both entry points open **Onboard Your Agentic Workloads**.
+
+    <Frame caption="The Onboard Your Agentic Workloads form.">
+      <img src="images/ai-workload-onboard-form.png" alt="Onboard Your Agentic Workloads form" />
+    </Frame>
+  </Step>
+  <Step title="Enter the basic information">
+    Provide the **Name** and **Application owner(s)** (required), and optionally a **Portfolio**, **Application Tags**, and a **Description**.
+
+    <Frame caption="Filled basic information for the agentic workload.">
+      <img src="images/ai-workload-onboard-filled.png" alt="Filled basic information form" />
+    </Frame>
+  </Step>
+  <Step title="Continue">
+    Click **Next**. Reva creates the store and asks how you want to add agents.
+  </Step>
+</Steps>
+
+## Choose How to Add Agents
+
+After the store is created, how you add agents depends on what's already in your inventory:
+
+<CardGroup cols={2}>
+  <Card title="Add from Repository" icon="code-branch" href="/ai-workload-schema-add-from-repository">
+    **Inventory already populated** (you ran the ingestion API or discovery, or arrived via **Manage**) — pull the agents you need straight from your inventory.
+  </Card>
+  <Card title="Upload from Template" icon="file-arrow-up" href="/ai-workload-schema-upload-template">
+    **Starting fresh** (empty inventory) — register agents from the metadata CSV template.
+  </Card>
+</CardGroup>
+
+<Note>
+  **Guardrails are auto-applied** to every new agentic policy store. Review and manage them in the [Guardrails](/guardrails/overview) section.
+</Note>

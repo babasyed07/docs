@@ -1,0 +1,175 @@
+---
+title: "AVP Schema Design"
+description: "Create, import, review, and accept a schema for an AVP policy store."
+---
+
+The schema defines the authorization model for an AVP policy store. It describes the principals, actions, resources, attributes, runtime attributes, and relationships that policies can use.
+
+For a new AVP policy store, schema design is required before you create policies.
+
+<Note>
+If you onboarded an existing AVP policy store, schema onboarding is skipped because Reva uses the schema from the linked AVP policy store.
+</Note>
+
+## When schema design is required
+
+| Onboarding path | Schema design required |
+|---|---|
+| Existing AVP policy store | No |
+| New AVP policy store from scratch | Yes |
+
+## Helpful references
+
+Review schema and policy design concepts before creating the schema. You can also use Cedar references to understand schema structure and test authorization models.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+<Card
+title="Cedar Playground"
+icon="play"
+href="https://cedarpolicy.com/en/playground"
+
+>
+    Open the Cedar Playground to test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+
+<Card
+title="Cedar Schema Documentation"
+icon="code"
+href="https://docs.cedarpolicy.com/schema/schema.html"
+
+>
+    Review the Cedar schema format and schema modeling guidance.
+  </Card>
+</CardGroup>
+
+## Schema design options
+
+Reva supports multiple ways to create or reuse a schema.
+
+| Schema option | Description |
+|---|---|
+| Create with AI | Generate a schema using Reva AI from DDL, SQL, or OpenAPI 3.0 input |
+| Design manually | Build the schema using the Schema Designer |
+| Import JSON | Upload an existing Cedar schema JSON file |
+| Import from Reva Library | Start from a reusable schema template |
+
+## Create a schema with AI
+
+Use **Create with AI** when you want Reva to generate the schema from application inputs.
+
+You can provide:
+
+* DDL files
+* SQL files
+* OpenAPI 3.0 specifications
+
+Reva analyzes the input and suggests the principals, actions, resources, and attributes that can be used for authorization.
+
+### Steps
+
+1. Open the new AVP policy store.
+2. Go to the schema onboarding flow.
+3. Select **Create with AI**.
+4. Upload or provide the source input.
+5. Review the generated schema.
+6. Accept the schema, or make changes before accepting it.
+
+## Design the schema manually
+
+Use **Design manually** when you want to build the authorization model yourself.
+
+The Schema Designer lets you define:
+
+| Schema element | Description |
+|---|---|
+| Principal | The actor that performs an action, such as a user, machine identity, or service |
+| Action | The operation the principal wants to perform |
+| Resource | The object or asset the action is performed on |
+| Attributes | Properties of principals, actions, or resources used in policy conditions |
+| Runtime attributes | Context values passed during authorization evaluation |
+| Hierarchy | Relationships between entities, such as group membership or ownership |
+
+### Steps
+
+1. Open the new AVP policy store.
+2. Select **Design**.
+3. Define the principal types.
+4. Define the action types.
+5. Define the resource types.
+6. Connect principals, actions, and resources.
+7. Add required attributes.
+8. Add runtime attributes if needed.
+9. Configure hierarchy if needed.
+10. Review and accept the schema.
+
+## Import schema JSON
+
+Use **Import JSON** when you already have a Cedar schema JSON file.
+
+### Steps
+
+1. Open the new AVP policy store.
+2. Select **JSON**.
+3. Upload the schema JSON file.
+4. Review the imported schema.
+5. Accept the schema.
+
+## Import from Reva Library
+
+Use **Import from Reva Library** when you want to start from a reusable schema template.
+
+Reva Library contains prevalidated schema templates that can help you start faster.
+
+### Steps
+
+1. Open the new AVP policy store.
+2. Select **Import from Reva Library**.
+3. Choose a schema template.
+4. Review the schema.
+5. Accept the schema.
+
+## Review and accept the schema
+
+Before the schema is finalized, review the generated or imported model.
+
+Check that:
+
+* Principal types are correct.
+* Actions match application operations.
+* Resources match protected application objects.
+* Required attributes are present.
+* Runtime attributes are defined where needed.
+* Relationships and hierarchy are correct.
+
+After you accept the schema, Reva uses it to support policy design, policy testing, and AI-suggested policies.
+
+## After schema acceptance
+
+After the schema is accepted, Reva can suggest starter policies.
+
+You can choose to:
+
+| Option | Description |
+|---|---|
+| **Add AI-suggested policies** | Review generated policies and add selected ones |
+| **Skip suggested policies** | Continue without adding suggested policies |
+| **Start Policy Design** | Open the Policy Designer to create and edit policies |
+| **Upload Test Data** | Open the Data tab to add test data for simulations |
+
+## Next steps
+
+After schema design, continue with:
+
+* Add AI-suggested policies.
+* Create or edit policies in the Policy Designer.
+* Upload test data.
+* Configure live data.
+* Publish policies to AVP.

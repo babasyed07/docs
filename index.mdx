@@ -2,91 +2,69 @@
 title: "Reva Overview"
 ---
 
-**Reva AI-Powered Policy Governance and Authorization Platform** simplifies access control for cloud applications. It helps both developers and business stakeholders manage **who can access what**, with precision and confidence.    
+**The Intent & Behavior-Based Access Control (IBAC) platform.** Reva is a unified authorization control plane that decides — in real time — whether an action by a human or an AI agent is allowed. It goes beyond *who* an identity is to evaluate *what they're trying to do* and *whether it's appropriate*, keeping autonomous agents visible, governable, and accountable.
 
-In today's security-first world, Reva makes fine-grained authorization accessible without complexity. We streamline the entire policy lifecycle from design to enforcement.  
+*Inspect the intent. Authorize the action.*
 
-<iframe
-  className="w-full aspect-video rounded-xl"
-  src="https://youtube.com/embed/XPG5CGw5ht8"
-  title="YouTube video player"
-  frameBorder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-></iframe>
+## Why Reva
 
-## Core Authorization Components
+Identity tells you *who* an agent is. It can't tell you whether the agent's *action* is appropriate — and autonomous agents act at machine speed, across many hops, often on behalf of someone else. Static, identity-only controls leave three gaps:
 
-Reva integrates all essential policy management points:
+| Risk | What it looks like |
+|:-----|:-------------------|
+| **Excessive Agency** | Over-permissioned agents take destructive actions far beyond what anyone intended. |
+| **Intent Decay** | Context changes at every hop, so point-in-time permission checks stop reflecting what's actually happening. |
+| **Confused Deputy** | Agents delegate access across systems, creating unbounded chains with no clear accountability. |
 
-| **Component** | **Role**              | **Function**                                          |
-|:--------------|:----------------------|:------------------------------------------------------|
-| **PAP** (Policy Administration Point) | **Policy Designer**      | Create, manage, and govern access policies             |
-| **PIP** (Policy Information Point)      | **Data Hub**             | Integrate user/resource data for decision-making       |
-| **PDP** (Policy Decision Point)         | **Decision Engine**      | Evaluate access requests using Cedar policies          |
-| **PEP** (Policy Enforcement Point)      | **Enforcement Layer**    | Apply decisions within your applications               |
+## The IBAC Shift
 
-## What is Reva?
+Reva closes those gaps with **Intent & Behavior-Based Access Control** — authorization that evaluates the *action*, not just the actor. It shifts the question from *"what access does this agent have?"* to *"is this action appropriate, right now?"*
 
-Reva is an AI-powered platform that combines three essential authorization components: 
+- **Intent-aware** — Reva parses the explicit intent of a request into fine-grained permissions and checks it against business context in real time.
+- **Runtime & adaptive** — decisions happen continuously, at every tool call, API request, and MCP boundary — not once at sign-in.
+- **Zero Standing Privileges** — access is granted just-in-time for the narrow intent of an authorized task, then revoked, neutralizing authorization drift.
+- **Deterministic** — because enforcement is policy-driven, Reva can block an inappropriate action even if the agent's reasoning or LLM is compromised by prompt injection.
 
-1. **Policy Designer (PAP)**  
-   Create, manage, and govern access policies   
-2. **Data Hub (PIP)**  
-   Integrate user/resource data for authorization decisions  
-3. **Decision Engine (PDP)**   
-   Evaluate access requests using Cedar policy language 
+## The Reva Platform
 
-<Info>
-  Reva works seamlessly with Amazon Verified Permissions (AVP) and includes its own Cedar-based decision engine.
-</Info>
+Reva is one control plane with four parts that work together:
 
-## AI Use Cases 
+<CardGroup cols={2}>
+  <Card title="Policy Control Tower" icon="tower-observation">
+    Design, govern, and operate authorization policies at scale — with an AI-powered, natural-language policy designer, approval workflows, and version history.
+  </Card>
+  <Card title="Reva Trust Guardian" icon="shield-halved">
+    Enforce real-time authorization across applications, APIs, and AI agents — intercepting and classifying every action by intent before it runs.
+  </Card>
+  <Card title="Policy Intelligence" icon="chart-line">
+    Explainable decisions and behavior analytics — see who (or which agent) can do what, why a decision was made, and where risk concentrates.
+  </Card>
+  <Card title="Data Fabric" icon="database">
+    Feed policy decisions the identity, resource, relationship, and context data they need — through event-driven integrations and SDKs.
+  </Card>
+</CardGroup>
 
-Reva integrates AI to enhance policy governance and authorization:  
-- AI-Driven Policy Creation: Automatically generate policies from plain English descriptions, improving the efficiency of policy creation.  
-- AI-Based Schema Generation: Leverage AI to generate and manage schemas based on the application’s data model, streamlining schema setup and maintenance.  
-- Access Search: Use AI to search and analyze access data across multiple systems, helping identify potential risks and unauthorized access patterns.  
+## Built for Every Agent and App
 
-## Built for Everyone
+Reva governs access for everything in a modern environment:
 
-Whether you're a developer, security architect, or business user, Reva helps you: 
+- **AI agents** — enterprise agents (Microsoft Copilot, Claude Cowork), coding agents (Claude Code, Cursor, Kiro), and autonomous pro-code agents (LangChain, n8n, and more).
+- **Applications and APIs** — custom apps, microservices, SaaS, data platforms, and Kubernetes.
+- **Humans and non-human identities** — users, service accounts, and workloads.
 
-1.  Design policies with no-code tools or AI-assisted editor.  
-2.  Model RBAC, ABAC, and ReBAC access controls.  
-3.  Generate policies from plain English descriptions.  
-4.  Test authorization scenarios before deployment.  
-5.  Visualize access rules with our Access Graph.  
+It builds on open standards — **Cedar**, **Amazon Verified Permissions (AVP)**, **OPA**, **AuthZEN**, and **Shared Signals / CAEP** — so policies stay portable across your stack.
 
-## How Reva Enhances Your Ecosystem
+## Choose Your Use Case
 
-Reva supercharges your application authorization by providing: 
+Reva applies the same control plane to several use cases — custom application authorization, AI workload security, and token enrichment. Pick the one that matches your goal in **[Choose Your Use Case](/choose-your-use-case)**.
 
-1. Central policy management (PAP)  
-   Manage policies in one place for easier governance and consistency.
-2. Simplified data integration (PIP)  
-   Integrate data from multiple sources to make real-time authorization decisions.  
-3. Local decision capability (PDP)  
-   Evaluate access requests locally, ensuring quick and accurate decisions.  
-4. Access Graph visualization showing why access decisions happen  
-   Visualize access rules, making it easier to understand who has access to what and why.  
-5. AI-Driven Policy Creation  
-   Automatically generate policies from plain English descriptions, improving policy creation efficiency.  
-6. AI-Based Schema Generation   
-   Leverage AI to generate and manage schemas based on the application's data model, streamlining schema setup and maintenance.  
-7. AI-Enhanced Access Search  
-   Use AI to analyze access data, helping identify unauthorized access patterns or risks across your ecosystem.  
-8. Library  
-   The Reva Library is a centralized repository for reusable policies, schemas, and entity definitions, enabling teams to share, search, and quickly use pre-built components to accelerate policy creation.  
-9. Guardrail  
-   Guardrail is a policy governance enforcement framework that helps standardize policies and detect violations for better governance across systems.  
+## What You'll Learn
 
-## What You'll Learn  
-By the end of this guide, you will:  
-1. **Understand Reva’s Core Architecture:** Gain a clear picture of how Reva’s components—like Policy Designer (PAP), Data Hub (PIP), and Decision Engine (PDP)—work together to enforce access control in your applications.  
-2. **Explore Key Concepts:** Learn foundational ideas such as Policy Stores, Environments, Schemas, and Guardrails that power Reva’s governance framework.  
-3. **Onboard Applications and Data:** Discover how to connect your applications and data sources to Reva and set up authorization-ready environments.  
-4. **Design and Manage Authorization Policies:** Get hands-on with Reva’s intuitive interface to define, test, and activate fine-grained access policies using Cedar.  
-5. **Leverage Policy Governance Workflows:** Learn how Reva supports policy reviews, approvals, version tracking, and violation detection to ensure enterprise-grade compliance.  
-6. **Enable Integrations for Continuous Access Management:** Understand how to integrate Reva with platforms like Amazon Verified Permissions, GitHub, and GitLab for policy lifecycle automation.  
-7. **Use AI to Accelerate Access Control:** See how Reva’s AI features assist in policy generation, schema building, and access analysis.  
+By the end of this guide, you will be able to:
+
+1. Navigate the Reva platform and its core sections.
+2. Choose and follow your use case — custom apps, AI workloads, or token enrichment.
+3. Model your applications, agents, and data as Reva entities.
+4. Design, test, and publish fine-grained policies with Cedar and the AI policy designer.
+5. Enforce decisions at runtime through the Reva Trust Guardian or the SDK and APIs.
+6. Govern policies with guardrails, approvals, versioning, and decision logs.

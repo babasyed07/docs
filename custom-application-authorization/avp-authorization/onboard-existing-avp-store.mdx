@@ -1,0 +1,113 @@
+---
+title: "Onboard an Existing AVP Policy Store"
+description: "Link an existing Amazon Verified Permissions policy store to Reva and manage its authorization lifecycle."
+---
+
+Use this flow when your application already has an Amazon Verified Permissions policy store and you want to manage it in Reva.
+
+When you onboard an existing AVP policy store, Reva connects to the selected AVP policy store and uses its existing schema and policy structure. You do not need to create a new schema during onboarding.
+
+<Note>
+Amazon Verified Permissions is Cedar-based. In Reva, AVP is shown as a separate policy store type because it has a dedicated publish flow to Amazon Verified Permissions.
+</Note>
+
+## When to use this flow
+
+Use this onboarding flow when:
+
+- You already have an Amazon Verified Permissions policy store.
+- You want to manage AVP policies in Reva.
+
+## Before you begin
+
+Make sure the AVP connection is available in Reva before you start onboarding.
+
+| Requirement | Description |
+|---|---|
+| **AVP connection** | An existing connection to Amazon Verified Permissions |
+| **AVP policy store** | The policy store you want to onboard |
+| **Portfolio** | The portfolio where the custom application should be grouped |
+| **Application owner** | The user or team responsible for the policy store |
+| **Policy store details** | Name and description for the policy store in Reva |
+
+## Helpful references
+
+Before onboarding an existing AVP policy store, make sure the Amazon Verified Permissions integration is configured in Reva.
+
+<CardGroup cols={1}>
+  <Card
+    title="AVP Integration"
+    icon="shield-check"
+    href="/avp-integration"
+  >
+    Configure the Amazon Verified Permissions integration used to connect Reva with your AVP policy stores.
+  </Card>
+</CardGroup>
+
+## Onboarding steps
+
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the policy store **Name**.
+5. Enter the policy store **Description**.
+6. Select the **Portfolio**.
+7. Select the **Application owner**.
+8. Select **AVP** as the policy format.
+9. Select the existing AVP connection.
+10. Select the available AVP policy store.
+11. Select **Create**.
+
+After the policy store is created, Reva opens the policy store workspace.
+
+## Basic information fields
+
+| Field | Description |
+|---|---|
+| **Name** | Name of the policy store in Reva |
+| **Description** | Description of the application or authorization use case |
+| **Portfolio** | Portfolio associated with the application |
+| **Application owner** | User or team responsible for the policy store |
+| **Application tags** | Optional tags used to classify the application |
+| **Policy format** | Select AVP |
+| **Existing connection** | Existing Amazon Verified Permissions connection |
+| **Available policy stores** | AVP policy stores available from the selected connection |
+
+## What Reva imports from AVP
+
+When you onboard an existing AVP policy store, Reva uses the policy store structure from Amazon Verified Permissions.
+
+| Item | Behavior |
+|---|---|
+| **Schema** | Reva uses the existing AVP schema |
+| **Policies** | Reva uses the existing AVP policies |
+| **Policy store type** | Set as AVP |
+| **Publish destination** | Set as AVP |
+| **Schema onboarding** | Skipped |
+
+<Note>
+Because the schema already exists in AVP, Reva does not take you through the schema design flow during this onboarding path.
+</Note>
+
+## After onboarding
+
+After onboarding, use the policy store workspace to manage policies, data, publishing, and operational settings.
+
+| Tab | What you can do |
+|---|---|
+| **Policies** | Review, create, edit, test, and publish policies |
+| **Data** | Upload test data or configure live data for evaluations |
+| **Schema** | View the schema associated with the AVP policy store |
+| **Version History** | Review policy and schema versions |
+| **Decision Logs** | Review authorization decision activity |
+| **Settings** | Manage ownership, access permissions, AVP publish destination, data settings, and policy store configuration. |
+
+## Next steps
+
+After the existing AVP policy store is onboarded, continue with:
+
+* Review the schema.
+* Review existing policies.
+* Upload test data or configure live data.
+* Test policy behavior.
+* Publish policy changes to AVP.

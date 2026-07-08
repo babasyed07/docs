@@ -1,51 +1,141 @@
 ---
-title: "Policy Settings"
+title: "Settings"
 ---
-The Policy Settings Tab is the central workspace for configuring ownership, environment details, data sources, and policy publishing destinations in Reva. It allows administrators and developers to control how policies are managed, tested, and deployed across environments. From here, you can set who owns or collaborates on a policy store, decide which dataset powers simulations and analytics, and choose the policy engine type (AVP, Cedar, OPA) for publishing.  
 
-## Info & Ownership
-Manage the identity, description, and permissions for the policy store.  
-1. **Environment Name**  
-   A unique label for the environment where the policy store runs.  
-   Example: dev, qa, or production.
-2. **Description**  
-   A free-text field describing the application or system linked to this policy store.
-   Example:  
-   “Comprehensive banking platform for customer account management and internal staff operations with advanced security controls.”
-3. **Owners**  
-   Users with full control over the policy store. Owners can create, update, and delete policies and configuration.
-   Example: appadmin.
-4. **Collaborators**  
-   Define who can view or edit the policy store:  
-   **Viewers:** Read-only access, suitable for auditors or compliance reviewers.  
-   Example: auditor-user  
-   **Editors:** Can update configurations and policies but not delete the store.  
-   Example: developer1.
-## Policy Simulation Data configuration
-Configure the preferred dataset for policy evaluation, simulations, and analytics.
-1. Preferred Data Source
-   Select the data environment for running policies:
-   - **Simulation:** Test policies against simulated datasets before going live.  
-     Example: Use “Simulation” while drafting rules to check impact without affecting production.
-   - **Production:** Apply live datasets for real policy enforcement and monitoring.  
-     Example: Use “Production” when finalizing authorization checks for SecureBank transactions.  
-## Policy Publish
-Set destinations and integrations for publishing and running policies.
-1. **Policy Type Selection** (when creating new store or linking an existing policy store)  
-   Choose the engine or framework for policy enforcement:  
-   - **AVP** (Amazon Verified Permissions)
-   - **Cedar** (Cedar policy language)
-   - **OPA** (Open Policy Agent).
-<Info>Example: Select “AVP” if integrating with Amazon Verified Permissions) to manage the policy store.</Info>
-2. **Connection Settings** (when publishing with AVP)
-   - **Connection Name:** A user-friendly name for the publishing connection.  
-     Example: east-2.
-   - **Connection Type:** Indicates the enforcement engine, e.g., AVP.
-   - **External ID:** Unique identifier for cross-account trust and API calls.  
-     Example: LD4qdTVkc6ZAmExtVJxHnG.
-   - **Account ID:** AWS account or system identifier for integration.  
-     Example: 123456789012.
-   - **Region:** Region where the policy engine is deployed.  
-     Example: us-east-2.
-3. **History Button**  
-   Allows you to view the publish history of policies, including timestamps and status.
+The **Settings** tab is the central configuration area for a policy store. Use this page to manage policy store details, ownership, access permissions, policy distribution, runtime integration, and data connection settings.
+
+The available settings depend on the policy store type and the selected publishing model. For example, an AVP policy store shows AVP-related configuration, while a Cedar or token enrichment policy store may show Reva Trust Guardian, Data Fabric, and identity/token setup options.
+
+## Cedar policy store settings
+
+To open policy store settings:
+
+1. Go to **Manage Policies**.
+2. Open the required policy store.
+3. Click the **Settings** tab from the top navigation.
+4. Use the left-side menu to configure the policy store.
+
+Common sections include:
+
+| Section | Description |
+| --- | --- |
+| **Policy Store Configuration** | Configure basic information, ownership, access permissions, and policy distribution. |
+| **AVP Evaluation Service** | Configure AVP evaluation settings for AVP-backed policy stores. |
+| **Identity & Token Setup** | Configure token enrichment claim mapping and identity-related setup. |
+| **Connect Data Fabric** | Configure ingestion details and tokens for bringing external authorization data into Reva. |
+| **Connect to Reva Trust Guardian** | Configure Reva Trust Guardian as the runtime destination for policy evaluation or token enrichment. |
+
+<Note>
+The sections displayed in Settings may vary based on the policy store type.
+</Note>
+
+## Policy Store Configuration
+
+Use **Policy Store Configuration** to manage the basic details of the policy store and decide where policies are distributed.
+
+### Basic Info
+
+The **Basic Info** section includes the policy store ID, portfolio name, description, owners, viewers, and editors.
+
+| Field | Description |
+| --- | --- |
+| **Policy Store ID** | Unique identifier of the policy store. This value is generated by Reva and can be copied when needed for integrations or API calls. |
+| **Portfolio Name** | Name of the portfolio or category associated with the policy store. |
+| **Description/Goal** | Short description of the policy store and its purpose. |
+| **Owners** | Users with ownership access to the policy store. Owners can manage configuration, access permissions, policies, schema, and publishing. |
+| **Viewers** | Users who can view the policy store, policies, schema, data, logs, and configuration. |
+| **Editors** | Users who can edit policies, schema, data, and configuration based on their assigned permissions. |
+
+Click **Edit** to update the configuration. After making changes, click **Save**.
+
+## Policy Distribution
+
+Use **Policy Distribution** to select where Reva publishes policy and schema updates.
+
+The available distribution options depend on the policy store type.
+
+### AVP policy stores
+
+For AVP policy stores, the available distribution options can include:
+
+| Option | Description |
+| --- | --- |
+| **AVP** | Publishes policies and schema directly to the linked Amazon Verified Permissions policy store. |
+| **Git Repository** | Publishes policies and schema to a connected Git repository such as GitHub, GitLab, or Azure DevOps. |
+
+If you select **AVP**, choose the connection under **Deliver your Policy Updates**.
+
+If you select **Git Repository**, choose the Git connection under **Deliver your Policy Updates**.
+
+### Cedar policy stores
+
+For Cedar policy stores, the available distribution options can include:
+
+| Option | Description |
+| --- | --- |
+| **Reva Trust Guardian** | Publishes policies and schema to Reva Trust Guardian for Reva-managed runtime evaluation. |
+| **Git Repository** | Publishes policies and schema to a connected Git repository. |
+
+Select the required destination and click **Save**.
+
+<Note>
+GitHub, GitLab, and Azure DevOps connections are created from the global **Integrations** area. After the connection is created, return to the policy store and select it from **Settings > Policy Store Configuration > Policy Distribution**.
+</Note>
+
+## AVP Evaluation Service
+
+Use **AVP Evaluation Service** for AVP-backed policy stores. This section is used to configure or review the AVP evaluation service connected to the policy store.
+
+Use this section when the policy store is published to Amazon Verified Permissions and runtime authorization decisions are evaluated by AVP.
+
+## Identity & Token Setup
+
+Use **Identity & Token Setup** for token enrichment policy stores.
+
+This section is used to configure how Reva maps policy evaluation results to token claims.
+
+Example claim mapping:
+
+| Claim Name | Action | Resource |
+| --- | --- | --- |
+| **app** | getApplication | Application |
+| **role** | getRole | AppRole |
+| **ent** | getEntitlement | Entitlement |
+
+When the Identity Provider calls Reva Trust Guardian, Reva evaluates the mapped action and resource, then returns the authorized values in the token enrichment response.
+
+## Connect Data Fabric
+
+Use **Connect Data Fabric** to configure API-based ingestion for external authorization data.
+
+This section provides the values required to send identity, application, role, entitlement, relationship, or custom source data into Reva.
+
+Common values include:
+
+| Item | Description |
+| --- | --- |
+| **OAuth Token** | Token used to authenticate ingestion API requests. |
+| **Regenerate Key** | Generates a new ingestion authentication token. |
+| **Policy Store ID**| Identifies the policy store where the data should be ingested. |
+| **Entity Type IDs** | Identifies the entity types used by ingestion APIs. |
+
+Use these values when configuring external systems or ingestion scripts to send data to Reva.
+
+## Connect to Reva Trust Guardian
+
+Use **Connect to Reva Trust Guardian** to configure Reva Trust Guardian as the runtime destination for policy evaluation or token enrichment.
+
+For token enrichment, this section provides the endpoint and authentication values required by the Identity Provider.
+
+Common values include:
+
+| Field | Description |
+| --- | --- |
+| **Token Enrichment Endpoint** | Reva Trust Guardian endpoint called by the Identity Provider. |
+| **Authentication Field** | Header field used for authentication. |
+| **Authentication Secret** | Secret used by the Identity Provider to authenticate to Reva. |
+| **Custom Header Field Name** | Header used to pass the policy store identifier. |
+| **Custom Header Value** | Policy store identifier used by Reva during evaluation. |
+| **Regenerate Key** | Generates a new authentication secret. |
+
+Use these values when configuring Okta Inline Hooks, Microsoft Entra custom claims providers, or other identity provider token enrichment integrations.

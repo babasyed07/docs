@@ -1,0 +1,213 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Reva Authorization API",
+    "description": "Evaluate one or many authorization requests using a subject, action, resource, and optional context. The request follows the AuthZEN-style decision model and returns allow or deny decisions.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.pr06.preview.reva.ai",
+      "description": "Preview"
+    },
+    {
+      "url": "https://api.dv06.dev.reva.ai",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "AuthZEN Compliant Evaluation",
+      "description": "Evaluate authorization requests and return allow or deny decisions."
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/pdp/access/v1/evaluation": {
+      "post": {
+        "summary": "Evaluate authorization request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AuthZENRequest"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AuthZENRequest"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mirrored list of decisions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/AuthZENResponse"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuthZENResponse"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Evaluates one authorization request or a batch of authorization requests. Each request includes subject, action, resource, and optional context.",
+        "operationId": "evaluateAuthorizationRequest",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "AuthZENAction": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Action ID (may be schema-qualified)"
+          }
+        }
+      },
+      "AuthZENRequest": {
+        "type": "object",
+        "required": [
+          "subject",
+          "action",
+          "resource"
+        ],
+        "properties": {
+          "subject": {
+            "$ref": "#/components/schemas/AuthZENSubject"
+          },
+          "action": {
+            "$ref": "#/components/schemas/AuthZENAction"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/AuthZENResource"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional contextual attributes"
+          }
+        }
+      },
+      "AuthZENResource": {
+        "type": "object",
+        "required": [
+          "type",
+          "id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Free-form resource attributes"
+          }
+        },
+        "description": "Target resource of the decision"
+      },
+      "AuthZENResponse": {
+        "type": "object",
+        "required": [
+          "decision"
+        ],
+        "properties": {
+          "decision": {
+            "type": "boolean",
+            "description": "true \u2192 allow, false \u2192 deny"
+          }
+        }
+      },
+      "AuthZENSubject": {
+        "type": "object",
+        "required": [
+          "type",
+          "id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Logical entity-type (e.g. \"User\")"
+          },
+          "id": {
+            "type": "string",
+            "description": "Entity identifier (e.g. \"alice\")"
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        }
+      }
+    }
+  }
+}

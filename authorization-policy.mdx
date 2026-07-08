@@ -1,112 +1,409 @@
 ---
-title: "Building Authorization Policies"
+
+title: "Build an Authorization Policy Example"
+description: "Create, test, analyze, and publish a sample authorization policy using Reva."
 ---
-Reva’s Policy Designer provides a structured, guided interface for authoring, modifying, and validating authorization policies. Both business users and developers can collaboratively create fine-grained access control models using a combination of visual builders, conditional logic, and direct policy coding — all governed by versioned policy stores with built-in approval workflows.  
 
-## Authorization Policy Model Overview  
-Every Reva authorization policy answers four fundamental questions:  
+This example shows how to build a simple authorization policy in Reva for a sample **PetStore** application.
 
-| Component                | Description                        | Example                                                 |
-|:------------------------ |:---------------------------------- |:------------------------------------------------------- |
-| **Principal**            | Who is requesting access?          | `User`, `Role`, `Group` (e.g., `Nurse`, `Admin`)        |
-| **Action**               | What operation is being performed? | `view`, `edit`, `delete`                                |
-| **Resource**             | What object is being accessed?     | `PatientRecord`, `Invoice`                              |
-| **Condition (Optional)** | What constraints apply?            | Time-based, department-based, sensitivity-based filters |  
+You will create a policy that allows a specific user, **John**, to perform two actions on the PetStore application:
 
-Policies enforce an Effect (Allow/Deny) and can include optional metadata such as descriptions and audit information.  
+* `ListOrders`
+* `GetStoreInventory`
 
-## Policy Designer Interface
-1. **Visual Mode** (Business User Friendly)  
-   - Interactive UI for defining principals, actions, resources, and conditions.  
-   - The Condition Builder allows complex logic construction using attribute selectors and operators — all without writing code.  
-2. **Developer Mode** (Cedar Code Support)  
-   - Advanced users can author policies directly using Cedar language for maximum control.  
-   - The editor offers full syntax support and flexibility to define sophisticated authorization logic.  
+You will also upload test data, test the policy, review the Access Map, check impact analysis, and publish the policy.
 
-## Key Requirement: Schema First Approach  
+## Example scenario
 
-Before authoring any policies, the Authorization Schema must be defined and activated. The schema provides the foundational structure by defining the entities, attributes, and relationships your policies will reference.  
+The PetStore application has users who can perform actions on the PetStore application resource.
 
-1. Schema Components   
+In this example:
 
-| Schema Element  | Description                      | Examples                                      |
-|:--------------- |:-------------------------------- |:--------------------------------------------- |
-| **Principals**  | Who requests access?             | `User`, `Role`, `Doctor`, `BillingService`    |
-| **Actions**     | What actions are allowed?        | `ViewRecords`, `ApprovePayments`              |
-| **Resources**   | What data or system is accessed? | `PatientFile`, `Invoice`                      |
-| **Attributes**  | Fine-grained qualifiers          | `security_level: high`, `department: finance` |
-| **Hierarchies** | Entity relationships             | `Hospital → Ward → PatientBed`                |
+| Component | Example value                             | Description                                   |
+| --------- | ----------------------------------------- | --------------------------------------------- |
+| Principal | `John`                                    | The user requesting access                    |
+| Actions   | `ListOrders`, `GetStoreInventory`         | The operations John is allowed to perform     |
+| Resource  | `PetStore`                                | The application resource being accessed       |
+| Condition | User is active and application is enabled | Optional checks used before access is allowed |
 
-<Info>Important: Activate the schema before proceeding with policy creation to ensure policy designer recognizes available entities.</Info>  
-2. Test Data Preparation  
-After schema activation, users can generate a Data Template from the console to populate test datasets that will be used for validating policies.
-   - The template includes pre-defined folder structures and CSV files for each entity type.  
-   - Populate test data for Principals, Resources, and Attributes.  
-   - This data drives simulations and Access Map visualizations during policy testing.  
+## Before you begin
 
-## How to Access PetStore Policy Store
-1. Navigate to Policy Store (e.g., PetStore).
-2. Click on the Policies tab.
+Before creating the policy, make sure you have a custom application policy store.
 
-## Step-by-Step Flow: Policy Store Owner Create, Modify or Delete Policies  
-1. **Open Policy Designer**  
+You can use either authorization path:
 
-   <img height="10" src="images/policy-designer.png" />   
+| Authorization path                        | Use this when                                                 |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| Amazon Verified Permissions Authorization | You want to publish the policy to Amazon Verified Permissions |
+| Cedar Authorization                       | You want to publish the policy to Git or Reva Managed         |
 
-2. **Create New Policy**  
+To create the custom application policy store, go to **Manage Policies > Create > Custom Application**.
 
-   <img height="10" src="images/policy-designer-options.png" />   
+For more details, see [Onboard a Custom Application](/custom-application-authorization/onboard-custom-application).
 
-   You have three ways to begin:  
-     - Create with Reva AI — Use AI to generate policies from natural language prompts.  
-     - Select from Library — Import pre-built templates from the Library.  
-     - Manual Creation — Start with Permit Policy or Deny Policy.  
-   Click on Add permit policy or Add deny policy to start manual creation.  
-3. **Define Policy Rules**  
-   The Policy Designer uses a graph-based canvas to visually define:  
+## Step 1: Start custom application onboarding
 
-   | Component     | Description                        | Example                           |
-   |:------------- |:---------------------------------- |:--------------------------------- |
-   | **Principal** | Select users, roles, or groups     | User `John`                       |
-   | **Action**    | Define permitted actions           | `ListOrders`, `GetStoreInventory` |
-   | **Resource**  | Define target application/resource | `PetStore`                        |
-   | **Condition** | Optional logic expressions         | `when {true}`                     |  
-   - Use "+" connectors to add components.  
-   - Multiple policies can be created in one canvas.  
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the policy store name and description.
+5. Select the portfolio.
+6. Select the application owner.
+7. Choose the policy format:
+   - Select **AVP** if you want to publish to Amazon Verified Permissions.
+   - Select **Cedar** if you want to publish to Git or Reva Managed.
+8. Continue to the schema onboarding step.
 
-<Info>Example: Allow user John to list orders and get store inventory from PetStore application.</Info>  
+## Step 2: Define the schema during onboarding
 
-4. ** Test and Simulate Policy**   
+For this PetStore example, create the schema manually during the onboarding flow.
 
-   <img height="200" src="images/test-using-accessmap.png" />  
+The schema should define the application access model.
 
-   - Use Test button to simulate policy impact.  
-   - The Access Map visualizes:  
-     - John → ListOrders → PetStore.  
-     - John → GetStoreInventory → PetStore.   
-   - This helps validate whether access is granted as expected.  
-6. **Review Summary & Impact**  
-   - Before publishing, review modified policies in the Summary of Policies view.
-   - Use the Impact button to preview real-time access relationships.
-   <img height="200" src="images/impact-policy.png" />  
-   - Verify that all intended permissions are correctly reflected.
-7. **Publish Policy**
-   - Once satisfied, click Publish to activate.  
-   - If approval is required (non-owner contributors), the draft will move to Pending Actions for review.  
-   <Info>
-    Before you can publish policies, you must first configure **Policy Publish settings** in the **Policy Store** This includes selecting the policy type (AVP, Cedar, or OPA) and setting up the connection details such as region, external ID, and account number. Without this configuration, publishing will not be possible.   
-    **Example**: In the SecureBank store, you would set Policy Type to **AVP**, provide the AWS Account ID <code>123456789012</code>, and select Region <code>us-east-2</code> before publishing policies.
-   </Info>
+| Schema element | Name | Description |
+|---|---|---|
+| Principal | `User` | Represents a user who requests access |
+| Resource | `Application` | Represents the PetStore application |
+| Actions | `ListOrders`, `GetStoreInventory` | Actions that can be performed on the PetStore application |
+| User attribute | `status` | Used to check whether the user is active |
+| Application attribute | `status` | Used to check whether the application is enabled |
 
-## Key Features Summary  
+### Manual schema steps
 
-| Feature                     | Purpose                                         |
-|:--------------------------- |:----------------------------------------------- |
-| **Visual Policy Designer**  | Drag-and-drop interface for rule construction   |
-| **AI & Library Assistance** | Accelerate policy creation                      |
-| **Schema Dependency**       | Policies only reference schema-defined entities |
-| **Access Map**              | Visual simulation of policy effects             |
-| **Approval Workflow**       | Controlled publishing for contributors          |
-| **Version Control**         | Full history tracking of policy versions        |
+1. In the schema onboarding flow, select the manual schema design option.
+2. Create the principal type `User`.
+3. Add the `status` attribute to `User`.
+4. Create the resource type `Application`.
+5. Add the `status` attribute to `Application`.
+6. Create the actions:
+   - `ListOrders`
+   - `GetStoreInventory`
+7. Map the actions to the `Application` resource.
+8. Review the schema.
+9. Accept the schema.
 
+<Note>
+For a new policy store, the schema must be accepted before the policy store onboarding flow can be completed and before policies can be created.
+</Note>
 
+## Step 3: Complete policy store onboarding
+
+After the schema is accepted, complete the policy store onboarding flow.
+
+Depending on the product flow, Reva may next show AI-suggested policies or ask whether you want to start policy design or upload test data.
+
+| Option | Result |
+|---|---|
+| Add AI-suggested policies | Adds selected starter policies generated from the schema |
+| Skip suggested policies | Continues without adding starter policies |
+| Start Policy Design | Opens the Policy Designer |
+| Upload Test Data | Opens the Data tab so you can upload test data |
+
+For this example, continue with **Upload Test Data** so you can test the policy and build the Access Map.
+
+For more information, see:
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+  <Card
+    title="Cedar Schema Documentation"
+    icon="code"
+    href="https://docs.cedarpolicy.com/schema/schema.html"
+  >
+    Test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+</CardGroup>
+
+## Step 4: Add test data
+
+After accepting the schema, add test data so you can test the policy and build the Access Map.
+
+1. Open the policy store.
+2. Go to the **Data** tab.
+3. Select **Test Data**.
+4. Download the data template.
+5. Add sample data for users and applications.
+6. Upload the completed test data file.
+
+Use data similar to the following.
+
+| Entity type | Entity ID           | Attribute | Value      |
+| ----------- | ------------------- | --------- | ---------- |
+| User        | `john`              | `status`  | `Active`   |
+| User        | `mary`              | `status`  | `Active`   |
+| User        | `david`             | `status`  | `Inactive` |
+| Application | `petstore`          | `status`  | `Enabled`  |
+| Application | `petstore-disabled` | `status`  | `Disabled` |
+
+<Note>
+Policy testing and Access Map depend on both policies and data. If test data is missing or does not match the schema, policy tests and Access Map results may not show the expected access relationships.
+</Note>
+
+## Step 5: Open the Policy Designer
+
+1. Open the policy store.
+2. Go to the **Policies** tab.
+3. Select **Start Policy Design**.
+4. Create a new policy using one of the available authoring methods.
+
+Reva supports the following policy design options.
+
+| Authoring option | Description                                                  |
+| ---------------- | ------------------------------------------------------------ |
+| Create with AI   | Use natural language instructions to generate a Cedar policy |
+| Edit with AI     | Select an existing policy and ask Reva AI to update it       |
+| Code editor      | Write or edit the Cedar policy manually                      |
+
+## Step 6: Create the policy with AI
+
+Use the following instruction in Reva AI:
+
+```text
+Allow user John to list orders and get store inventory for the PetStore application only when the user status is Active and the application status is Enabled.
+```
+
+Review the generated policy before saving it.
+
+The policy should express this intent:
+
+| Policy part | Expected value                            |
+| ----------- | ----------------------------------------- |
+| Effect      | Permit                                    |
+| Principal   | John                                      |
+| Actions     | `ListOrders`, `GetStoreInventory`         |
+| Resource    | PetStore application                      |
+| Condition   | User is active and application is enabled |
+
+## Step 7: Review the Cedar policy
+
+The generated policy should look similar to this example.
+
+```cedar
+permit (
+  principal == PetStore::User::"john",
+  action in [
+    PetStore::Action::"ListOrders",
+    PetStore::Action::"GetStoreInventory"
+  ],
+  resource == PetStore::Application::"petstore"
+)
+when {
+  principal.status == "Active" &&
+  resource.status == "Enabled"
+};
+```
+
+<Note>
+The exact namespace and entity names depend on the schema created in your policy store. If your schema uses different names, update the policy to match the accepted schema.
+</Note>
+
+For Cedar policy syntax, see:
+
+<CardGroup cols={2}>
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Open the Cedar Playground to test Cedar policies and authorization scenarios.
+  </Card>
+   <Card
+     title="Cedar Policy Syntax"
+     icon="code"
+     href="https://docs.cedarpolicy.com/policies/syntax-policy.html"
+   >
+    Review the Cedar policy syntax guide.
+   </Card>
+</CardGroup>
+
+## Step 8: Test the policy
+
+Before publishing, test the policy with multiple scenarios.
+
+1. Go to the **Policies** tab.
+2. Select the policy.
+3. Select **Test**.
+4. Choose the principal, action, resource, and context.
+5. Run the test.
+6. Review the authorization result.
+
+Use these test cases.
+
+| Test case                           | Principal | Action              | Resource            | Expected result |
+| ----------------------------------- | --------- | ------------------- | ------------------- | --------------- |
+| John lists orders                   | `john`    | `ListOrders`        | `petstore`          | Permit          |
+| John gets store inventory           | `john`    | `GetStoreInventory` | `petstore`          | Permit          |
+| Mary lists orders                   | `mary`    | `ListOrders`        | `petstore`          | Deny            |
+| John performs an unsupported action | `john`    | `DeleteOrder`       | `petstore`          | Deny            |
+| Inactive user lists orders          | `david`   | `ListOrders`        | `petstore`          | Deny            |
+| John accesses disabled application  | `john`    | `ListOrders`        | `petstore-disabled` | Deny            |
+
+## Step 9: Review Access Map
+
+Use **Access Map** to visualize the access relationships created by the policy and test data.
+
+In this example, Access Map should show that:
+
+| Principal | Action              | Resource |
+| --------- | ------------------- | -------- |
+| John      | `ListOrders`        | PetStore |
+| John      | `GetStoreInventory` | PetStore |
+
+Access Map should not show Mary or David as having access to the PetStore actions unless additional policies grant them access.
+
+For more information, see [Use Access Map](/use-access-map).
+
+## Step 10: Review impact analysis
+
+Before publishing, review the impact of the policy change.
+
+Impact analysis helps you understand how the policy affects access before the change is published.
+
+Review:
+
+| Review item       | What to check                                            |
+| ----------------- | -------------------------------------------------------- |
+| New access        | John receives access to the expected actions             |
+| Unintended access | Other users do not receive access                        |
+| Deny scenarios    | Inactive users and disabled applications are not allowed |
+| Access Map        | Access relationships match the intended policy behavior  |
+
+For more information, see [Policy Testing and Impact Analysis](/policy-testing-and-impact-analysis).
+
+## Step 11: Publish the policy
+
+After testing and impact review, publish the policy to the configured destination.
+
+The publish destination depends on the policy store type.
+
+| Policy store type | Publish destination         |
+| ----------------- | --------------------------- |
+| AVP               | Amazon Verified Permissions |
+| Cedar             | Git or Reva Managed         |
+
+### Publish to AVP
+
+Use this path when the policy store type is AVP.
+
+1. Open the AVP policy store.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. In **Policy Distribution**, confirm that the publish destination is **AVP**.
+5. Return to the **Policies** tab.
+6. Review the policies.
+7. Select **Publish**.
+8. Verify the publish status.
+
+See [Publish to AVP](/custom-application-authorization/avp-authorization/publish-to-avp).
+
+### Publish to Git
+
+Use this path when the policy store type is Cedar and the publish destination is Git.
+
+1. Open the AVP policy store.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. In **Policy Distribution**, confirm that the publish destination is **AVP**.
+5. Return to the **Policies** tab.
+6. Review the policies.
+7. Select **Publish**.
+8. Verify the publish status.
+
+See [Publish to Git](/custom-application-authorization/cedar-authorization/publish-to-git).
+
+### Publish to Reva Managed
+
+Use this path when the policy store type is Cedar and the publish destination is Reva Managed.
+
+1. Open the Cedar policy store.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. In **Policy Distribution**, confirm that the publish destination is **AVP**.
+5. Return to the **Policies** tab.
+6. Review the policies.
+7. Select **Publish**.
+8. Verify the publish status.
+
+See [Publish to Reva Managed](/custom-application-authorization/cedar-authorization/publish-to-reva-managed).
+
+## Step 12: Verify after publishing
+
+After publishing, verify that the policy behaves as expected.
+
+| Area                   | What to verify                                                      |
+| ---------------------- | ------------------------------------------------------------------- |
+| Publish status         | Confirm that the publish operation completed successfully           |
+| Policy version         | Review the published version in Version History                     |
+| Authorization behavior | Test the expected permit and deny scenarios                         |
+| Decision Logs          | Review authorization decision activity after runtime traffic starts |
+| Access Map             | Confirm that access relationships still match the intended model    |
+
+## Troubleshooting
+
+| Issue                             | Possible cause                                          | Recommended action                                                  |
+| --------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| Policy cannot be saved            | The policy references schema elements that do not exist | Review the schema and update the policy                             |
+| Policy test returns deny for John | Test data does not match the policy condition           | Confirm that John is active and the PetStore application is enabled |
+| Policy test allows the wrong user | The principal condition is too broad                    | Restrict the policy to the intended principal or role               |
+| Access Map is empty               | Test data is missing or incomplete                      | Upload test data that matches the schema                            |
+| Impact analysis is incomplete     | Test scenarios do not cover the policy behavior         | Add more test data and rerun impact analysis                        |
+
+## Best practices
+
+| Practice                        | Recommendation                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------- |
+| Start with the schema           | Policies should only reference schema-defined entities, actions, and attributes |
+| Use clear policy instructions   | Include principal, action, resource, and condition when using AI                |
+| Test permit and deny cases      | Validate both allowed and blocked scenarios                                     |
+| Review Access Map               | Confirm that policy and data produce the intended access relationships          |
+| Review impact before publishing | Check for unintended access changes                                             |
+| Keep policies specific          | Avoid broad access unless required                                              |
+| Track versions                  | Use Version History to review published changes                                 |
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card
+    title="AVP Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/avp-authorization/avp-policy-design"
+  >
+    Create, edit, test, and manage Cedar policies for an AVP policy store.
+  </Card>
+
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create, edit, test, and manage Cedar policies for a Cedar policy store.
+  </Card>
+  <Card
+    title="Policy Testing and Impact Analysis"
+    icon="vial-circle-check"
+    href="/policy-testing-and-impact-analysis"
+  >
+    Test policy behavior and review policy impact before publishing.
+  </Card>
+  <Card
+    title="Use Access Map"
+    icon="diagram-project"
+    href="/use-access-map"
+  >
+    Visualize access relationships created by policies and data.
+  </Card>
+</CardGroup>

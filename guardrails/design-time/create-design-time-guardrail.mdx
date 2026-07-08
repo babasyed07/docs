@@ -1,0 +1,85 @@
+---
+
+title: "Create a Design Time Guardrail"
+description: "Create a design time guardrail, select guardrail rules, and configure remediation guidance for policy authors."
+---
+Create a Design Time Guardrail when you want Reva to validate policies while they are being written or edited in Policy Designer.
+
+A design time guardrail includes basic information, selected guardrail rules, and remediation guidance.
+
+## Before You Begin  
+Make sure you have:  
+* Access to the Reva Admin Console.
+* Permission to create guardrails.
+* A policy store where the guardrail should apply.
+* At least one predefined or custom design time guardrail rule.
+
+## Step 1: Open Guardrails  
+1. Open the Reva Admin Console.
+2. Go to **Guardrails**.
+3. Click **Create**.
+4. Select **Design** as the guardrail type.
+
+## Step 2: Add Basic Information  
+In the **Basic Information** tab, configure the guardrail details.  
+| Field | Description |
+|---|---|
+| **Guardrail Name** | Enter a clear name for the guardrail. Example: `Duplicate Policy Detection`. |
+| **Description** | Explain what the guardrail detects and why it is needed. |
+| **Mode** | Select `Enforce` to block publishing when a violation is found. Select `Monitor` to allow publishing while reporting the violation. |
+| **Priority** | Select the priority level for the guardrail. Example: `High`. |
+| **Tags** | Add tags such as compliance, control family, or internal standard. |
+| **Owner(s)** | Select the guardrail owner. |
+| **Policy Store** | Select the policy store where the guardrail applies. |
+
+
+Example description:  
+```text
+Detect duplicate policies by evaluating whether two or more policies have the same Principal, Action, Resource, and Condition combination.
+```
+
+## Step 3: Select Guardrail Rules  
+Open the **Guardrail Rules** tab.  
+1. Search for the rule you want to use.
+2. Select one or more guardrail rules.
+3. Review the rule descriptions before saving.
+
+For duplicate policy detection, select rules such as:  
+* **Redundant policies with shared Principal-Resource**
+* **Prevent Duplicate Policy with same PARC**
+
+## Step 4: Add Remediation and Approval Guidance  
+Open the **Remediation & Approval** tab.
+
+In the **Error Message** field, enter the message that policy authors should see when the guardrail is violated.
+
+Example:
+
+```text
+Duplicate policy detected. A policy already exists with the same principal, action, resource, and condition. Remove or consolidate the duplicate policy before publishing.
+```
+
+Enable **Add Remediation Methods** to give policy authors clear steps to fix the issue.
+
+Example remediation method:
+
+```text
+Remove or Consolidate Duplicate Policy
+
+1. Review the existing policy with the same Principal, Action, Resource, and Condition.
+2. Remove the duplicate policy if it is unnecessary.
+3. Merge actions or conditions into one policy if both policies are required.
+4. Save and publish the corrected policy.
+```
+
+## Step 5: Save the Guardrail
+
+Click **Save Changes**.
+
+After saving, the guardrail appears on the Guardrails page. You can view it in card view or table view. Use the **Type** filter and select **Design** to show only design time guardrails.
+
+## What Happens Next
+
+When a policy author creates or edits a policy in Policy Designer, Reva evaluates the policy against the selected design time guardrail rules.
+
+If a violation is found, Reva shows the configured error message and remediation guidance. The author can then update the policy before activation.

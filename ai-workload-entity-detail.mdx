@@ -1,0 +1,49 @@
+---
+title: "View & Edit Entity Details"
+description: "Review and edit an entity's attributes, relationships, skills, and metadata."
+---
+
+Each entity in your topology has a detail view where you review and edit its attributes, relationships, skills, and metadata. Accurate metadata makes your policies precise — many conditions test values like `riskTier` or an agent's skills.
+
+## Review an Entity
+
+<Steps>
+  <Step title="Open an entity">
+    In the topology (or while onboarding), select an entity to open its detail view. For an agent, this shows the **Agent Details** — name, id, data classification, risk tier, max chain depth, status, path URL, and more.
+
+    <Frame caption="An agent's detail view.">
+      <img src="images/ai-workload-onboard-metadata.png" alt="Agent details view" />
+    </Frame>
+  </Step>
+  <Step title="Edit the metadata">
+    Click **Edit** to change any field, then **Save**. Updated attributes are immediately available to policies that reference them.
+
+    <Frame caption="Edit an entity's metadata.">
+      <img src="images/ai-workload-entity-edit.png" alt="Edit entity metadata" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Manage Skills
+
+An agent's **skills** describe what it can do — and you can write [intent/skill-based policies](/ai-workload-policy-design) against them. While onboarding, or any time after, you can **add, edit, or delete** an agent's skills.
+
+<Steps>
+  <Step title="Open the agent's Skills">
+    In the agent's detail view, find the **Skills** section.
+  </Step>
+  <Step title="Add or edit a skill">
+    Click **Add Skill** (or edit an existing one) and set its **Name**, **ID**, **Description**, **Source**, and **Risk Tier**.
+
+    <Frame caption="Add a skill to an agent.">
+      <img src="images/ai-workload-add-skills.png" alt="Add a skill dialog" />
+    </Frame>
+  </Step>
+  <Step title="Save">
+    Save. The skill is now available for intent/skill-based policies.
+  </Step>
+</Steps>
+
+<Tip>
+  Set `riskTier` and `dataClassification` thoughtfully — they're commonly used in on-behalf-of and context-based policy conditions.
+</Tip>

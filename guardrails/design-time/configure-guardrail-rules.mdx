@@ -1,0 +1,73 @@
+---
+title: "Create Design Time Guardrail Rules"
+description: "Use predefined rules or create custom rules to evaluate policies during design time."
+---
+
+Design Time Guardrail Rules define what Reva checks when a policy is created or edited in Policy Designer. A guardrail can include one or more rules.
+
+Reva supports two ways to configure design time guardrail rules:
+
+1. Use predefined rules from the **Guardrail Rules** tab.
+2. Create custom rules by using the Guardrail Rule Template API.
+
+## Predefined Design Time Rules
+
+When creating a design time guardrail, open the **Guardrail Rules** tab and select the rules that should apply.
+
+Common predefined rules include:  
+| Rule | Description |
+|---|---|
+| **Redundant policies with shared Principal-Resource** | Prevents duplicate policies for the same principal-resource pair. |
+| **Prevent Duplicate Policy with same PARC** | Ensures that no two policies use the same Principal-Action-Resource-Condition combination. |
+| **Prevent Overly Permissive Policies** | Blocks creation of policies with broad actions such as `All`. |
+| **Enforce Mandatory Policy Conditions** | Blocks policy creation or modification unless the policy includes at least one condition. |
+| **Prevent Conflicting Policy Effects** | Blocks policies that create permit and deny conflicts for the same principal-action-resource combination. |
+| **Use specific resources instead of wildcard** `*` | Detects wildcard resource usage without strict conditions. |
+
+## Create a Custom Rule by API
+
+You can create custom design time guardrail rules by using the template API.
+
+<Warning>
+Do not copy browser session tokens into documentation or source control. Use a secure access token at runtime and replace the value below with your own token.
+</Warning>
+
+```bash
+curl --location --request PUT 'https://api.pr06.preview.reva.ai/v1/template' \
+  --header 'accept: application/json, text/plain, */*' \
+  --header 'Content-Type: application/json' \
+  --header 'authorization: Bearer <ACCESS_TOKEN>' \
+  --data '{
+    "name": "Missing Policy Condition Detection",
+    "description": "Detects policies that do not define any conditions. Flags policy definitions where access is granted without constraints such as role, time, or location. These policies may allow overly broad or unintended access.",
+    "regoPolicy": "some i\npolicy := input.entries[i]\npolicy.type == \"permit\"\nnot policy.conditions\n",
+    "configJson": {},
+    "type": "DESIGN_TIME"
+  }'
+```
+
+## Request Fields
+| Field | Required | Description |
+|---|---|---|
+| **name** | Yes | Name of the custom guardrail rule. |
+| **description** | Yes | Explains what the rule detects and why it matters. |
+| **regoPolicy** | Yes | Rego policy logic used to evaluate the policy input. |
+| **configJson** | No | Optional configuration object for the rule. Use `{}` when no configuration is required. |
+| **type** | Yes | Use **DESIGN_TIME** for design time guardrail rules. |
+
+## Example Rule: Missing Policy Condition Detection
+
+This rule detects permit policies that do not include conditions.
+
+```rego
+some i
+policy := input.entries[i]
+policy.type == "permit"
+not policy.conditions
+```
+
+Use this rule when your organization requires every permit policy to include a condition, such as role, time, location, risk level, or resource scope.
+
+## After Creating a Rule
+
+After the rule is created, it becomes available for selection in the **Guardrail Rules** tab when creating or editing a design time guardrail.

@@ -15,12 +15,10 @@
         "tab": "User Guide",
         "groups": [
           {
-            "group": "Reva Overview and Concepts",
+            "group": "Start Here",
             "pages": [
               "index",
-              "access-control-models",
-              "authorization",
-              "understanding-reva-avp-cedar"
+              "choose-your-use-case"
             ]
           },
           {
@@ -28,36 +26,137 @@
             "pages": [
               "login-reva",
               "landing-page",
-              "platform-hierarchy"
+              "navigating-reva"
             ]
           },
           {
-            "group": "Setting Up Policy Integration Points",
+            "group": "Concepts & Knowledge",
             "pages": [
-              "integration-overview",
-              "avp-integration",
-              "s3-integration",
-              "github-integration",
-              "gitlab-integration"
+              "access-control-models",
+              "authorization",
+              "understanding-reva-avp-cedar"
             ]
           },
           {
-            "group": "Managing Policies and Application Context",
+            "group": "Custom Application Authorization",
             "pages": [
-              "manage-policies",
-              "application-context-overview",
-              "application-configuration",
-              "application-schema-onboarding",
-              "application-settings"
-            ]
-          },
-          {
-            "group": "Policy Design and Modeling",
-            "pages": [
+              "custom-application-authorization/overview",
+              "custom-application-authorization/onboard-custom-application",
+            {
+              "group": "Amazon Verified Permissions Authorization",
+              "expanded": true,
+              "pages": [
+                "custom-application-authorization/avp-authorization/onboard-existing-avp-store",
+                "custom-application-authorization/avp-authorization/create-avp-policy-store",
+                "custom-application-authorization/avp-authorization/avp-schema-design",
+                "custom-application-authorization/avp-authorization/avp-policy-design",
+                "custom-application-authorization/avp-authorization/avp-data",
+                "custom-application-authorization/avp-authorization/publish-to-avp"
+              ]
+            },
+            {
+              "group": "Cedar Authorization",
+              "expanded": true,
+              "pages": [
+                "custom-application-authorization/cedar-authorization/onboard-existing-git-store",
+                "custom-application-authorization/cedar-authorization/create-cedar-policy-store",
+                "custom-application-authorization/cedar-authorization/cedar-schema-design",
+                "custom-application-authorization/cedar-authorization/cedar-policy-design",
+                "custom-application-authorization/cedar-authorization/cedar-data",
+                "custom-application-authorization/cedar-authorization/publish-to-git",
+                "custom-application-authorization/cedar-authorization/publish-to-reva-managed"
+              ]
+            },
               "understanding-schema-policy",
               "policy-rbac-abac-rebac",
               "authorization-policy",
               "policy-setting"
+            ]
+          },
+          {
+            "group": "AI Workload Security",
+            "pages": [
+              "ai-workload-security-overview",
+              "ai-workload-capability-matrix",
+              "ai-workload-getting-started",
+              "ai-workload-context-modeling",
+              {
+                "group": "Onboard Your Agents",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-create-policy-store",
+                  "ai-workload-schema-add-from-repository",
+                  "ai-workload-schema-upload-template",
+                  "ai-workload-metadata-template"
+                ]
+              },
+              {
+                "group": "Build & Manage the Topology",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-topology-overview",
+                  "ai-workload-add-entity-from-topology",
+                  "ai-workload-entity-detail"
+                ]
+              },
+              {
+                "group": "Design & Generate Policies",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-policy-design",
+                  "ai-workload-policy-generated",
+                  "ai-workload-schema-runtime-attributes"
+                ]
+              },
+              {
+                "group": "Developer Integration",
+                "expanded": true,
+                "pages": [
+                  "ai-workload-integration-options",
+                  "ai-workload-developer-settings",
+                  "ai-workload-developer-sdk",
+                  "ai-workload-native-plugins"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Token Enrichment with Reva Trust Guardian",
+            "pages": [
+              "enrich-identity-tokens-with-policy-based-claims",
+              "configure-identity-provider-connector",
+              "customize-the-schema-for-token-enrichment",
+              "configure-data-fabric-integration",
+              "extend-policies-to-use-custom-source-data",
+              "token-enrichment-settings",
+              "validate-token-enrichment"
+            ]
+          },
+          {
+            "group": "Guardrails",
+            "pages": [
+              "guardrails/overview",
+              {
+                "group": "Design Time Guardrail",
+                "expanded": true,
+                "pages": [
+                  "guardrails/design-time/overview",
+                  "guardrails/design-time/configure-guardrail-rules",
+                  "guardrails/design-time/create-design-time-guardrail",
+                  "guardrails/design-time/review-findings-policy-designer"
+                ]
+              },
+              {
+                "group": "Runtime Guardrail",
+                "expanded": true,
+                "pages": [
+                  "guardrails/runtime/overview",
+                  "guardrails/runtime/create-runtime-guardrail",
+                  "guardrails/runtime/configure-runtime-conditions",
+                  "guardrails/runtime/apply-to-runtime-enforcement",
+                  "guardrails/runtime/decision-logs"
+                ]
+              }
             ]
           },
           {
@@ -70,11 +169,30 @@
             ]
           },
           {
+            "group": "Decision Logs",
+            "pages": [
+              "decision-logs"
+            ]
+          },
+          {
             "group": "Policy Testing and Impact Analysis",
             "pages": [
               "policy-test",
               "preparing-uploading-data",
               "analyzing-impact"
+            ]
+          },
+          {
+            "group": "Setting Up Integration Points",
+            "pages": [
+              "integration-overview",
+              "azure-agent-integration",
+              "avp-integration",
+              "scim-integration",
+              "github-integration",
+              "gitlab-integration",
+              "azure-devops-integration",
+              "okta-identity-integration"
             ]
           },
           {
@@ -103,22 +221,146 @@
       {
         "tab": "API Documentation",
         "groups": [
-        {
-         "group": "API Overview",
-          "pages": [
-          "api-reference/introduction"
-          ]
-         },
-         {
-          "group": "Reva REST APIs",
-          "openapi": [
-          "/api-reference/pip-openapi.json"
+          {
+            "group": "API Overview",
+            "expanded": true,
+            "pages": [
+              "api-reference/introduction"
             ]
           },
           {
-          "group": "Policy Decision Point (PDP) Edge Service API",
-          "openapi": [
-          "/api-reference/pdp-cloud-api.json"
+            "group": "Authorization APIs",
+            "expanded": true,
+            "pages": [
+              "ai-workload-developer-evaluation-api",
+              {
+                "group": "AuthZEN Compliant Evaluation",
+                "expanded": true,
+                "openapi": "/api-reference/reva-authorization-api.json",
+                "pages": [
+                  "POST /pdp/access/v1/evaluation"
+                ]
+              },
+              {
+                "group": "PDP Edge Authorization",
+                "expanded": true,
+                "openapi": "/api-reference/pdp-edge-authorization-api.json",
+                "pages": [
+                  "POST /v1/authorize"
+                ]
+              }
+
+            ]
+          },
+          {
+            "group": "Access Search APIs",
+            "expanded": true,
+            "openapi": "/api-reference/pdp-edge-search-api.json",
+            "pages": [
+              "POST /access/v1/search/subject",
+              "POST /access/v1/search/action",
+              "POST /access/v1/search/resource"
+            ]
+          },
+          {
+            "group": "Data Fabric APIs",
+            "expanded": true,
+            "pages": [
+              {
+                "group": "Entity Ingestion APIs",
+                "expanded": true,
+                "openapi": "/api-reference/data-fabric-ingestion-api-final-clean.json",
+                "pages": [
+                  "POST /ingestion/v1/entity",
+                  "POST /ingestion/v1/entity/bulk",
+                  "PATCH /ingestion/v1/entity/{entityId}",
+                  "PATCH /ingestion/v1/entity/bulk",
+                  "PUT /ingestion/v1/entity",
+                  "PUT /ingestion/v1/entity/bulk",
+                  "DELETE /ingestion/v1/entity/{entityId}",
+                  "DELETE /ingestion/v1/entity/bulk"
+                ]
+              },
+              {
+                "group": "Access Map APIs",
+                "expanded": true,
+                "openapi": "/api-reference/access-map-api.json",
+                "pages": [
+                  "PUT /v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Guardrail APIs",
+            "expanded": true,
+            "pages": [
+              {
+                "group": "Guardrail Templates",
+                "expanded": true,
+                "openapi": "/api-reference/guardrail-templates-api.json",
+                "pages": [
+                  "GET /v1/template",
+                  "PUT /v1/template",
+                  "GET /v1/template/{id}",
+                  "PATCH /v1/template/{id}",
+                  "DELETE /v1/template/{id}"
+                ]
+              },
+              {
+                "group": "Guardrail Rules",
+                "expanded": true,
+                "openapi": "/api-reference/guardrail-rules-api.json",
+                "pages": [
+                  "GET /v1/rule",
+                  "PUT /v1/rule",
+                  "GET /v1/rule/{id}",
+                  "PATCH /v1/rule/{id}",
+                  "DELETE /v1/rule/{id}",
+                  "PUT /v1/rule/draft",
+                  "GET /v1/rule/draft/{id}",
+                  "PATCH /v1/rule/draft/{id}",
+                  "DELETE /v1/rule/draft/{id}",
+                  "POST /v1/rule/test",
+                  "POST /v1/rule/refresh",
+                  "POST /v1/rule/fetch",
+                  "GET /v1/rule/{name}/check",
+                  "GET /v1/rule/violation",
+                  "GET /v1/rule/policy-store/{id}"
+                ]
+              },
+              {
+                "group": "Guardrail Rule Builder",
+                "expanded": false,
+                "openapi": "/api-reference/guardrail-rule-builder-api.json",
+                "pages": [
+                  "POST /v1/rule/api-init",
+                  "POST /v1/rule/api-message",
+                  "POST /v1/rule/api-destroy"
+                ]
+              },
+              {
+                "group": "Guardrail Stores",
+                "expanded": true,
+                "openapi": "/api-reference/guardrail-stores-api.json",
+                "pages": [
+                  "GET /v1/guardrail-store",
+                  "PUT /v1/guardrail-store",
+                  "GET /v2/guardrail-store",
+                  "GET /v1/guardrail-store/{guardrailStoreId}",
+                  "PATCH /v1/guardrail-store/{guardrailStoreId}",
+                  "DELETE /v1/guardrail-store/{guardrailStoreId}",
+                  "PUT /v1/guardrail-store/config",
+                  "POST /v1/guardrail-store/config/ids",
+                  "GET /v1/guardrail-store/{guardrailStoreId}/policy-stores",
+                  "GET /v1/guardrail-store/tags",
+                  "GET /v1/guardrail-store/configs",
+                  "DELETE /v1/guardrail-store/configs",
+                  "GET /v1/policy-store/{policyStoreId}/guardrails/resolved",
+                  "GET /v1/policy-store/{policyStoreId}/guardrails/configs",
+                  "GET /v1/draft/{draftId}/guardrails/resolved"
+                ]
+              }
             ]
           }
         ]
@@ -136,6 +378,9 @@
         ]
       }
     ]
+  },
+  "interaction": {
+    "drilldown": false
   },
   "logo": {
     "light": "/logo/RevaLight.png",

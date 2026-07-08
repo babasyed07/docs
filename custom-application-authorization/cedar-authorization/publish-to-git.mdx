@@ -1,0 +1,275 @@
+---
+title: "Publish to Git"
+description: "Configure Git as the publish destination and publish Cedar schema and policy files to GitHub, GitLab, or Azure DevOps."
+---
+
+Use **Publish to Git** when your organization manages Cedar schema and policy files through source control.
+
+For Cedar policy stores, Git can be used as the policy publish destination. Reva publishes schema and policy changes to the connected Git repository so your team can review, approve, and deploy authorization changes through your existing Git or CI/CD workflow.
+
+## When to use Git publishing
+
+Use Git publishing when:
+
+- You use pull requests, reviews, or CI/CD pipelines for policy changes.
+- You want to publish policy changes to GitHub, GitLab, or Azure DevOps.
+- You do not want to publish directly to Amazon Verified Permissions.
+- You do not want Reva Managed to be the runtime policy decision path.
+
+<Note>
+Git publishing is available for Cedar policy stores. AVP policy stores publish directly to Amazon Verified Permissions.
+</Note>
+
+## Supported Git providers
+
+Reva supports the following Git providers for Cedar policy publishing.
+
+| Git provider | Supported |
+|---|---|
+| **GitHub** | Yes |
+| **GitLab** | Yes |
+| **Azure DevOps** | Yes |
+
+## Helpful references
+
+Before publishing to Git, make sure the required Git integration is configured in Reva.
+
+<CardGroup cols={3}>
+  <Card
+    title="GitHub Integration"
+    icon="github"
+    href="/github-integration"
+  >
+    Configure GitHub as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+
+  <Card
+    title="GitLab Integration"
+    icon="gitlab"
+    href="/gitlab-integration"
+  >
+    Configure GitLab as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+
+  <Card
+    title="Azure DevOps Integration"
+    icon="code-branch"
+    href="/azure-devops-integration"
+  >
+    Configure Azure DevOps as a source control integration for publishing and managing Cedar policy files.
+  </Card>
+</CardGroup>
+
+## Before you begin
+
+Make sure the Cedar policy store is ready for Git publishing.
+
+| Requirement | Description |
+|---|---|
+| **Cedar policy store** | The policy store must use the Cedar policy store type |
+| **Git integration** | A configured GitHub, GitLab, or Azure DevOps integration |
+| **Repository access** | Reva must have access to the repository used for publishing |
+| **Branch** | The target branch where schema and policy files are published |
+| **File path** | Repository path where Cedar schema and policy files are stored |
+| **Schema** | The schema must be accepted before publishing |
+| **Policies** | Policies must be created, reviewed, and saved |
+| **Policy testing** | Policies should be tested before publishing |
+| **Impact review** | Review the impact of policy changes before publishing |
+
+## How Git publishing works
+
+Reva publishes Cedar schema and policy files to the connected Git repository.
+
+| Area | Behavior |
+|---|---|
+| **Policy store type** | Cedar |
+| **Policy language** | Cedar |
+| **Publish destination** | Git Repository |
+| **Supported providers** | GitHub, GitLab, Azure DevOps |
+| **Publish target** | Repository, branch, and file path configured in **Settings > Policy Store Configuration > Policy Distribution** |
+| **Runtime decision path** | Managed by your application, pipeline, or deployment process |
+
+<Note>
+Publishing to Git stores the schema and policy files in source control. Your application or deployment pipeline is responsible for using those files in the runtime authorization path.
+</Note>
+
+## Configure Git Repository as the publish destination
+
+Use **Settings > Policy Store Configuration > Policy Distribution** to configure Git publishing for the Cedar policy store.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to **Settings**.
+3. Select **Policy Store Configuration**.
+4. Click **Edit**.
+5. In **Policy Distribution**, select **Git Repository**.
+6. Under **Deliver your Policy Updates**, choose the Git connection.
+7. Select the repository.
+8. Select the branch.
+9. Confirm the file path for schema and policy files.
+10. Click **Save**.
+
+## Git publishing configuration
+
+| Field | Description |
+|---|---|
+| **Publish destination** | Select Git |
+| **Git connection** | The source control integration configured in Reva |
+| **Repository** | Repository where Cedar files will be published |
+| **Branch** | Branch used for publishing changes |
+| **File path** | Folder path where schema and policy files are stored |
+| **Commit behavior** | How Reva writes changes to the repository |
+| **Review workflow** | Your organization’s process for reviewing and approving changes |
+
+## Publish schema and policy changes
+
+After Git publishing is configured, publish the latest changes from the policy store.
+
+### Steps
+
+1. Open the Cedar policy store.
+2. Go to **Policies**.
+3. Review the policies that are ready to publish.
+4. Test the expected authorization scenarios.
+5. Review impact analysis.
+6. Review Access Map if test data or live data is available.
+7. Resolve policy errors or validation issues.
+8. Select **Publish**.
+9. Review the publish summary.
+10. Confirm the publish action.
+11. Verify that the changes are available in the connected Git repository.
+
+## Publish summary
+
+Before publishing, review the publish summary to understand what will be written to Git.
+
+The publish summary can include:
+
+| Change type | Description |
+|---|---|
+| **New policies** | Policies that will be added to the repository |
+| **Updated policies** | Existing policy files that will be modified |
+| **Deleted policies** | Policies that will be removed from the repository |
+| **Schema changes** | Schema updates that will be published |
+| **Validation results** | Errors or warnings detected before publishing |
+| **Impact results** | Expected effect of the policy change |
+
+<Tip>
+Review the publish summary carefully before confirming the publish action. This helps prevent unintended access changes from entering your source control workflow.
+</Tip>
+
+## Validate before publishing
+
+Before publishing to Git, confirm that the policy behavior matches the intended authorization outcome.
+
+| Check | Why it matters |
+|---|---|
+| **Schema is accepted** | Policies must match the accepted schema |
+| **Policies are saved** | Only saved policy changes can be published |
+| **Test data is available** | Test data helps validate expected access behavior |
+| **Permit and deny cases are tested** | Both allowed and blocked scenarios should be validated |
+| **Impact analysis is reviewed** | Impact review shows how access may change |
+| **Access Map is reviewed** | Access Map helps show which principals have access to which resources |
+| **Git configuration is correct** | Changes must publish to the expected repository, branch, and file path |
+| **Policy errors are resolved** | Policies with validation errors should not be published |
+
+## Publishing an onboarded Git policy store
+
+If you onboarded an existing Git policy store, Reva uses the schema and policy files from the connected repository.
+
+After onboarding, you can:
+
+- Review imported schema and policies.
+- Create new Cedar policies.
+- Edit existing policies.
+- Test policy behavior.
+- Review impact analysis.
+- Publish changes back to the connected Git repository.
+
+<Note>
+When you onboard an existing Git policy store, schema onboarding is skipped. Reva uses the schema and policy files from the connected repository.
+</Note>
+
+## Publishing a new Cedar policy store to Git
+
+If you created a new Cedar policy store in Reva, complete the schema and policy design flow before publishing to Git.
+
+The recommended flow is:
+
+1. Create the Cedar policy store.
+2. Create or import the schema.
+3. Review and accept the schema.
+4. Add AI-suggested policies, or skip.
+5. Create and edit Cedar policies.
+6. Upload test data or configure live data.
+7. Test policy behavior.
+8. Review policy impact.
+9. Configure Git as the publish destination.
+10. Publish schema and policies to Git.
+
+## After publishing
+
+After publishing to Git, verify that the expected files are available in the repository.
+
+| Area | What to check |
+|---|---|
+| **Repository** | Confirm that changes were published to the correct repository |
+| **Branch** | Confirm that changes were published to the correct branch |
+| **File path** | Confirm that schema and policy files are in the expected folder |
+| **Schema file** | Confirm that the schema matches the accepted schema in Reva |
+| **Policy files** | Confirm that new, updated, or deleted policies match the publish summary |
+| **Review workflow** | Confirm that your Git review or CI/CD process has started if applicable |
+| **Version History** | Review the published version in Reva for audit context |
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| **Use a controlled branch** | Publish to a branch that fits your review and deployment workflow |
+| **Keep file paths consistent** | Store schema and policies in predictable repository locations |
+| **Review before publishing** | Test policy behavior and review impact before publishing |
+| **Keep changes focused** | Publish smaller policy changes when possible |
+| **Use pull request review** | Use your Git provider review process for approvals when required |
+| **Track versions** | Use Version History to review published changes |
+| **Validate after publishing** | Confirm that the repository contains the expected schema and policy files |
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| **Git Repository publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
+| **Repository is not visible** | Reva does not have access to the repository | Check repository permissions and integration scope |
+| **Branch is not visible** | Branch access is missing or the branch does not exist | Confirm the branch exists and Reva has access |
+| **Publish fails** | Repository, branch, file path, or permission issue | Review the Git Repository configuration in **Settings > Policy Store Configuration > Policy Distribution** |
+| **Schema validation fails** | Schema contains missing or invalid elements | Review and accept a valid schema before publishing |
+| **Policy validation fails** | Policy syntax or schema references are invalid | Review the policy and confirm that entities, actions, and attributes match the schema |
+| **Published files are not in the expected path** | File path configuration is incorrect | Update the file path in **Settings > Policy Store Configuration > Policy Distribution** and publish again |
+
+## Related pages
+
+<CardGroup cols={3}>
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create, edit, and test Cedar policies before publishing to Git.
+  </Card>
+
+  <Card
+    title="Configure Entity Data for Cedar Policies"
+    icon="database"
+    href="/custom-application-authorization/cedar-authorization/cedar-data"
+  >
+    Upload test data or configure live data for policy testing, impact analysis, and Access Map visibility.
+  </Card>
+
+  <Card
+    title="Onboard an Existing Git Policy Store"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/onboard-existing-git-store"
+  >
+    Connect an existing Git repository that contains Cedar schema and policy files.
+  </Card>
+</CardGroup>

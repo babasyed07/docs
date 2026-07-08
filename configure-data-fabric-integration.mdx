@@ -1,0 +1,55 @@
+---
+title: "Connect Data Fabric"
+---
+Use **Data Fabric Integration** to ingest authorization data from custom sources into the token enrichment policy store.  
+This is useful when token enrichment decisions depend on data that does not come directly from the Identity Provider.  
+
+Examples include:
+- A suspension or blacklist application database
+- A target application role table
+- A target application entitlement table
+- A machine identity entitlement source
+  
+To configure data ingestion:
+
+1. Open the token enrichment policy store.
+2. Go to **Settings**.
+3. Select **Connect Data Fabric**.
+4. Copy the **OOAuth Token**..
+5. Copy the required entity type IDs.
+6. Use the OOAuth Token, policy store ID, and entity type IDs in your ingestion API requests. <a href="/api-reference/data-ingestion-apis/create-entities" className="text-blue-600 font-semibold underline" target="_blank" rel="noopener noreferrer">Data Ingestion APIs</a> for request format and examples.
+7. Send the custom source data to Reva.
+8. Go to the **Data** tab and select **Live** to validate that the data was ingested.
+
+The **Connect Data Fabric** section provides the following information:
+| Item | Description |
+| --- | --- |
+| **OAuth Token** | Token used to authenticate API-based data ingestion. |
+| **Regenerate Key** | Generates a new ingestion authentication token. |
+| **Policy Store ID** | Identifies the policy store where data should be ingested. |
+| **Entity Type IDs** | Identifies the entity types used by ingestion APIs. |
+
+Common entity types include:
+| Entity Type | Example Use |
+| --- | --- |
+| **Application** | Ingest target application records. |
+| **User** | Ingest or update user records. |
+| **UserGroup** | Ingest group records. |
+| **AppRole** | Ingest application role records. |
+| **Entitlement** | Ingest entitlement records. |
+| **SuspendedApps** | Ingest suspension or blacklist records. |
+| **MachineId** | Ingest machine or service identity records. |
+
+## Set the Preferred Data Source
+If your token enrichment flow uses API-ingested data, set the preferred data source to Live.  
+To set the preferred data source:  
+1. Open the token enrichment policy store.
+2. Go to **Settings**.
+3. Select **Data**.
+4. Under **Preferred Data Source**, select **Live**.
+5. Click **Save**.
+
+After this setting is saved, the **Data** tab opens with live ingested data by default.  
+
+
+

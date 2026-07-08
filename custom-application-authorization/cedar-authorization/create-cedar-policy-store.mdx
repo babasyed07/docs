@@ -1,0 +1,270 @@
+---
+title: "Create a Cedar Policy Store"
+description: "Create a new Cedar policy store in Reva and publish policies to Git or Reva Managed."
+---
+
+Use this flow when you want to create a new Cedar policy store in Reva.
+
+A Cedar policy store lets you design the authorization schema, create Cedar policies, test policy behavior, connect data, and publish policies to either **Git** or **Reva Managed**.
+
+<Note>
+Use this path when you want to manage Cedar policies in Reva without publishing directly to Amazon Verified Permissions.
+</Note>
+
+## When to use this flow
+
+Use this flow when:
+
+- You want to create a new Cedar policy store from scratch.
+- You want to design the schema in Reva.
+- You want to generate a schema using Reva AI.
+- You want to create and test Cedar policies before publishing.
+- You want to publish policies to GitHub, GitLab, or Azure DevOps.
+- You want to publish policies to Reva Managed, also referred to as Reva Trust Gateway.
+
+## Before you begin
+
+Make sure you have the required details before creating the Cedar policy store.
+
+| Requirement | Description |
+|---|---|
+| **Policy store name** | Name of the policy store |
+| **Description** | Description of the application or authorization use case |
+| **Portfolio** | Portfolio associated with the custom application |
+| **Application owner** | User or team responsible for the policy store |
+| **Policy format** | Select Cedar |
+| **Publish destination** | Choose **Git Repository** or **Reva Trust Guardian** from **Settings > Policy Store Configuration > Policy Distribution** |
+| **Git integration** | Required only when publishing to GitHub, GitLab, or Azure DevOps |
+
+## Helpful references
+
+Use these references before creating the Cedar policy store and configuring the publish destination.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="GitHub Integration"
+    icon="github"
+    href="/github-integration"
+  >
+    Configure GitHub as a source control integration for publishing Cedar policy files.
+  </Card>
+
+  <Card
+    title="GitLab Integration"
+    icon="gitlab"
+    href="/gitlab-integration"
+  >
+    Configure GitLab as a source control integration for publishing Cedar policy files.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card
+    title="Azure DevOps Integration"
+    icon="code-branch"
+    href="/azure-devops-integration"
+  >
+    Configure Azure DevOps as a source control integration for publishing Cedar policy files.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+</CardGroup>
+
+## Create the policy store
+
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the policy store **Name**.
+5. Enter the policy store **Description**.
+6. Select the **Portfolio**.
+7. Select the **Application owner**.
+8. Select **Cedar** as the policy format.
+9. Select **Create**.
+
+After the policy store is created, Reva starts the schema onboarding flow.
+
+## What happens next
+
+Because this is a new Cedar policy store, you must define the schema before creating policies.
+
+| Step | Description |
+|---|---|
+| **Define schema** | Create, import, or generate the Cedar schema |
+| **Review schema** | Review the generated or imported schema before accepting it |
+| **Add suggested policies** | Select AI-suggested policies or skip this step |
+| **Start policy design** | Open the Policy Designer to create or edit Cedar policies |
+| **Upload test data** | Add test data for policy simulation, impact analysis, and Access Map visibility |
+| **Configure publishing** | Choose Git or Reva Managed as the publish destination |
+| **Publish policies** | Publish the schema and policies to the selected destination |
+
+## Schema creation options
+
+When creating a new Cedar policy store, you can define the schema in multiple ways.
+
+| Schema option | Description |
+|---|---|
+| **Create with AI** | Generate a schema from DDL, SQL, OpenAPI 3.0, or natural language input |
+| **Design manually** | Build the schema using the Schema Designer |
+| **Import JSON** | Upload an existing Cedar schema JSON file |
+| **Import from Reva Library** | Start from a reusable schema template |
+
+The schema defines the authorization model for the application. It includes principals, actions, resources, attributes, runtime attributes, and relationships.
+
+## AI-suggested policies
+
+After you accept the schema, Reva can suggest starter policies based on the authorization model.
+
+You can:
+
+- Review the suggested policies.
+- Select the policies you want to add.
+- Skip the suggestions.
+- Edit added policies later in the Policy Designer.
+
+## Choose the next action
+
+After schema creation, Reva gives you two options.
+
+| Option | Result |
+|---|---|
+| **Start Policy Design** | Opens the Policy Designer so you can create and edit Cedar policies |
+| **Upload Test Data** | Opens the Data tab so you can upload test data or configure live data |
+
+## Policy design options
+
+In the Policy Designer, you can create and edit Cedar policies in three ways.
+
+| Authoring method | Description |
+|---|---|
+| **Create with AI** | Use natural language instructions to generate Cedar policies |
+| **Edit with AI** | Select an existing policy and ask Reva AI to update it |
+| **Code editor** | Manually write and edit Cedar policies |
+
+## Data options
+
+Use data to test and analyze policy behavior before publishing.
+
+| Data option | Description |
+|---|---|
+| **Test Data** | Uploaded sample entity data used for policy testing, impact analysis, and Access Map visibility |
+| **Live Data** | Entity and contextual data ingested through Reva Data Fabric APIs |
+
+<Tip>
+Upload test data early so you can validate the schema, test policies, review impact, and build Access Map visibility before publishing.
+</Tip>
+
+## Configure the publish destination
+
+Use **Settings > Policy Store Configuration > Policy Distribution** to configure where the Cedar policy store publishes schema and policy changes.
+
+Cedar policy stores support two publish destinations.
+
+| Publish destination | Description |
+|---|---|
+| **Git Repository** | Publishes schema and policy files to a connected Git repository, such as GitHub, GitLab, or Azure DevOps |
+| **Reva Trust Guardian** | Publishes schema and policies to Reva Trust Guardian for Reva-managed runtime authorization |
+
+## Publish to Git
+
+Choose **Git** when your organization manages policy lifecycle through source control, code review, pull requests, or CI/CD workflows.
+
+Supported Git providers:
+
+| Git provider | Supported |
+|---|---|
+| **GitHub** | Yes |
+| **GitLab** | Yes |
+| **Azure DevOps** | Yes |
+
+After Git is configured, Reva can publish schema and policy files to the selected repository and branch.
+
+## Publish to Reva Managed
+
+Choose **Reva Managed** when you want Reva to host and manage the policy decision path.
+
+Reva Managed is also referred to as Reva Trust Gateway. Use this option when applications need to call Reva for policy evaluation instead of publishing policies to Git or AVP.
+
+## Recommended flow
+
+Use this flow when creating a Cedar policy store from scratch.
+
+1. Create the Cedar policy store.
+2. Create or import the schema.
+3. Review and accept the schema.
+4. Add AI-suggested policies, or skip.
+5. Start policy design.
+6. Create or edit Cedar policies.
+7. Upload test data or configure live data.
+8. Test policy behavior.
+9. Review impact analysis and Access Map.
+10. Configure Git or Reva Managed publishing.
+11. Publish the schema and policies.
+
+## Best practices
+
+| Practice | Recommendation |
+|---|---|
+| **Start with the schema** | Confirm that principals, actions, resources, and attributes match the application model |
+| **Use AI for first draft** | Use Reva AI to accelerate schema and policy creation, then review the output |
+| **Keep policies specific** | Avoid broad access unless the use case requires it |
+| **Test before publishing** | Validate expected permit and deny decisions before publishing |
+| **Review impact** | Check how policy changes affect access before publishing |
+| **Use Access Map** | Review access relationships created by policies and data |
+| **Choose the right publish destination** | Use Git for source control workflows and Reva Managed for Reva-hosted evaluation |
+
+## Troubleshooting
+
+| Issue | Possible cause | Recommended action |
+|---|---|---|
+| **Cedar option is not available** | The user may not have permission to create Cedar policy stores | Check user permissions and workspace access |
+| **Schema creation cannot continue** | Required schema elements are missing | Review principal, action, and resource definitions |
+| **AI-generated schema is incomplete** | Input file or prompt does not include enough application context | Add more details about users, resources, actions, and conditions |
+| **Policy testing fails** | Test data does not match the schema | Review entity types, attribute names, and value types |
+| **Git Repository publish destination is not available** | Git integration is not configured | Configure GitHub, GitLab, or Azure DevOps integration |
+| **Reva Trust Guardian publish is not available** | Publish destination is not configured for the policy store | Review **Settings > Policy Store Configuration > Policy Distribution** |
+
+## Next steps
+
+After creating the Cedar policy store, continue with:
+
+<CardGroup cols={3}>
+
+  <Card
+    title="Cedar Policy Design"
+    icon="pen-to-square"
+    href="/custom-application-authorization/cedar-authorization/cedar-policy-design"
+  >
+    Create, edit, test, and manage Cedar policies in Reva.
+  </Card>
+
+  <Card
+    title="Publish to Git"
+    icon="code-branch"
+    href="/custom-application-authorization/cedar-authorization/publish-to-git"
+  >
+    Publish schema and policy files to GitHub, GitLab, or Azure DevOps.
+  </Card>
+
+  <Card
+    title="Publish to Reva Managed"
+    icon="shield-check"
+    href="/custom-application-authorization/cedar-authorization/publish-to-reva-managed"
+  >
+    Publish schema and policies to Reva Managed, also referred to as Reva Trust Gateway.
+  </Card>
+</CardGroup>

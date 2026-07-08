@@ -1,0 +1,168 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PDP Edge Authorization API",
+    "description": "Authorize one or many requests through the PDP Edge service.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.pr06.preview.reva.ai",
+      "description": "Preview"
+    },
+    {
+      "url": "https://api.dv06.dev.reva.ai",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "PDP Edge Authorization",
+      "description": "PDP Edge authorization evaluation endpoints."
+    }
+  ],
+  "paths": {
+    "/v1/authorize": {
+      "post": {
+        "summary": "Authorize one or many requests",
+        "description": "Accepts a single authorization request or a JSON array of authorization requests and returns decision results.",
+        "requestBody": {
+          "description": "Single object or array",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/shared.AuthZENRequest"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "multiple requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/shared.AuthZENResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload",
+        "operationId": "authorizeRequests"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    },
+    "schemas": {
+      "shared.AuthZENAction": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.AuthZENRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/shared.AuthZENAction"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "resource": {
+            "$ref": "#/components/schemas/shared.AuthZENResource"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/shared.AuthZENSubject"
+          }
+        }
+      },
+      "shared.AuthZENResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/shared.EntityID"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.AuthZENResponse": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "boolean"
+          }
+        }
+      },
+      "shared.AuthZENSubject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/shared.EntityID"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "shared.EntityID": {
+        "type": "object"
+      },
+      "shared.HTTPError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

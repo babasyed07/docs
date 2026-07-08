@@ -1,0 +1,123 @@
+---
+title: "Create an AVP Policy Store"
+description: "Create a new Amazon Verified Permissions policy store workflow in Reva."
+---
+
+Use this flow when you want to create a new policy store in Reva and publish policies to Amazon Verified Permissions.
+
+In this path, you define the authorization schema, add policies, test policy behavior, configure data, and publish the schema and policies to AVP.
+
+## When to use this flow
+
+Use this flow when:
+
+- You want to create a new AVP policy store workflow in Reva.
+- You want to design the schema in Reva.
+- You want to generate a schema using Reva AI.
+- You want to create and test policies before publishing to AVP.
+- You want AVP to be the policy publish destination.
+
+## Before you begin
+
+Make sure you have the details required to create the policy store.
+
+| Requirement | Description |
+|---|---|
+| **Policy store name** | Name of the policy store |
+| **Description** | Description of the application or authorization use case |
+| **Portfolio** | Portfolio associated with the application |
+| **Application owner** | User or team responsible for the policy store |
+| **Policy format** | Select AVP |
+| **AVP connection** | Connection used later to publish policies to AVP |
+
+## Create the policy store
+
+1. Go to **Manage Policies**.
+2. Select **Create**.
+3. Select **Custom Application**.
+4. Enter the policy store **Name**.
+5. Enter the policy store **Description**.
+6. Select the **Portfolio**.
+7. Select the **Application owner**.
+8. Select **AVP** as the policy format.
+9. Create the policy store.
+
+After the policy store is created, Reva starts the schema onboarding flow.
+
+## What happens next
+
+Because this is a new policy store, you must define the schema before writing policies.
+
+The schema defines the authorization model for the application. It includes principals, actions, resources, attributes, runtime attributes, and relationships.
+
+| Step | Description |
+|---|---|
+| **Define schema** | Create, import, or generate the schema |
+| **Review schema** | Review the generated or imported schema before accepting it |
+| **Add suggested policies** | Select AI-suggested policies or skip |
+| **Start policy design** | Open the Policy Designer to create or edit policies |
+| **Upload test data** | Add test data for policy simulation and dry-run testing |
+| **Configure publishing** | Set AVP as the publish destination |
+| **Publish to AVP** | Publish the schema and policies to Amazon Verified Permissions |
+
+## Schema creation options
+
+When creating a new AVP policy store, you can define the schema in several ways.
+
+| Schema option | Description |
+|---|---|
+| **Create with AI** | Generate a schema from DDL, SQL, or OpenAPI 3.0 input |
+| **Design manually** | Build the schema using the Schema Designer |
+| **Import JSON** | Upload an existing Cedar schema JSON file |
+| **Import from Reva Library** | Start from a reusable schema template |
+
+## AI-suggested policies
+
+After you accept the schema, Reva can suggest starter policies based on the authorization model.
+
+You can:
+
+* Review the suggested policies.
+* Select the policies you want to add.
+* Skip the suggestions.
+* Edit added policies later in the Policy Designer.
+
+## Choose the next action
+
+After schema creation, Reva gives you two options.
+
+| Option | Result |
+|---|---|
+| **Start Policy Design** | Opens the Policy Designer so you can create and edit policies |
+| **Upload Test Data** | Opens the Data tab so you can upload test data or configure live data |
+
+## Policy design options
+
+In the Policy Designer, you can create and edit AVP policies in three ways.
+
+| Authoring method | Description |
+|---|---|
+| **Create with AI** | Use natural language instructions to generate Cedar policies |
+| **Edit with AI** | Select an existing policy and ask Reva AI to update it |
+| **Code editor** | Manually write and edit Cedar policies |
+
+## Configure AVP publishing
+
+Use **Settings > Policy Store Configuration > Policy Distribution** to configure the AVP publish destination. For AVP policy stores, the publish destination is **AVP**.
+
+For AVP policy stores, the publish destination is AVP.
+
+| Publish destination | Description |
+|---|---|
+| **AVP** | Publishes schema and policies directly to the linked Amazon Verified Permissions policy store |
+
+## Next steps
+
+After creating the AVP policy store, continue with:
+
+* Design or import the schema.
+* Add AI-suggested policies.
+* Create or edit policies.
+* Upload test data or configure live data.
+* Configure the AVP publish destination from **Settings**..
+* Publish to AVP.
