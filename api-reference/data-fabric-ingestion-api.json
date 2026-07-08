@@ -54,7 +54,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "requestBody": {
@@ -1764,12 +1764,12 @@
           "entityId": {
             "type": "string",
             "description": "Unique identifier of the child entity.",
-            "example": "child-001"
+            "example": ""
           },
           "entityType": {
             "type": "string",
             "description": "Type of the child entity.",
-            "example": "Team"
+            "example": ""
           }
         },
         "description": "Child entity related to a Reva entity."
@@ -1818,12 +1818,12 @@
           "entityId": {
             "type": "string",
             "description": "Unique identifier of the parent entity.",
-            "example": "parent-001"
+            "example": ""
           },
           "entityType": {
             "type": "string",
             "description": "Type of the parent entity.",
-            "example": "Department"
+            "example": ""
           }
         },
         "description": "Parent entity related to a Reva entity."
