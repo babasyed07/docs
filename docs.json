@@ -269,7 +269,7 @@
               {
                 "group": "Entity Ingestion APIs",
                 "expanded": true,
-                "openapi": "/api-reference/data-fabric-ingestion-api.json",
+                "openapi": "/api-reference/data-fabric-ingestion-api-final-clean.json",
                 "pages": [
                   "POST /ingestion/v1/entity",
                   "POST /ingestion/v1/entity/bulk",

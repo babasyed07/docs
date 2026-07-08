@@ -49,7 +49,7 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
@@ -65,7 +65,18 @@
                 "items": {
                   "$ref": "#/components/schemas/RevaEntity"
                 }
-              }
+              },
+              "example": [
+                {
+                  "entityId": "alog-001",
+                  "attributes": [
+                    {
+                      "name": "resourceId",
+                      "value": "acct-john-checking"
+                    }
+                  ]
+                }
+              ]
             }
           },
           "required": true
@@ -153,12 +164,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "requestBody": {
@@ -169,7 +180,18 @@
                 "items": {
                   "$ref": "#/components/schemas/RevaEntity"
                 }
-              }
+              },
+              "example": [
+                {
+                  "entityId": "alog-001",
+                  "attributes": [
+                    {
+                      "name": "resourceId",
+                      "value": "acct-john-checking"
+                    }
+                  ]
+                }
+              ]
             }
           },
           "required": true
@@ -272,12 +294,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "responses": {
@@ -346,12 +368,11 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
-            "required": true,
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",            "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "requestBody": {
@@ -442,12 +463,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "requestBody": {
@@ -455,6 +476,15 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RevaEntity"
+              },
+              "example": {
+                "entityId": "alog-001",
+                "attributes": [
+                  {
+                    "name": "resourceId",
+                    "value": "acct-john-checking"
+                  }
+                ]
               }
             }
           },
@@ -533,12 +563,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "requestBody": {
@@ -546,6 +576,15 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RevaEntity"
+              },
+              "example": {
+                "entityId": "alog-001",
+                "attributes": [
+                  {
+                    "name": "resourceId",
+                    "value": "acct-john-checking"
+                  }
+                ]
               }
             }
           },
@@ -588,16 +627,6 @@
                   "key": "RESOURCE.NOT.FOUND",
                   "message": "Invalid Entity type ID",
                   "data": "abcd-1234"
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RevaEntityResponse"
                 }
               }
             }
@@ -1279,12 +1308,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           }
         ],
         "responses": {
@@ -1360,17 +1389,17 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           },
           {
             "name": "entityId",
             "in": "path",
-            "description": "Unique identifier of the entity",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1444,12 +1473,12 @@
           {
             "name": "entityTypeId",
             "in": "query",
-            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n- From the left menu, navigate to Manage Policies -> Select your Policy Store\n- Click on the \"Data\" tab -> select \"Live\" data toggle -> Configure\n- Here you will see a list of all Entity Types along with their IDs. Copy the ID of the entity type you want to use.\n",
+            "description": "Unique identifier for the entity type.\n\nTo find the `entityTypeId`, follow these steps:\n\n- Go to **Manage Policies** and select the target policy store.\n- Open the **Data** tab and click the **Configure** spanner icon.\n- Copy the **Entity Type ID** for the entity type you want to use.",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "example": "abcde-1234"
+            "example": "a29ef701-53e2-4899-bedc-e9974d9165e6"
           },
           {
             "name": "entityId",
@@ -1541,7 +1570,7 @@
           "SCIM APIs"
         ],
         "summary": "Get Service Provider Config",
-        "description": "Returns the service provider’s SCIM capabilities, such as filtering, patch support, and authentication schemes.",
+        "description": "Returns the service provider\u2019s SCIM capabilities, such as filtering, patch support, and authentication schemes.",
         "operationId": "getServiceProviderConfig",
         "responses": {
           "200": {
@@ -1747,13 +1776,11 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of the attribute.",
-            "example": "color"
+            "description": "Name of the attribute."
           },
           "value": {
             "type": "string",
-            "description": "Value of the attribute.",
-            "example": "blue"
+            "description": "Value of the attribute."
           }
         },
         "description": "Attribute of a Reva entity, represented as a name-value pair."
@@ -1763,13 +1790,11 @@
         "properties": {
           "entityId": {
             "type": "string",
-            "description": "Unique identifier of the child entity.",
-            "example": ""
+            "description": "Unique identifier of the child entity."
           },
           "entityType": {
             "type": "string",
-            "description": "Type of the child entity.",
-            "example": ""
+            "description": "Type of the child entity."
           }
         },
         "description": "Child entity related to a Reva entity."
@@ -1782,8 +1807,7 @@
         "properties": {
           "entityId": {
             "type": "string",
-            "description": "Unique identifier of the entity.",
-            "example": "12345"
+            "description": "Unique identifier of the entity."
           },
           "attributes": {
             "uniqueItems": true,
@@ -1817,13 +1841,11 @@
         "properties": {
           "entityId": {
             "type": "string",
-            "description": "Unique identifier of the parent entity.",
-            "example": ""
+            "description": "Unique identifier of the parent entity."
           },
           "entityType": {
             "type": "string",
-            "description": "Type of the parent entity.",
-            "example": ""
+            "description": "Type of the parent entity."
           }
         },
         "description": "Parent entity related to a Reva entity."
@@ -2411,11 +2433,6 @@
           },
           "attributeValue": {
             "$ref": "#/components/schemas/AttributeValue"
-          },
-          "entityId": {
-            "type": "string",
-            "description": "Unique identifier of the entity to be updated",
-            "example": "entity-12345"
           }
         },
         "description": "Request object to update an entity, including the entity identifier"
