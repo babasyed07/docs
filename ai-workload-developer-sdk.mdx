@@ -52,7 +52,7 @@ Every service running the SDK sets these. Missing config **fails closed**.
 | `RTG_DISABLED` | no | `true` disables PDP entirely. Defaults to `false`. **Never set in production.** |
 
 <Tip>
-  Get the **Store ID** (`POLICYSTORE_ID`) and **PDP Auth Token** (`RTG_AUTH_TOKEN`) from [Developer Settings](/ai-workload-developer-settings).
+  Get the **Store ID** (`POLICYSTORE_ID`) and **OAuth Token** (`RTG_AUTH_TOKEN`) from the store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime).
 </Tip>
 
 Optional tuning variables include `REVA_AI_TOKEN_LEEWAY_SECONDS` (clock-skew tolerance for transaction tokens) and the logging controls `REVA_AI_LOG_LEVEL`, `REVA_AI_LOG_FILE`, and `REVA_AI_LOG_STDOUT`.

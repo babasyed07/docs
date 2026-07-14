@@ -23,11 +23,11 @@ The base URL is your tenant's API host — for example `https://api.pr06.preview
 | Header | Required | Description |
 |:-------|:---------|:------------|
 | `Content-Type` | yes | `application/json` |
-| `Authorization` | yes | `Bearer <PDP Auth Token>` — your PDP Auth Token (see below) |
+| `Authorization` | yes | `Bearer <OAuth Token>` — your OAuth Token (see below) |
 | `policyStoreId` | yes | The policy store to evaluate against |
 | `x-ms-correlation-id` | recommended | A correlation id used to trace the request across hops |
 
-Get your **PDP Auth Token** from the [Developer Settings](/ai-workload-developer-settings) page. It is a long-lived platform credential — not a transaction token.
+Get your **OAuth Token** from the store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime). It is a long-lived platform credential — not a transaction token.
 
 ## Request Body
 
@@ -54,7 +54,7 @@ The request is a JSON envelope describing one authorization decision. The parts 
 ```bash cURL
 curl -X POST "https://api.pr06.preview.reva.ai/pdp/access/v1/ai/evaluation" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <pdp-auth-token>" \
+  -H "Authorization: Bearer <oauth-token>" \
   -H "policyStoreId: 3b373af8-3fb4-4c31-b69a-f72e847eae08" \
   -H "x-ms-correlation-id: aaaa0000-1111-2222-3333-444455556666" \
   --data '{
@@ -76,7 +76,7 @@ curl -X POST "https://api.pr06.preview.reva.ai/pdp/access/v1/ai/evaluation" \
 ```
 
 <Warning>
-  The `Authorization` bearer is your **PDP Auth Token** (from Developer Settings) — a secret. Never commit or log a real token; the value above is a placeholder.
+  The `Authorization` bearer is your **OAuth Token** (from **Settings → Connect to Reva Trust Guardian**) — a secret. Never commit or log a real token; the value above is a placeholder.
 </Warning>
 
 ## Example Bodies by Hop
