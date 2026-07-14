@@ -1,49 +1,9 @@
 ---
-title: "Capability & Support Matrix"
-description: "What's supported for each agent type, and the overall maturity of each capability."
+title: "Capabilities"
+description: "The AI Workload Security capabilities available today."
 ---
 
-AI Workload Security is evolving quickly. This page shows two views: **support by integration** (which agent types each capability is available for) and **maturity tiers** (overall product readiness).
-
-## Support by Integration
-
-Which capabilities you can use depends partly on how your agents [connect to Reva](/ai-workload-integration-options) — pro-code via the SDK, low-code via the Evaluation API, or no-code and coding agents via native plugins.
-
-<Note>
-  **Draft — pending product confirmation.** The per-cell statuses below are a first pass based on each integration's approach. Treat them as indicative until confirmed.
-</Note>
-
-Legend: ✅ Available · 🟡 Beta · 🔜 Coming soon
-
-| Capability | Pro-code (SDK) | Low-code (API) | No-code (Plugin) | Coding agent |
-|:-----------|:--------------:|:--------------:|:----------------:|:------------:|
-| User Delegation (On-Behalf-Of) | ✅ | ✅ | 🔜 | 🔜 |
-| Token Scope Reduction | ✅ | ✅ | 🔜 | 🔜 |
-| Conditional Access Enforcement | ✅ | ✅ | 🔜 | 🔜 |
-| Least-Privilege Execution | ✅ | ✅ | 🔜 | 🔜 |
-| Tool Authorization Enforcement | ✅ | ✅ | 🔜 | 🔜 |
-| End-to-End Audit Traceability | ✅ | ✅ | 🔜 | 🔜 |
-| Autonomous Agent (NHI) Identity | 🟡 | 🟡 | 🔜 | 🔜 |
-| Cross-Service / Multi-API Authorization | 🟡 | 🟡 | 🔜 | 🔜 |
-| Token & Policy Propagation | 🟡 | 🟡 | 🔜 | 🔜 |
-| Continuous Monitoring & Logging | 🟡 | 🟡 | 🔜 | 🔜 |
-| Tool Discovery Filtering | 🔜 | 🔜 | 🔜 | 🔜 |
-| Kill Switch (Agent / Session) | 🔜 | 🔜 | 🔜 | 🔜 |
-| Session Termination | 🔜 | 🔜 | 🔜 | 🔜 |
-
-<Note>
-  Onboarding and governance capabilities — **Agent Inventory & Ownership**, **Agent Registration**, **AI Agent Discovery**, **Agent Access Certification**, and **Decommissioning & Ownership Transfer** — are managed in the Reva console and apply regardless of how an agent is integrated. See their readiness in the tiers below.
-</Note>
-
-## Maturity Tiers
-
-| Tier | What it means |
-|:-----|:--------------|
-| **Available** | Generally available in the product today. Ready for production use. |
-| **Beta** | Early access — usable now, but behavior and APIs may change. Contact your Reva representative to enable. |
-| **Roadmap** | Planned. Not yet available. Listed to show direction. |
-
-### Available
+AI Workload Security gives you runtime authorization for every action your agents take. These capabilities are available in the product today.
 
 | Capability | What it gives you |
 |:-----------|:------------------|
@@ -53,29 +13,3 @@ Legend: ✅ Available · 🟡 Beta · 🔜 Coming soon
 | **Least-Privilege Execution** | An agent's runtime actions are limited strictly to what policy permits, including spawned downstream agents with reduced scope. |
 | **Tool Authorization Enforcement** | An agent can invoke only the tools it is explicitly authorized to use. |
 | **End-to-End Audit Traceability** | Decision logs with trace IDs give end-to-end authorization traceability across request → policy → token hops. |
-
-### Beta
-
-| Capability | What it gives you |
-|:-----------|:------------------|
-| **Agent Inventory & Ownership** | An inventory of agents and associated identities, populated from uploaded metadata and topology. |
-| **Agent Registration** | Register agents and import their metadata through the metadata-template upload. |
-| **Autonomous Agent (NHI) Identity** | Agent-to-agent policies for service and non-human identities operating without an active human session. |
-| **Cross-Service / Multi-API Authorization** | Each downstream service independently validates an agent's permissions (nearest-neighbour authorization). |
-| **Token & Policy Propagation** | Identity tokens and authorization policies propagate through gateways and toolchains. |
-| **Continuous Monitoring & Logging** | Authorization-layer monitoring of agent activity through decision logs. |
-
-### Roadmap
-
-| Capability | What it will give you |
-|:-----------|:----------------------|
-| **AI Agent Discovery** | Automatic discovery of AI agents and non-human identities across cloud, SaaS, on-prem, and AI platforms. |
-| **Tool Discovery Filtering** | Agents discover or "see" only the tools and actions they're authorized to use. |
-| **Kill Switch (Agent / Session)** | Immediately stop an agent or revoke its access in response to risk or a policy violation. |
-| **Session Termination** | Terminate agent execution based on policy, risk signals, or manual intervention. |
-| **Agent Access Certification** | Periodic or risk-based review and attestation of agent access and associated identities. |
-| **Agent Decommissioning & Ownership Transfer** | Securely decommission agents and transfer ownership as responsibilities change. |
-
-<Note>
-  Roadmap items are shown to indicate direction and are not a commitment to deliver by any particular date. For the latest status or to join a Beta, contact your Reva representative.
-</Note>
