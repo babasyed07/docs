@@ -3,10 +3,12 @@ title: "Capabilities"
 description: "The AI Workload Security capabilities available today."
 ---
 
-AI Workload Security gives you runtime authorization for every action your agents take. These capabilities are available in the product today.
+AI Workload Security governs your agentic workloads end to end — from onboarding and inventory through runtime authorization and audit. These capabilities are available in the product today.
 
 | Capability | What it gives you |
 |:-----------|:------------------|
+| **Agent Registration** | Register agents, MCP servers, tools, and models — via the Data Ingestion API, discovery, or manual onboarding. |
+| **Agent Inventory & Ownership** | A tenant-wide inventory of every agentic entity; the first policy store an entity is assigned to owns its metadata. |
 | **User Delegation (On-Behalf-Of)** | Agents act strictly on behalf of the signed-in user, with the delegated identity enforced at the first hop. |
 | **Token Scope Reduction** | The Reva Trust Guardian issues task-scoped transaction tokens — least scope for the task, not the user's full entitlements. |
 | **Conditional Access Enforcement** | Conditional policies are evaluated at token issuance, per hop, and are visible in the decision logs. |
