@@ -1,27 +1,28 @@
 ---
 title: "Native Plugins"
-description: "Platform-native authorization for no-code/SaaS and coding agents. Coming soon."
+description: "Gateway and service-mesh enforcement for Reva — Kong and Istio plugins, plus a Java SDK. Coming soon."
 tag: "Coming Soon"
 ---
 
 <Note>
-  **Coming soon.** Native plugins are under development. This page previews what they'll cover — contact your Reva representative for early access.
+  **Coming soon.** These connect options are under development. This page previews what they'll cover — contact your Reva representative for early access.
 </Note>
 
-For agents you can't instrument with code, Reva is building **native plugins** that enforce authorization through each platform's own extension model — no SDK or custom HTTP steps required. Every action is still evaluated by the [Reva Trust Guardian](/ai-workload-security-overview).
+For traffic you can't (or don't want to) instrument with the Python SDK, Reva is building enforcement at your **API gateway** and **service mesh**, plus a **Java SDK** for JVM services — no application changes or custom HTTP steps required. Every request is still evaluated by the [Reva Trust Guardian](/ai-workload-security-overview).
 
 Planned coverage:
 
-- **No-code / SaaS agents** — Salesforce Agentforce and similar platforms.
-- **Coding agents** — Claude Code, Cursor, and Kiro, securing their access to enterprise systems.
+- **Kong plugin** — enforce Reva authorization at the **Kong API gateway**.
+- **Istio plugin** — enforce Reva authorization in the **Istio service mesh**.
+- **Java SDK** — the same decorator + proxy model as the Python SDK, for JVM services.
 
 ## In the Meantime
 
 <CardGroup cols={2}>
-  <Card title="Pro-code? Use the SDK" icon="code" href="/ai-workload-developer-sdk">
+  <Card title="Pro-code? Use the Python SDK" icon="code" href="/ai-workload-developer-sdk">
     Add `reva-ai-authz` to agents you can edit.
   </Card>
-  <Card title="Low-code? Use the Evaluation API" icon="plug" href="/ai-workload-developer-evaluation-api">
-    Call the Trust Guardian from HTTP hooks.
+  <Card title="No code? Use the Evaluation API" icon="plug" href="/ai-workload-developer-evaluation-api">
+    Call the Trust Guardian from any HTTP hook.
   </Card>
 </CardGroup>

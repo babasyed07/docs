@@ -1,77 +1,61 @@
 ---
 title: "Getting Started with AI Workload Security"
-description: "Onboard your agentic workloads and govern every agent action — end to end."
+description: "Onboard your agentic workloads and govern every agent action — from inventory to published policies."
 ---
 
 This guide takes you from the empty day-one screen to published, least-privilege policies for an agentic AI workload.
 
-## The Journey
+## The AI Home
 
-The path from zero to governed agents — read on for the details of each stage:
+Switch the home page to the **AI** view. You get two things: **Quick Links** to bring workloads in, and the **Agentic Workload Inventory** — your tenant-wide list of agents, MCP servers, tools, models, APIs, and skills.
 
-1. **Onboard your agents** — pre-populate your inventory, then create a policy store and add agents to it.
-2. **Work in the topology** — the hub where you assign policies.
-3. **Design policies** — start from permit-all, then forbid to scope.
-4. **Integrate** — connect your agents via the SDK, Evaluation API, or a native plugin.
-5. **Operate** — audit every decision in the logs.
-
-## The Inventory and Your Policy Stores
-
-Every Reva tenant is bootstrapped with a global agentic policy store called **`GlobalAgentWorkloadApp`**. Every entity you ingest — agents, MCP servers, tools, models, and skills — lands here and populates your tenant-wide **inventory** (the **Agentic Workload** panel on the AI home).
-
-<Frame caption="Your inventory — the Agentic Workload panel on the AI home.">
-  <img src="images/ai-workload-home-filled.png" alt="Populated Agentic Workload inventory panel" />
+<Frame caption="The AI home — Quick Links plus an empty Agentic Workload Inventory on day one.">
+  <img src="images/ai-workload-home-inventory.png" alt="AI home with Discover, Ingest, and Manually Onboard quick links and an empty inventory" />
 </Frame>
 
-`GlobalAgentWorkloadApp` sits alongside the purpose-specific stores you create:
+Once agents are in, the inventory fills with counts and a searchable table. Each entity carries an **Assign** action — its way into a policy store.
 
-<Frame caption="GlobalAgentWorkloadApp — the global agentic store every tenant starts with — listed alongside your own policy stores.">
-  <img src="images/ai-workload-manage-policies-list.png" alt="Manage Policies list showing GlobalAgentWorkloadApp" />
+<Frame caption="A populated inventory. Each entity has an Assign action.">
+  <img src="images/ai-workload-inventory-populated.png" alt="Populated Agentic Workload Inventory with Assign buttons" />
 </Frame>
 
-You generally **don't author policies directly in `GlobalAgentWorkloadApp`** — it's the shared landing zone for everything you ingest. (You *can*, but it isn't the intended workflow.) Instead, create one or more **purpose-specific policy stores** — for example *Secure Banking – Agents* or *SupplyChain Application* — and add the relevant entities from your inventory into each. Every store keeps its own schema, policies, and decision logs.
+## Three Ways to Get Agents In
 
-From the inventory, click **Manage** on any entity to work on its access. Because an entity can belong to several stores, Reva asks **which policy store** you want to open, then takes you to that store's topology.
+The three **Quick Links** are your three ways to populate the inventory:
 
-<Frame caption="Manage an entity: pick which policy store to open.">
-  <img src="images/ai-workload-manage-entity-select-store.png" alt="Manage Entity dialog with a Select Policy Store dropdown" />
-</Frame>
-
-## How Agents Get Into Reva
-
-Getting agents into a governed policy store happens in two stages.
-
-**Stage 1 — Pre-populate your inventory** *(optional, ahead of time).* These land entities directly in `GlobalAgentWorkloadApp`, with no policy store required yet:
-
-| Method | What it is | Where |
-|:-------|:-----------|:------|
-| **Ingestion API** | Push agents, tools, models, and relationships programmatically with the Data Fabric entity API, using the **`GlobalAgentWorkloadApp`** **Store ID** + **PDP Auth Token**. | [Data Fabric ingestion](/ai-workload-developer-settings#ingest-entities-via-the-api) → [Create Entities API](/api-reference/entity-ingestion/create-entities) |
-| **Discovery integrations** *(Roadmap)* | Azure and other discovery sources auto-add agents to your inventory. | [Azure Agent Integration](/azure-agent-integration) |
-
-**Stage 2 — Onboard agents into a policy store** *(when you create one).* Choose one:
-
-| Method | What it is | Where |
-|:-------|:-----------|:------|
-| **Add from Repository** | Pull agents that are already in your inventory into the new store. Best after Stage 1. | [Add from the Inventory](/ai-workload-schema-add-from-repository) |
-| **Upload a CSV template** | Download the metadata template, fill it, upload, and review. The way in when your inventory is empty. | [Upload from Template](/ai-workload-schema-upload-template) |
+| Quick Link | What it does | Where |
+|:-----------|:-------------|:------|
+| **Discover** *(Coming Soon)* | Auto-discover agents from connected sources, starting with Azure. | [Azure Agent Integration](/azure-agent-integration) |
+| **Ingest** | Push agents, tools, models, and relationships programmatically with the **Data Ingestion API**, using an OAuth token and the entity type IDs. | [Developer Settings](/ai-workload-developer-settings#ingest-entities-via-the-api) |
+| **Manually Onboard** | Register agents, MCP servers, and tools by creating a policy store and building its topology. | [Create an Agentic Policy Store](/ai-workload-create-policy-store) |
 
 <Note>
-  **Upload** and **Add from Repository** appear only *inside* the store-creation flow (after **Add Agentic Workloads** or **Manage Policies → + → Agent**). Ingestion and discovery populate the inventory independently, before any store exists.
+  New to the entity model? See [AI Workload Context Modeling](/ai-workload-context-modeling) for the agents, tools, models, and topology rules your policies reference.
 </Note>
 
-## Where to Begin
+## From Inventory to Governed: Assign, Own, Manage
 
-Pick your starting point — each routes into the step-by-step pages:
+Once an entity is in your inventory, a single lifecycle takes it to enforcement:
 
-<CardGroup cols={2}>
-  <Card title="Your inventory is already populated" icon="layer-group" href="/ai-workload-create-policy-store">
-    You've ingested agents via the API or discovery. Create a store from the inventory's **Manage → + Create new policy store**, then pull the rest in with **[Add from Repository](/ai-workload-schema-add-from-repository)**.
-  </Card>
-  <Card title="You're starting fresh" icon="circle-plus" href="/ai-workload-create-policy-store">
-    Nothing ingested yet. **Create a policy store**, then register your agents by **[uploading the metadata template](/ai-workload-schema-upload-template)**.
-  </Card>
-</CardGroup>
+<Steps>
+  <Step title="Assign the entity to a policy store">
+    In the inventory, click **Assign** on an entity. Reva asks you to **Select Policy Store** — pick an existing one, or **+ Create new** to start a fresh store with this entity assigned.
 
-<Note>
-  New to the entity model first? See [AI Workload Context Modeling](/ai-workload-context-modeling) for the agents, tools, models, and topology rules your policies reference.
-</Note>
+    <Frame caption="Assign an entity: select a policy store, or create a new one.">
+      <img src="images/ai-workload-assign-entity.png" alt="Assign entity dialog with a Select Policy Store dropdown and Create new" />
+    </Frame>
+  </Step>
+  <Step title="The first store claims ownership">
+    The **first** policy store an entity is assigned to becomes its **owner**. Only the owner can edit the entity's metadata; other stores can add it and write policies, but not change its metadata. See [Create an Agentic Policy Store](/ai-workload-create-policy-store).
+  </Step>
+  <Step title="Build the topology and publish">
+    In the store's designer, **Add from Repository** to pull in the rest of your entities, connect them, and **Publish**. See [The Agentic Topology](/ai-workload-topology-overview).
+  </Step>
+  <Step title="Manage going forward">
+    After publishing, the entity's inventory action changes from **Assign** to **Manage**. If an entity belongs to several stores, **Manage** lets you pick which store's policies to work on.
+
+    <Frame caption="After assignment, the inventory action becomes Manage.">
+      <img src="images/ai-workload-inventory-manage.png" alt="Inventory with Manage buttons after assignment" />
+    </Frame>
+  </Step>
+</Steps>
