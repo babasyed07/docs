@@ -1,32 +1,40 @@
 ---
 title: "View & Edit Entity Details"
-description: "Review and edit an entity's attributes, relationships, skills, and metadata."
+description: "Review an entity's metadata and skills — and edit them in the store that owns the entity."
 ---
 
-Each entity in your topology has a detail view where you review and edit its attributes, relationships, skills, and metadata. Accurate metadata makes your policies precise — many conditions test values like `riskTier` or an agent's skills.
+Every entity has a detail view — its **Agent Details** (or tool / model / MCP details) — where you review its metadata and skills. Accurate metadata makes your policies precise: many conditions test values like `riskTier`, `dataClassification`, or an agent's skills.
 
 ## Review an Entity
 
 <Steps>
   <Step title="Open an entity">
-    In the topology (or while onboarding), select an entity to open its detail view. For an agent, this shows the **Agent Details** — name, id, data classification, risk tier, max chain depth, status, path URL, and more.
+    In the topology, or from the store's **Policies** tab, select an entity. **Agent Details** leads with the **Policy Store**, **Application**, and **Environment** the entity belongs to, followed by **Name**, **ID**, **Owner**, **Discovery Source**, risk tier, data classification, max chain depth, path URL, and more.
 
-    <Frame caption="An agent's detail view.">
-      <img src="images/ai-workload-onboard-metadata.png" alt="Agent details view" />
+    <Frame caption="Agent Details — policy store, application, environment, owner, and the full metadata.">
+      <img src="images/ai-workload-agent-metadata.png" alt="Agent Details with policy store, application, environment, and metadata" />
     </Frame>
   </Step>
-  <Step title="Edit the metadata">
-    Click **Edit** to change any field, then **Save**. Updated attributes are immediately available to policies that reference them.
+  <Step title="Before assignment, the store fields are empty">
+    A freshly ingested entity has no policy store, application, or environment — those fill in once you **assign** it to a store and publish.
 
-    <Frame caption="Edit an entity's metadata.">
-      <img src="images/ai-workload-entity-edit.png" alt="Edit entity metadata" />
+    <Frame caption="An unassigned entity's store fields are blank until it's assigned.">
+      <img src="images/ai-workload-metadata-blank.png" alt="Blank agent details before assignment" />
     </Frame>
   </Step>
 </Steps>
 
+## Editing Is Owner-Only
+
+<Info>
+  You can **edit an entity's metadata only in the policy store that owns it** — the first store it was assigned to. The **Edit** button acts on the owning store's copy; in any other store the details are read-only, though you can still add the entity and write policies against it.
+</Info>
+
+To edit: open the entity in the **owning** store, click **Edit**, change the fields, and **Save**. Updated attributes are immediately available to policies that reference them.
+
 ## Manage Skills
 
-An agent's **skills** describe what it can do — and you can write [intent/skill-based policies](/ai-workload-policy-design) against them. While onboarding, or any time after, you can **add, edit, or delete** an agent's skills.
+An agent's **skills** describe what it can do — and you can write [intent/skill-based policies](/ai-workload-policy-design) against them. In the owning store, you can **add, edit, or delete** an agent's skills.
 
 <Steps>
   <Step title="Open the agent's Skills">
@@ -43,6 +51,10 @@ An agent's **skills** describe what it can do — and you can write [intent/skil
     Save. The skill is now available for intent/skill-based policies.
   </Step>
 </Steps>
+
+## Manage Across Stores
+
+If an entity belongs to several policy stores, click **Manage** on it in the inventory — Reva shows a **dropdown of its policy stores** so you can pick which store's policies to work on.
 
 <Tip>
   Set `riskTier` and `dataClassification` thoughtfully — they're commonly used in on-behalf-of and context-based policy conditions.

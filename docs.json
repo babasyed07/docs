@@ -234,6 +234,14 @@
             "pages": [
               "ai-workload-developer-evaluation-api",
               {
+                "group": "Agentic AI Evaluation",
+                "expanded": true,
+                "openapi": "/api-reference/ai-workload-evaluation-api.json",
+                "pages": [
+                  "POST /pdp/access/v1/ai/evaluation"
+                ]
+              },
+              {
                 "group": "AuthZEN Compliant Evaluation",
                 "expanded": true,
                 "openapi": "/api-reference/reva-authorization-api.json",

@@ -1,53 +1,57 @@
 ---
 title: "Developer Settings & Credentials"
-description: "Get your Store ID and PDP Auth Token, and ingest entities via the Data Fabric API."
+description: "Get the OAuth tokens and IDs to ingest entities and to connect your agents at runtime."
 ---
 
-Every agentic policy store has a **Developer Integration** tab that gives you the credentials and ingestion surface your code needs — the **Store ID**, the **PDP Auth Token**, and **Data Fabric Ingestion**. These credentials drive the [Python SDK](/ai-workload-developer-sdk), the [Evaluation API](/ai-workload-developer-evaluation-api), and direct entity ingestion. You don't need any of this to start onboarding through the UI — reach for this page when you're ready to **ingest entities programmatically** or wire up **runtime** authorization.
-
-<Info>
-  **Which store's credentials?** For **runtime authorization** (SDK / Evaluation API), use the credentials of the store whose policies you're evaluating. For **entity ingestion**, use the **`GlobalAgentWorkloadApp`** store's credentials — every ingested entity lands in that tenant-wide [inventory](/ai-workload-getting-started#the-inventory-and-your-policy-stores).
-</Info>
-
-## Get Your Credentials
-
-<Steps>
-  <Step title="Open Developer Integration">
-    In your agentic policy store, open the **Developer Integration** tab. The **Store ID** is shown at the top.
-
-    <Frame caption="The Developer Integration tab with the Store ID.">
-      <img src="images/ai-workload-devsettings-store-id.png" alt="Developer Integration tab showing the Store ID" />
-    </Frame>
-  </Step>
-  <Step title="Copy the Store ID">
-    The **Store ID** identifies this policy store. Use it as `POLICYSTORE_ID` in the SDK, as the `policyStoreId` header for the [Evaluation API](/ai-workload-developer-evaluation-api), and as the target for Data Fabric ingestion.
-  </Step>
-  <Step title="Copy the PDP Auth Token">
-    In the **Connect your Agentic workloads** section, copy the **PDP Auth Token** — the long-lived platform credential sent as the API bearer (and as the SDK's `RTG_AUTH_TOKEN`).
-
-    <Frame caption="The PDP Auth Token.">
-      <img src="images/ai-workload-devsettings-pdp-token.png" alt="PDP Auth Token section" />
-    </Frame>
-
-    <Warning>
-      The PDP Auth Token is a secret. Never commit or log it; rotate it if exposed.
-    </Warning>
-  </Step>
-</Steps>
+Reva gives you credentials in two places, for two jobs: **ingesting entities** into your inventory, and **connecting your agents** to the Reva Trust Guardian at runtime.
 
 ## Ingest Entities via the API
 
-Open the **`GlobalAgentWorkloadApp`** store's **Developer Integration** tab — ingested entities land in your tenant-wide inventory, so ingestion uses **its** **Store ID** and **PDP Auth Token**. The **Data Fabric Ingestion** section lists the entity data types you can push directly. This is the programmatic alternative to the [CSV upload](/ai-workload-schema-upload-template) — create your agents, tools, models, and relationships with the Data Fabric entity API.
+To push agents, tools, models, and relationships into your **inventory** programmatically, open the **Ingest** quick link on the AI home — the **Connect to Data Fabric** panel. Copy the **OAuth Token** and the **entity type IDs** you need, then call the Data Ingestion API.
 
-<Frame caption="Data Fabric Ingestion — entity data types you can push via the API.">
-  <img src="images/ai-workload-devsettings-datafabric.png" alt="Data Fabric Ingestion keys and entity types" />
+<Frame caption="Connect to Data Fabric — the OAuth token and the entity type IDs to ingest against.">
+  <img src="images/ai-workload-ingest-data-fabric.png" alt="Connect to Data Fabric panel with an OAuth token and entity types" />
 </Frame>
 
+<Warning>
+  The OAuth Token is a secret. Never commit or log it; use **Regenerate Key** to rotate it if exposed.
+</Warning>
+
+<Card title="Data Ingestion API" icon="database" href="/api-reference/introduction#data-fabric-apis">
+  Create entities (`POST /ingestion/v1/entity`) or in bulk (`/ingestion/v1/entity/bulk`) — see the **API Documentation** tab.
+</Card>
+
+## Connect Your Agents at Runtime
+
+Each policy store has a **Settings** tab with everything your running code needs.
+
+<Steps>
+  <Step title="Get the Policy Store ID">
+    In the store's **Settings → Policy Store Configuration**, copy the **Policy Store ID**. Use it as `POLICYSTORE_ID` in the SDK and as the `policyStoreId` header for the [Evaluation API](/ai-workload-developer-evaluation-api).
+  </Step>
+  <Step title="Get the Trust Guardian OAuth Token">
+    In **Settings → Connect to Reva Trust Guardian**, copy the **OAuth Token** — the long-lived platform credential sent as the API bearer (and as the SDK's `RTG_AUTH_TOKEN`).
+
+    <Frame caption="Settings → Connect to Reva Trust Guardian: OAuth token and SDK connect options.">
+      <img src="images/ai-workload-settings-trust-guardian.png" alt="Connect to Reva Trust Guardian panel with OAuth token, Python SDK, and plugins" />
+    </Frame>
+
+    <Warning>
+      The OAuth Token is a secret. Never commit or log it; rotate it with **Regenerate Key** if exposed.
+    </Warning>
+  </Step>
+  <Step title="Choose how to connect">
+    - **Python SDK** — `pip install reva-ai-authz`, then drop in the [`reva_agent.md`](/ai-workload-developer-sdk) guide.
+    - **Evaluation API** — call the Trust Guardian directly. See the [Evaluation API](/ai-workload-developer-evaluation-api).
+    - **Java SDK, Kong plugin, Istio plugin** — *coming soon.* See [Native Plugins](/ai-workload-native-plugins).
+  </Step>
+</Steps>
+
 <CardGroup cols={2}>
-  <Card title="Create Entities API" icon="database" href="/api-reference/entity-ingestion/create-entities">
-    Push entities in bulk (`POST /ingestion/v1/entity/bulk`), or [one at a time](/api-reference/entity-ingestion/create-entity).
-  </Card>
   <Card title="Connect Your Agents" icon="plug" href="/ai-workload-integration-options">
-    Use these credentials to integrate runtime authorization — SDK, Evaluation API, or plugin.
+    Choose the SDK, Evaluation API, or a plugin for your stack.
+  </Card>
+  <Card title="Python SDK" icon="code" href="/ai-workload-developer-sdk">
+    Install `reva-ai-authz` and protect inbound and outbound calls.
   </Card>
 </CardGroup>
