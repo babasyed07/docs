@@ -29,7 +29,8 @@ Example claim mapping:
 | Claim Name | Action | Resource |
 | --- | --- | --- |
 | app | getApplication | Application |
-| role | getRole | AppRole |
+| ClientRoles | getClientRole | ClientRole |
+| ApiRoles | getApiRole | ApiRole |
 | ent | getEntitlement | Entitlement |
 
 To configure Token Claim Mapping:
@@ -53,7 +54,7 @@ The **Token Enrichment Integration** section provides the values required to con
 | **Inline Hook URL** | Reva endpoint called by the Identity Provider during token generation. |
 | **Authentication Field** | HTTP header field used for authentication. |
 | **Authentication Secret** | Secret used by the Identity Provider to authenticate to Reva. |
-| Custom Header Field Name | Header used to pass the policy store identifier. |
+| **Custom Header Field Name** | Header used to pass the policy store identifier. |
 | **Custom Header Value** | Policy store identifier used by Reva during evaluation. |
 | **Regenerate Key** | Generates a new authentication secret. |
 

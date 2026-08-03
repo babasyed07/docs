@@ -1,0 +1,500 @@
+---
+title: "Author Cedar-based Token Enrichment Policies"
+---
+
+Policies are the rules that tell Reva Trust Guardian which claims to return or block when Okta requests a token. This guide walks through each policy pattern you need to write, explains what each condition checks, and shows you the exact Cedar syntax to use.  
+
+## 1. How Cedar Policies Work
+
+Each Cedar policy has three parts:
+
+- **Principal**: who is making the request (a `User` or `MachineId`)
+- **Action**: what is being evaluated (e.g. `getClientRole`, `getApiRole`)
+- **Resource**: what is being evaluated against (e.g. a `ClientRole` entity)
+- **When clause**: the conditions that must be true for the policy to apply
+
+A policy is either a `permit` (allow the claim) or a `forbid` (block the claim). **Forbid always wins.** If any forbid policy matches, the claim is blocked even if a permit policy also matches.
+
+**Default behaviour:** if no permit policy matches, the claim is denied. You must explicitly write permit policies for every claim you want Reva to return.
+
+### Cedar policy structure
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    // conditions here
+};
+```
+
+> **Namespace:** All entity types and actions in this policy store use the `Okta` namespace. Every type reference must be prefixed with `Okta::` and every action with `Okta::Action::`.
+
+## 2. Policies at a Glance
+
+| Policy | Type | Action | Covers |
+|---|---|---|---|
+| Permit application access | permit | `getApplication` | Any user assigned to the app via group or directly |
+| Permit static client role | permit | `getClientRole` | Any active user assigned to the app (no group check) |
+| Permit dynamic client role | permit | `getClientRole` | Active user who is a member of the role's linked group |
+| Permit static API role | permit | `getApiRole` | Any active user assigned to the app (no group check) |
+| Permit dynamic API role | permit | `getApiRole` | Active user who holds the linked client role |
+| Permit machine identity entitlement | permit | `getEntitlement` | MachineId whose clientId matches the application |
+| Forbid inactive user | forbid | `getApplication`, `getClientRole`, `getApiRole` | Any user with `active == false` |
+| Forbid suspended application | forbid | `getApplication`, `getClientRole`, `getApiRole` | Any user whose `suspendedApps` contains the application |
+
+## Step 1: Permit Application Access
+
+This policy allows Reva to return an application claim for a user who is assigned to that application. Assignment can come from two sources: the user belongs to a group that is assigned to the app (`assignedGroups`), or the user is directly assigned to the app (`allowedUsers`).
+
+The `has` operator is used to safely check whether an optional attribute exists before accessing it. This prevents policy evaluation errors when an attribute is not present on an entity.
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when {
+    (resource has assignedGroups &&
+     principal has assignedGroups &&
+     resource.assignedGroups.containsAny(principal.assignedGroups))
+    ||
+    (resource has allowedUsers &&
+     resource.allowedUsers.contains(principal))
+};
+```
+
+**What each condition checks:**
+- `resource has assignedGroups` confirms the application has groups assigned to it before trying to read them
+- `principal has assignedGroups` confirms the user has group memberships before trying to read them
+- `resource.assignedGroups.containsAny(principal.assignedGroups)` returns true if any of the user's groups overlap with the application's assigned groups
+- `resource.allowedUsers.contains(principal)` returns true if the user is directly assigned to the application
+
+> This policy does not check `principal.active`. The inactive-user forbid (Step 7) handles that separately, keeping the permit conditions clean.
+
+## Step 2: Permit Static Client Roles (ID Token)
+
+A static ClientRole is one with no `sourceGroup` attribute. It is returned for any active user who is assigned to the parent application, regardless of which specific groups they are in.
+
+Use this pattern for roles like `client.shipcsx.authenticated` that every app-assigned user should receive.
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal.active == true &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+```
+
+**What this policy covers:**
+- `principal.active == true` confirms the user is active
+- `resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups)` checks the user is assigned to the app via a group
+- `resource.parentApplication.allowedUsers.contains(principal)` checks the user is directly assigned to the app
+- There is no `sourceGroup` check, so this matches any ClientRole that does not have a `sourceGroup` set
+
+> **Why no `!(resource has sourceGroup)` check?** This policy will also match dynamic ClientRoles. That is fine because the dynamic ClientRole policy (Step 3) adds the group membership check on top. A user in the correct group passes both policies. A user not in the correct group fails the dynamic policy but still passes this one, which would incorrectly grant the role. To prevent this, you must add a `!(resource has sourceGroup)` condition if you want strict separation. Reva's default policy file does not include this check, relying instead on the forbid policies to stop unauthorized access.
+
+## Step 3: Permit Dynamic Client Roles (ID Token)
+
+A dynamic ClientRole has a `sourceGroup` attribute linking it to the Okta group that represents the role. The user must be a member of that specific group to receive the role.
+
+Use this pattern for roles like `client.shipcsx.driver` where only users in the `client.shipcsx.driver` Okta group should receive the role.
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal.active == true &&
+    resource has sourceGroup &&
+    principal has assignedGroups &&
+    principal.assignedGroups.contains(resource.sourceGroup) &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+```
+
+**What the additional conditions check:**
+- `resource has sourceGroup` confirms this is a dynamic ClientRole (has a linked group)
+- `principal has assignedGroups` confirms the user has group memberships before checking them
+- `principal.assignedGroups.contains(resource.sourceGroup)` checks that the user is a member of the exact group linked to this ClientRole
+
+The app assignment check at the bottom still applies. The user must be assigned to the application AND be in the role's specific group.  
+
+## Step 4: Permit Static API Roles (Access Token)
+
+A static ApiRole has no `relatedClientRole` attribute. It is returned for any active user assigned to the parent application. Use this pattern for roles like `_authenticated_` that every app-assigned user should receive in their access token.
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal.active == true &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+```
+
+This follows the same structure as the static ClientRole permit (Step 2), but targets `getApiRole` and `ApiRole` instead.  
+
+## Step 5: Permit Dynamic API Roles (Access Token)
+
+A dynamic ApiRole has a `relatedClientRole` attribute. It is returned only when the user holds the linked ClientRole, which means the user must also be in the `sourceGroup` of that ClientRole.
+
+Cedar traverses the relationship: `resource.relatedClientRole.sourceGroup` reads the `sourceGroup` from the linked ClientRole entity. The user must be a member of that group.
+
+```cedar
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal.active == true &&
+    resource has relatedClientRole &&
+    resource.relatedClientRole has sourceGroup &&
+    principal has assignedGroups &&
+    principal.assignedGroups.contains(resource.relatedClientRole.sourceGroup) &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+```
+
+**What the additional conditions check:**
+- `resource has relatedClientRole` confirms this ApiRole is linked to a ClientRole
+- `resource.relatedClientRole has sourceGroup` confirms the linked ClientRole is a dynamic role (has a group)
+- `principal.assignedGroups.contains(resource.relatedClientRole.sourceGroup)` checks the user is in that group
+
+**Example:** ApiRole `api.shipcsx.locations.search` has `relatedClientRole` pointing to `client.shipcsx.driver`. That ClientRole has `sourceGroup` pointing to the `client.shipcsx.driver` Okta group. Cedar checks: is the user in the `client.shipcsx.driver` group? If yes, grant the API role.  
+
+## Step 6: Permit Machine Identity Entitlements (Access Token)
+
+This policy handles machine-to-machine (M2M) flows using the OAuth 2.0 client credentials grant. The principal is a `MachineId` entity rather than a `User`.
+
+The policy checks that the Entitlement's parent application has a `clientId` attribute and that it matches the requesting `MachineId` principal.
+
+```cedar
+permit (
+    principal is Okta::MachineId,
+    action == Okta::Action::"getEntitlement",
+    resource is Okta::Entitlement
+)
+when {
+    resource.parentApplication has clientId &&
+    resource.parentApplication.clientId == principal
+};
+```
+
+**What each condition checks:**
+- `resource.parentApplication has clientId` safely checks the application has a linked MachineId before comparing
+- `resource.parentApplication.clientId == principal` confirms the requesting MachineId is the one linked to the application
+
+No active-user or suspended-app checks apply to M2M flows. The only condition is that the application's `clientId` matches the requesting machine identity.  
+
+## Step 7: Forbid Inactive Users
+
+Write three forbid policies: one for each action a user can perform. An inactive user is blocked from receiving any claim, regardless of whether they are assigned to the application or in any group.
+
+**Forbid inactive users from getApplication:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when { principal.active == false };
+```
+
+**Forbid inactive users from getClientRole:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when { principal.active == false };
+```
+
+**Forbid inactive users from getApiRole:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when { principal.active == false };
+```
+
+> Because forbid always wins in Cedar, these three policies override every permit policy for inactive users. You do not need to add `principal.active == false` checks inside your permit policies.  
+
+## Step 8: Forbid Suspended Applications
+
+Write three forbid policies to block all claims for an application where the user's access has been suspended. The `suspendedApps` attribute on the `User` entity stores the set of applications from which the user is suspended.
+
+**Forbid suspended application from getApplication:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource)
+};
+```
+
+Note: for `getApplication`, `resource` is the Application itself, so the check is `suspendedApps.contains(resource)`.
+
+**Forbid suspended application from getClientRole:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource.parentApplication)
+};
+```
+
+**Forbid suspended application from getApiRole:**
+
+```cedar
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource.parentApplication)
+};
+```
+
+For role actions, `resource` is a `ClientRole` or `ApiRole`, so you traverse to `resource.parentApplication` to get the application to check against.
+
+> `principal has suspendedApps` is a safe presence check. If the user has no `suspendedApps` attribute at all, the forbid does not fire. Suspension only applies when the Suspensions SCIM SOR has written entries to the user's `suspendedApps` set.  
+
+## 3. Publishing the Policies
+
+Once all policies are written, publish them to the policy store so Reva evaluates them during token enrichment requests.
+
+1. Open the token enrichment policy store in Reva Trust Guardian.
+2. Go to **Policies**.
+3. Create each policy, or import the `.cedar` file containing all policies.
+4. **Save the policies as a draft.**
+5. Review the draft to confirm all policies look correct.
+6. **Publish** the policies.
+7. Go to **Insights** to confirm the publish task completed successfully.
+
+Published policies take effect immediately. The next token enrichment request Reva receives from Okta will be evaluated against the new policies.  
+
+## 4. Complete Policy Reference
+
+The following is the full set of Cedar policies for a token enrichment policy store. Copy this into a `.cedar` file to import directly into Reva.
+
+```cedar
+// ── PERMIT: Application access ────────────────────────────────────────────────
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when {
+    (resource has assignedGroups &&
+     principal has assignedGroups &&
+     resource.assignedGroups.containsAny(principal.assignedGroups))
+    ||
+    (resource has allowedUsers &&
+     resource.allowedUsers.contains(principal))
+};
+
+// ── PERMIT: Static ClientRole (ID token) ─────────────────────────────────────
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal.active == true &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+
+// ── PERMIT: Dynamic ClientRole (ID token) ────────────────────────────────────
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal.active == true &&
+    resource has sourceGroup &&
+    principal has assignedGroups &&
+    principal.assignedGroups.contains(resource.sourceGroup) &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+
+// ── PERMIT: Static ApiRole (access token) ────────────────────────────────────
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal.active == true &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+
+// ── PERMIT: Dynamic ApiRole (access token) ───────────────────────────────────
+permit (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal.active == true &&
+    resource has relatedClientRole &&
+    resource.relatedClientRole has sourceGroup &&
+    principal has assignedGroups &&
+    principal.assignedGroups.contains(resource.relatedClientRole.sourceGroup) &&
+    (
+        (resource.parentApplication has assignedGroups &&
+         principal has assignedGroups &&
+         resource.parentApplication.assignedGroups.containsAny(principal.assignedGroups))
+        ||
+        (resource.parentApplication has allowedUsers &&
+         resource.parentApplication.allowedUsers.contains(principal))
+    )
+};
+
+// ── PERMIT: Machine identity entitlements (access token) ─────────────────────
+permit (
+    principal is Okta::MachineId,
+    action == Okta::Action::"getEntitlement",
+    resource is Okta::Entitlement
+)
+when {
+    resource.parentApplication has clientId &&
+    resource.parentApplication.clientId == principal
+};
+
+// ── FORBID: Inactive user ─────────────────────────────────────────────────────
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when { principal.active == false };
+
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when { principal.active == false };
+
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when { principal.active == false };
+
+// ── FORBID: Suspended application ─────────────────────────────────────────────
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApplication",
+    resource is Okta::Application
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource)
+};
+
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getClientRole",
+    resource is Okta::ClientRole
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource.parentApplication)
+};
+
+forbid (
+    principal is Okta::User,
+    action == Okta::Action::"getApiRole",
+    resource is Okta::ApiRole
+)
+when {
+    principal has suspendedApps &&
+    principal.suspendedApps.contains(resource.parentApplication)
+};
+```
+
+

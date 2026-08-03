@@ -1,0 +1,76 @@
+---
+title: "Publish to Reva Trust Guardian"
+---
+
+After the schema and policies are ready, configure the policy store to distribute to Reva Trust Guardian and publish. Reva Trust Guardian is the recommended distribution target. It publishes both the Cedar schema and the policies directly to your Reva repository, making them available for evaluation immediately.
+
+## Before You Begin
+
+Complete the following before publishing:
+
+- The Cedar schema is defined with all required entity types and actions.
+- All Cedar policies are written and saved in the policy store.
+- Token Claim mapping has been configured.
+- You have Owner or Editor access to the policy store.  
+
+## Step 1: Open Policy Store Settings
+
+1. Open the policy store.
+2. Select the **Settings** tab from the top navigation.
+3. On the left sidebar, confirm **Policy Store Configuration** is selected.
+
+The **Basic Info** section displays the Policy Store ID, Portfolio Name, Description/Goal, and access roles (Owners, Viewers, Editors).
+
+The **Policy Distribution** section shows the available distribution targets.  
+
+## Step 2: Edit the Policy Store Configuration
+
+1. Click **Edit** in the top-right corner of the page.
+
+   The page switches to edit mode. The **Cancel** and **Save** buttons replace the **Edit** button.
+
+2. In the **Description/Goal** field, enter a description of the policy store's purpose.
+
+   Example: *Ingest identity, application, and entitlement data from Okta to support token enrichment.*
+
+3. Review the **Owners**, **Viewers**, and **Editors** fields. Add or remove users as needed.
+
+   | Role | Access |
+   |---|---|
+   | **Owners** | Full control, including settings and publishing |
+   | **Editors** | Can create and edit policies and schema |
+   | **Viewers** | Read-only access to the policy store |
+
+## Step 3: Select Reva Trust Guardian as the Distribution Target
+
+In the **Policy Distribution** section, select **Reva Trust Guardian**.
+
+> Reva Trust Guardian is marked as **Recommended**. It publishes policies and schema directly to your Reva repository. Selecting this option means every publish action from this policy store will push updates to the connected Reva Trust Guardian instance.  
+
+## Step 4: Save the Configuration
+
+Click **Save**.
+
+The page returns to view mode. The configuration is saved and Reva Trust Guardian is now set as the active distribution target for this policy store.  
+
+## Step 5: Publish the Policies
+
+1. Navigate to the **Policies** tab.
+2. Review the policies to confirm they are correct.
+3. Click **Publish**.
+4. Confirm the publish action when prompted.
+5. Go to **Insights** to verify the publish task completed successfully.
+
+Once published, the Cedar schema and policies are live in Reva Trust Guardian. The next token enrichment request Reva receives from Okta will be evaluated against the published policies.  
+
+## Reference: Policy Store Settings Overview
+
+| Field | Description |
+|---|---|
+| **Policy Store ID** | Unique identifier for this policy store. Used when configuring the Okta inline hook header `policyStoreId`. |
+| **Portfolio Name** | The portfolio this policy store belongs to. Set to `OKTA` for Okta token enrichment stores. |
+| **Description/Goal** | A plain-text description of what this policy store does. Used for documentation and team context. |
+| **Owners** | Users with full administrative access to the policy store, including the ability to publish and change settings. |
+| **Viewers** | Users who can view policies and schema but cannot make changes. |
+| **Editors** | Users who can create and edit policies and schema but cannot change settings or publish. |
+| **Policy Distribution** | The target system that receives published policies and schema. Select **Reva Trust Guardian** for Cedar-based token enrichment. |
