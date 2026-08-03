@@ -1,0 +1,53 @@
+---
+title: "Enrich Identity and Access Tokens with Policy-Based Claims"
+---
+
+Token Enrichment allows Reva Trust Guardian to inject policy-evaluated claims into identity and access tokens at the moment of authentication. Instead of building custom claim logic into each application, you define Cedar policies once. Reva evaluates them during token generation and returns only the claims the user is authorized to receive.
+
+The Identity Provider issues the enriched token to the application. Applications use the claims directly for access control decisions without calling Reva at runtime.  
+
+## What Reva Can Enrich
+
+| Claim Type | Description | Token |
+|---|---|---|
+| **Roles** | Application roles based on group membership or direct assignment | Identity or Access |
+| **Applications** | Applications the user is assigned to | Identity or Access |
+| **Entitlements** | Permissions for machine or service identities | Access |
+| **Custom claims** | Any claim derived from custom source data ingested into Reva | Identity or Access |
+
+## Supported Identity Providers
+
+| Identity Provider | Status |
+|---|---|
+| **Okta** | Supported |
+| **Microsoft Entra ID** | Supported |
+
+## How Token Enrichment Works
+
+When a user signs in, the following sequence occurs:
+
+1. **User authenticates** through the Identity Provider.
+2. **Token generation starts.** The Identity Provider begins building the identity or access token.
+3. **Reva receives the enrichment request.** The Identity Provider calls the Reva Trust Guardian hook endpoint, passing the token context.
+4. **Reva identifies the request context.** Reva resolves the user, application, and grant type from the incoming request.
+5. **Cedar policies are evaluated.** Reva runs the active policies in the token enrichment policy store against the resolved context.
+6. **Data is checked across all sources.** This includes identity data, application assignments, group memberships, roles, entitlements, and any custom source data such as suspension records.
+7. **Reva returns the authorized claims.** Only the claims permitted by policy are returned to the Identity Provider.
+8. **The token is enriched.** The Identity Provider adds the returned claims to the token before issuing it.
+9. **The application receives the enriched token.** Applications read the claims from the token to make access control decisions without additional API calls to Reva.
+
+## Key Concepts
+
+**Cedar policies** are the rules that control which claims a user receives. Each policy targets a specific action (`getClientRole`, `getApiRole`, `getApplication`, `getEntitlement`) and defines the conditions under which that claim is permitted or forbidden.
+
+**The token enrichment policy store** is where the schema, entity data, and Cedar policies are managed. It connects to the Identity Provider through an inline hook and distributes policies to Reva Trust Guardian.
+
+**Custom source data** allows Reva to factor in data that lives outside the Identity Provider, such as suspension records, risk tiers, or entitlement lists from external systems. This data is ingested into the policy store and referenced in Cedar policy conditions.
+
+## What to Set Up
+
+To enable Token Enrichment, complete the following in order:
+
+1. [Customize the Schema for Token Enrichment](./customize-schema-for-token-enrichment) — Define the entity types and actions that Cedar policies will evaluate.
+2. [Write Cedar-based Token Enrichment Policies](./write-cedar-token-enrichment-policies) — Write the permit and forbid rules that control which claims are returned.
+3. [Publish to Reva Trust Guardian](./publish-to-reva-trust-guardian) — Configure the policy store and publish the schema and policies to Reva.
