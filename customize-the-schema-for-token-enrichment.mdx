@@ -1,76 +1,490 @@
 ---
-title: "Customize the Schema for Token Enrichment"  
+title: "Customize the Schema for Token Enrichment"
 ---
-Open the Schema tab to review the starter schema created for token enrichment.  
-The starter schema provides the base model for Identity Provider data. To support token enrichment use cases, customize the schema to include the actions and resources that Reva should evaluate during token generation.  
+This guide walks you through how to extend the starter schema in your Reva policy store to support token enrichment use cases. The starter schema provides the base Identity Provider model. You will add entity types, attributes, and actions on top of it to enable Reva to evaluate and return the right role and entitlement claims during token generation.  
 
-Common token enrichment schema components include:  
-| Schema Component | Description |
-| --- | --- |
-| **MachineId** | Represents a machine or service identity. |
-| **AppRole** | Represents an application role that can be returned as a token claim. |
-| **Entitlement** | Represents a permission or entitlement that can be returned as a token claim. |
-| **SuspendedApps** | Represents applications where a user is suspended or blocked. |  
+## 1. What the Starter Schema Provides
 
-Common token enrichment actions include:  
-| Action | Description |
-| --- | --- |
-| **getApplication** | Retrieves application claims for token enrichment. |
-| **getRole** | Retrieves application role claims for token enrichment. |
-| **getEntitlement** | Retrieves entitlement claims for token enrichment. |
+When a token enrichment policy store is created, Reva automatically generates a starter schema in the **Okta** namespace. This starter schema includes three entity types that represent your Identity Provider data. **Do not modify these entity types.** They are managed by Reva and updated automatically when your Identity Provider data is synced.
 
-## Customize the Schema for Custom Source Data
-Token enrichment can use data from the Identity Provider and from custom source systems.
-Custom source data can include:  
-- Application data from a target application
-- Application-specific roles
-- Entitlements
-- Suspension or Blacklist records
-- Machine identity permissions
-- Risk or access status from an external source
-
-To use this data during token enrichment, customize the Cedar schema to represent the required entities, attributes, and relationships.  
-
-For example, a user may be assigned to an application in the Identity Provider, but the target application may maintain a separate suspension database. By modeling suspension data in the schema, Reva can prevent the user from receiving application or role claims for that application.
-
-<Info>
-Open the **Schema** tab to review the starter schema created for token enrichment.     
-The starter schema provides the base model for Identity Provider data. To support token enrichment use cases, customize the schema to include the actions, entity types, attributes, and relationships that Reva should evaluate during token enrichment.  
-The customized schema should model the data needed to return application, role, and entitlement claims to the Identity Provider.  
-### Token enrichment actions  
-| Action | Principal | Resource | Description |
-| --- | --- | --- | --- |
-| **getApplication** | User | Application | Retrieves application claims for token enrichment. |
-| **getRole** | User | AppRole | Retrieves application role claims for token enrichment. |
-| **getEntitlement** | MachineId | Entitlement | Retrieves entitlement claims for machine or service identities. |  
-### Token enrichment entity types  
 | Entity Type | Description |
-| --- | --- |
-| **User** | Represents a user from the Identity Provider. |
-| **UserGroup** | Represents a user group from the Identity Provider. |
-| **MachineId** | Represents a machine or service identity. |
-| **Application** | Represents an application evaluated during token enrichment. |
-| **AppRole** | Represents an application role that can be returned as a token claim. |
-| **Entitlement** | Represents a permission or entitlement that can be returned as a token claim. |
-| **SuspendedApps** | Represents a user and application suspension relationship. |  
-### Important schema relationships  
-| Relationship | Description |
-| --- | --- |
-| **User memberOf UserGroup** | Allows policies to evaluate group membership. |
-| **User.suspendedApps** | Stores the applications where the user is suspended or blocked. |
-| **User.assignedGroups** | Stores the groups assigned to the user. |
-| **Application.clientId** | Links the application to a machine or service identity. |
-| **Application.appcode** | Stores the application code used during token enrichment. |
-| **Application.allowedUsers** | Stores users directly allowed for the application. |
-| **Application.assignedGroups** | Stores groups assigned to the application. |
-| **AppRole.parentApplication** | Links an application role to its parent application. |
-| **Entitlement.parentApplication** | Links an entitlement to its parent application. |
-| **SuspendedApps.user** | Links a suspension record to a user. |
-| **SuspendedApps.application** | Links a suspension record to an application. |
+|---|---|
+| `User` | Represents a user from your Identity Provider. Includes profile attributes, group memberships, and a built-in `suspendedApps` attribute that stores the list of applications the user is blocked from. |
+| `UserGroup` | Represents a group from your Identity Provider. Used to model group-based access and role assignment. |
+| `Application` | Represents an application evaluated during token enrichment. Includes the `appcode`, `assignedGroups`, and `allowedUsers` attributes used by policies. |
 
-<Note>
-  Use the starter schema as the base model, then extend it based on the claims, custom source data, and access rules required by the token enrichment flow.  
-  A sample customized token enrichment schema is available for reference.  
-  Download the sample schema: <a href="/token-enrichment-sample-schema.json" className="text-blue-600 font-semibold underline" download>Token Enrichment Schema</a>
-</Note> 
-</Info>
+> **Note:** Suspension is modeled directly on the `User` entity as `User.suspendedApps: Set<Application>`. There is no separate SuspendedApps entity type. When a user's access to an application is revoked, Reva adds that application to this set. Policies check this attribute to block role and entitlement claims for that application.
+
+## 2. What You Need to Add
+
+To enable token enrichment, extend the starter schema with the following entity types and actions. Each section below walks through what to add and why.
+
+| What to Add | Type | Purpose |
+|---|---|---|
+| `MachineId` | Entity Type | Represents a machine or service identity for machine-to-machine (M2M) flows. |
+| `ClientRole` | Entity Type | Represents an application role returned in the ID token.|
+| `ApiRole` | Entity Type | Represents an API permission returned in the access token.|
+| `Entitlement` | Entity Type | Represents a permission or entitlement returned in the access token for M2M flows. |
+| `getApplication` | Action | Allows Reva to evaluate and return application claims during token enrichment. |
+| `getClientRole` | Action | Allows Reva to evaluate and return client role claims for the ID token. |
+| `getApiRole` | Action | Allows Reva to evaluate and return API role claims for the access token. |
+| `getEntitlement` | Action | Allows Reva to evaluate and return entitlement claims for M2M access tokens. | 
+
+## 3. Understanding ClientRole vs ApiRole
+
+The most important design decision in the schema is understanding why roles are split into two entity types.
+
+| Entity Type | Token Target | Naming Convention | Example |
+|---|---|---|---|
+| `ClientRole` | ID token (com.okta.identity.patch) | `client.{appcode}.{persona}` | `client.freightgrid.driver` |
+| `ApiRole` | Access token (com.okta.access.patch) | `api.{appcode}.{function}` | `api.freightgrid.locations.search` |
+
+Within each entity type, roles are either static or dynamic. This is determined by which optional attribute is present on the entity, not by a separate flag.
+
+| Role Behaviour | Entity Type | How it Works | Optional Attribute Present |
+|---|---|---|---|
+| Static | `ClientRole` | Returned for any active user assigned to the app, regardless of group membership. | No `sourceGroup` |
+| Dynamic | `ClientRole` | Returned only if the user is a member of the linked Okta group (`sourceGroup`). | `sourceGroup` -> `UserGroup` |
+| Static | `ApiRole` | Returned for any active user assigned to the app. Used for `_authenticated_` and similar default roles. | No `relatedClientRole` |
+| Dynamic | `ApiRole` | Returned only if the user holds the linked ClientRole (i.e. is in the `sourceGroup` of that ClientRole). | `relatedClientRole` -> `ClientRole` |
+
+> The presence or absence of `sourceGroup` (on ClientRole) and `relatedClientRole` (on ApiRole) is what the Cedar policies use to determine whether a role is static or dynamic. You do not need a separate field or flag.  
+
+## Step 1: Add the MachineId Entity Type
+
+MachineId represents a machine or service account identity, specifically the OAuth client used in a client credentials (M2M) flow. When a backend service authenticates with Okta using client credentials, the MachineId entity is the principal that policies evaluate.
+
+### When to add MachineId
+
+- You have backend services or APIs that authenticate using the OAuth 2.0 client credentials grant type.
+- You want to return entitlement claims in the access token for those services.
+- If you only have user-facing OIDC applications, you can skip MachineId and Entitlement.
+
+### MachineId attributes
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `name` | String | Yes | Display name of the machine or service account. |
+| `clientId` | String | Yes | The OAuth client ID assigned to this machine identity in Okta. |
+| `appcode` | String | No | Optional application code associated with this machine identity. |
+
+### Schema JSON for MachineId
+
+```json
+"MachineId": {
+  "memberOfTypes": [],
+  "shape": {
+    "type": "Record",
+    "attributes": {
+      "name": {
+        "type": "String",
+        "required": true
+      },
+      "clientId": {
+        "type": "String",
+        "required": true
+      },
+      "appcode": {
+        "type": "String",
+        "required": false
+      }
+    }
+  }
+}
+```
+
+## Step 2: Add the ClientRole Entity Type
+
+ClientRole represents an application role that Reva returns in the **ID token**. Client roles control access to role-protected UIs. Each ClientRole belongs to a parent application and optionally links to the Okta group that represents the role.
+
+### ClientRole attributes
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `parentApplication` | Entity -> Application | Yes | Links this ClientRole to the Application it belongs to. Policies use this to ensure the role is only evaluated for the correct application. |
+| `roleValue` | String | Yes | The actual role string returned in the token claim. Example: `client.freightgrid.driver` |
+| `sourceGroup` | Entity -> UserGroup | No | Links this ClientRole to the Okta UserGroup that represents it. When present, the role is dynamic: the user must be a member of this group to receive the role. When absent, the role is static: any active user assigned to the app receives it. |
+
+### Schema JSON for ClientRole
+
+```json
+"ClientRole": {
+  "memberOfTypes": [],
+  "shape": {
+    "type": "Record",
+    "attributes": {
+      "parentApplication": {
+        "type": "Entity",
+        "required": true,
+        "name": "Application"
+      },
+      "roleValue": {
+        "type": "String",
+        "required": true
+      },
+      "sourceGroup": {
+        "type": "Entity",
+        "required": false,
+        "name": "UserGroup"
+      }
+    }
+  }
+}
+```
+### Examples
+
+**Dynamic ClientRole**: user must be in the `client.freightgrid.driver` Okta group:
+
+```json
+{
+  "entityId": "0oa1308e2h83VVmeP698::client.freightgrid.driver",
+  "entityType": "ClientRole",
+  "attributes": [
+    { "name": "parentApplication", "value": "0oa1308e2h83VVmeP698" },
+    { "name": "roleValue",         "value": "client.freightgrid.driver" },
+    { "name": "sourceGroup",       "value": "<UserGroup entityId for client.freightgrid.driver>" }
+  ]
+}
+```
+
+**Static ClientRole**: any active user assigned to the app receives this role:
+
+```json
+{
+  "entityId": "0oa1308e2h83VVmeP698::client.freightgrid.authenticated",
+  "entityType": "ClientRole",
+  "attributes": [
+    { "name": "parentApplication", "value": "0oa1308e2h83VVmeP698" },
+    { "name": "roleValue",         "value": "client.freightgrid.authenticated" }
+  ]
+}
+```
+## Step 3: Add the ApiRole Entity Type
+
+ApiRole represents a permission that Reva returns in the **access token**. API roles control access to role-protected backend APIs. Each ApiRole belongs to a parent application and optionally links to the ClientRole it is derived from.
+
+### ApiRole attributes
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `parentApplication` | Entity -> Application | Yes | Links this ApiRole to the Application it belongs to. |
+| `roleValue` | String | Yes | The actual role string returned in the access token claim. Example: `api.freightgrid.locations.search` |
+| `relatedClientRole` | Entity -> ClientRole | No | Links this ApiRole to the ClientRole it follows from. When present, the role is dynamic: the user receives this API role only if they also hold the linked ClientRole. When absent, the role is static: any active user assigned to the app receives it. Use this pattern for the `_authenticated_` default role. |
+
+### Schema JSON for ApiRole
+
+```json
+"ApiRole": {
+  "memberOfTypes": [],
+  "shape": {
+    "type": "Record",
+    "attributes": {
+      "parentApplication": {
+        "type": "Entity",
+        "required": true,
+        "name": "Application"
+      },
+      "roleValue": {
+        "type": "String",
+        "required": true
+      },
+      "relatedClientRole": {
+        "type": "Entity",
+        "required": false,
+        "name": "ClientRole"
+      }
+    }
+  }
+}
+```
+
+### Examples
+
+**Dynamic ApiRole**: granted when user holds `client.freightgrid.driver`:
+
+```json
+{
+  "entityId": "0oa1308e2h83VVmeP698::api.freightgrid.locations.search",
+  "entityType": "ApiRole",
+  "attributes": [
+    { "name": "parentApplication",  "value": "0oa1308e2h83VVmeP698" },
+    { "name": "roleValue",          "value": "api.freightgrid.locations.search" },
+    { "name": "relatedClientRole",  "value": "0oa1308e2h83VVmeP698::client.freightgrid.driver" }
+  ]
+}
+```
+
+**Static ApiRole**: granted to every active user assigned to the app:
+
+```json
+{
+  "entityId": "0oa1308e2h83VVmeP698::_authenticated_",
+  "entityType": "ApiRole",
+  "attributes": [
+    { "name": "parentApplication", "value": "0oa1308e2h83VVmeP698" },
+    { "name": "roleValue",         "value": "_authenticated_" }
+  ]
+}
+```
+
+
+## Step 1: Add the MachineId Entity Type
+
+MachineId represents a machine or service account identity, specifically the OAuth client used in a client credentials (M2M) flow. When a backend service authenticates with Okta using client credentials, the MachineId entity is the principal that policies evaluate.
+
+### When to add MachineId
+
+- You have backend services or APIs that authenticate using the OAuth 2.0 client credentials grant type.
+- You want to return entitlement claims in the access token for those services.
+- If you only have user-facing OIDC applications, you can skip MachineId and Entitlement.
+
+### MachineId attributes
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `name` | String | Yes | Display name of the machine or service account. |
+| `clientId` | String | Yes | The OAuth client ID assigned to this machine identity in Okta. |
+| `appcode` | String | No | Optional application code associated with this machine identity. |
+
+### Schema JSON for MachineId
+
+```json
+"MachineId": {
+  "memberOfTypes": [],
+  "shape": {
+    "type": "Record",
+    "attributes": {
+      "name": {
+        "type": "String",
+        "required": true
+      },
+      "clientId": {
+        "type": "String",
+        "required": true
+      },
+      "appcode": {
+        "type": "String",
+        "required": false
+      }
+    }
+  }
+}
+```
+## Step 4: Add the Entitlement Entity Type
+
+Entitlement represents a hardcoded permission string stored in the Okta application profile for M2M (client credentials) applications. When a backend service authenticates using client credentials, Reva returns the application's entitlements as the roles claim in the access token.
+
+### When to add Entitlement
+
+- You have machine-to-machine (client credentials) OAuth flows.
+- The backend application has a list of entitlements defined in its Okta app profile.
+- You want Reva to validate and return those entitlements as access token claims.
+
+### Entitlement attributes
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `parentApplication` | Entity -> Application | Yes | Links this Entitlement to the Application it belongs to. The policy checks that the requesting MachineId matches the parentApplication's `clientId`. |
+
+### Schema JSON for Entitlement
+
+```json
+"Entitlement": {
+  "memberOfTypes": [],
+  "shape": {
+    "type": "Record",
+    "attributes": {
+      "parentApplication": {
+        "type": "Entity",
+        "required": true,
+        "name": "Application"
+      }
+    }
+  }
+}
+```
+
+## Step 5: Add the Actions
+
+Actions define what Reva evaluates during token enrichment. Each action specifies which principal type initiates the evaluation and which resource type is being evaluated. Add all four actions to your schema.
+
+### Token enrichment actions
+
+| Action | Principal | Resource | Token Target | Description |
+|---|---|---|---|---|
+| `getApplication` | User | Application | Identity + Access | Evaluates whether a user has access to an application. Returns the application identifier as a token claim. Use this to populate the App claim. |
+| `getClientRole` | User | ClientRole | Identity only | Evaluates which ClientRoles a user is permitted to receive. Results are returned in the ID token roles claim via `com.okta.identity.patch`. |
+| `getApiRole` | User | ApiRole | Access only | Evaluates which ApiRoles a user is permitted to receive. Results are returned in the access token roles claim via `com.okta.access.patch`. |
+| `getEntitlement` | MachineId | Entitlement | Access only | Evaluates which Entitlements a MachineId is permitted to receive. Used for client credentials flows. Results are returned in the access token roles claim. |
+
+### Schema JSON for actions
+
+```json
+"getApplication": {
+  "appliesTo": {
+    "principalTypes": ["User"],
+    "resourceTypes":  ["Application"]
+  },
+  "memberOf": []
+},
+"getClientRole": {
+  "appliesTo": {
+    "principalTypes": ["User"],
+    "resourceTypes":  ["ClientRole"]
+  },
+  "memberOf": []
+},
+"getApiRole": {
+  "appliesTo": {
+    "principalTypes": ["User"],
+    "resourceTypes":  ["ApiRole"]
+  },
+  "memberOf": []
+},
+"getEntitlement": {
+  "appliesTo": {
+    "principalTypes": ["MachineId"],
+    "resourceTypes":  ["Entitlement"]
+  },
+  "memberOf": []
+}
+```
+## 4. Key Schema Relationships
+
+The following relationships connect entity types in the graph. Policies traverse these relationships during evaluation.
+
+| Relationship | Description |
+|---|---|
+| `User` memberOf `UserGroup` | Allows Cedar policies to evaluate group membership. When a user is in a UserGroup, `principal.assignedGroups` contains that UserGroup entity. |
+| `User.suspendedApps` -> `Set<Application>` | Stores the applications where this user's access has been revoked. Cedar forbid policies check this set to block all role and entitlement claims for that application, even if other permit conditions are met. |
+| `User.assignedGroups` -> `Set<UserGroup>` | Stores the groups directly assigned to the user. Used by `getClientRole` and `getApiRole` policies to evaluate group membership. |
+| `Application.assignedGroups` -> `Set<UserGroup>` | Stores the groups assigned to this application in the Identity Provider. Used by policies to check if a user is assigned to the application via group membership. |
+| `Application.allowedUsers` -> `Set<User>` | Stores users directly assigned to this application (individual assignment rather than via group). Policies check this as an alternative to group-based assignment. |
+| `Application.appcode` -> `String` | The application code used during token enrichment. The inline hook processor extracts this from the `app_code` claim in the incoming hook request to identify which application's roles to evaluate. |
+| `Application.clientId` -> `MachineId` | Links a client credentials application to its MachineId entity. Used by `getEntitlement` policies to verify the requesting service identity. |
+| `ClientRole.parentApplication` -> `Application` | Links a ClientRole to the Application it belongs to. Policies use this to scope role evaluation to the correct application. |
+| `ClientRole.sourceGroup` -> `UserGroup` | Links a dynamic ClientRole to the Okta group that represents it. When present, Cedar checks that the user is a member of this group before permitting the role. |
+| `ApiRole.parentApplication` -> `Application` | Links an ApiRole to the Application it belongs to. |
+| `ApiRole.relatedClientRole` -> `ClientRole` | Links a dynamic ApiRole to its corresponding ClientRole. Cedar follows this relationship to determine whether the user holds the linked client role before permitting the API role. |
+| `Entitlement.parentApplication` -> `Application` | Links an Entitlement to the Application it belongs to. The `getEntitlement` policy checks that the requesting MachineId matches this application's `clientId`. |
+
+
+## 5. Complete Schema JSON Reference
+
+The following is the complete schema for a token enrichment policy store with all entity types and actions added. The `User`, `UserGroup`, and `Application` entity types shown below are generated automatically by Reva as part of the starter schema and are included here for reference only.
+
+```json
+{
+  "Okta": {
+    "actions": {
+      "getApplication": {
+        "appliesTo": {
+          "principalTypes": ["User"],
+          "resourceTypes":  ["Application"]
+        },
+        "memberOf": []
+      },
+      "getClientRole": {
+        "appliesTo": {
+          "principalTypes": ["User"],
+          "resourceTypes":  ["ClientRole"]
+        },
+        "memberOf": []
+      },
+      "getApiRole": {
+        "appliesTo": {
+          "principalTypes": ["User"],
+          "resourceTypes":  ["ApiRole"]
+        },
+        "memberOf": []
+      },
+      "getEntitlement": {
+        "appliesTo": {
+          "principalTypes": ["MachineId"],
+          "resourceTypes":  ["Entitlement"]
+        },
+        "memberOf": []
+      }
+    },
+    "entityTypes": {
+      "User": { "... starter schema - do not modify ...": "" },
+      "UserGroup": { "... starter schema - do not modify ...": "" },
+      "Application": { "... starter schema - do not modify ...": "" },
+      "MachineId": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name":     { "type": "String", "required": true  },
+            "clientId": { "type": "String", "required": true  },
+            "appcode":  { "type": "String", "required": false }
+          }
+        }
+      },
+      "ClientRole": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "parentApplication": {
+              "type": "Entity", "required": true,  "name": "Application"
+            },
+            "roleValue": {
+              "type": "String", "required": true
+            },
+            "sourceGroup": {
+              "type": "Entity", "required": false, "name": "UserGroup"
+            }
+          }
+        }
+      },
+      "ApiRole": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "parentApplication": {
+              "type": "Entity", "required": true,  "name": "Application"
+            },
+            "roleValue": {
+              "type": "String", "required": true
+            },
+            "relatedClientRole": {
+              "type": "Entity", "required": false, "name": "ClientRole"
+            }
+          }
+        }
+      },
+      "Entitlement": {
+        "memberOfTypes": [],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "parentApplication": {
+              "type": "Entity", "required": true, "name": "Application"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 6. Quick Reference: What to Add vs What Not to Touch
+
+| Schema Component | Action Required | Notes |
+|---|---|---|
+| `User` | Do not modify | Auto-generated by Reva. Contains `suspendedApps`, `assignedGroups`, and all user profile attributes. |
+| `UserGroup` | Do not modify | Auto-generated by Reva. |
+| `Application` | Do not modify | Auto-generated by Reva. Contains `appcode`, `assignedGroups`, `allowedUsers`, and `clientId`. |
+| `MachineId` | Add | Required for client credentials (M2M) flows. Skip if you only have user-facing OIDC apps. |
+| `ClientRole` | Add | Used for ID token enrichment. Add `sourceGroup` for dynamic roles. |
+| `ApiRole` | Add | Used for access token enrichment. Add `relatedClientRole` for dynamic API roles. |
+| `Entitlement` | Add | Required for M2M flows. Skip if you only have user-facing OIDC apps. |
+| `getClientRole` | Add | Evaluates and returns ID token roles. |
+| `getApiRole` | Add | Evaluates and returns access token roles. |
+| `getApplication` | Add | Evaluates and returns the App claim. |
+| `getEntitlement` | Add | Evaluates M2M entitlements. Skip if no M2M flows. |
+
+> **Next steps:** Once the schema is updated, configure the Token Claim Mapping in **Settings > Identity & Token Setup** to map each action to the correct claim name and token target. Then write Cedar policies that use `getClientRole` and `getApiRole` to control which roles each user receives in their tokens.
