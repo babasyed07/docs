@@ -1,7 +1,37 @@
 ---
 title: "Customize the Schema for Token Enrichment"
 ---
-This guide walks you through how to extend the starter schema in your Reva policy store to support token enrichment use cases. The starter schema provides the base Identity Provider model. You will add entity types, attributes, and actions on top of it to enable Reva to evaluate and return the right role and entitlement claims during token generation.  
+This guide walks you through how to extend the starter schema in your Reva policy store to support token enrichment use cases. The starter schema provides the base Identity Provider model. You will add entity types, attributes, and actions on top of it to enable Reva to evaluate and return the right role and entitlement claims during token generation.
+
+## Helpful references
+
+Review schema and policy design concepts before creating the schema. You can also use Cedar references to understand schema structure and test authorization models.
+
+<CardGroup cols={3}>
+  <Card
+    title="Understanding Schema and Policy Design"
+    icon="diagram-project"
+    href="/understanding-schema-policy"
+  >
+    Learn how schemas, principals, actions, resources, attributes, and policies work together in Reva.
+  </Card>
+
+  <Card
+    title="Cedar Playground"
+    icon="play"
+    href="https://cedarpolicy.com/en/playground"
+  >
+    Open the Cedar Playground to test Cedar schemas, policies, and authorization scenarios.
+  </Card>
+
+  <Card
+    title="Cedar Schema Documentation"
+    icon="code"
+    href="https://docs.cedarpolicy.com/schema/schema.html"
+  >
+    Review the Cedar schema format and schema modeling guidance.
+  </Card>
+</CardGroup>
 
 ## 1. What the Starter Schema Provides
 

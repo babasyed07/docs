@@ -126,9 +126,10 @@
               "enrich-identity-tokens-with-policy-based-claims",
               "configure-identity-provider-connector",
               "customize-the-schema-for-token-enrichment",
-              "configure-data-fabric-integration",
-              "extend-policies-to-use-custom-source-data",
               "token-enrichment-settings",
+              "configure-data-fabric-integration",
+              "author-cedar-based-token-enrichment-policies",
+              "publish-to-reva-trust-guardian",
               "validate-token-enrichment"
             ]
           },
