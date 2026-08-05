@@ -1,0 +1,199 @@
+---
+title: Custom Attribute Configuration
+description: Extend Reva's entity schema with custom attributes from any identity provider to power fine-grained authorization policies.
+---
+
+import { Callout } from '@/components/callout'
+import { Steps } from '@/components/steps'
+import { Tabs, Tab } from '@/components/tabs'
+
+Reva syncs entity data (Users, Groups, and Applications) from your connected identity provider. By default, Reva imports the standard attribute set defined by that provider. **Custom attribute configuration** lets you extend the schema with additional attributes specific to your organization, so they can be used as conditions in authorization policies.
+
+Common use cases include:
+
+- Mainframe access identifiers (e.g. RACF IDs from IBM RACF profile mappings)
+- Risk classification fields (e.g. `riskTier`, `suspendedApps`)
+- HR-sourced attributes flowing through your IdP (e.g. `department`, `jobTitle`, `manager`)
+- Application-specific entitlement flags
+
+## How It Works
+
+When you connect an identity provider to Reva, the connector performs an initial sync that pulls all entity data into Reva's schema. The schema defines what **entity types** exist (User, UserGroup, Application) and what **attributes** each type carries.
+
+Custom attributes let you surface fields that exist in your IdP, including those populated by downstream app profile mappings, inside Reva so your policies can reference them.
+
+```
+Identity Provider ──► Reva Connector ──► Entity Schema ──► Policy Engine
+  (Okta, Entra,           sync              (Users,           (Cedar /
+   SCIM, LDAP)                          Groups, Apps)         Rego)
+```
+
+The schema is **versioned**. Every change creates a new version and is reviewed before being published. No schema change affects live policy evaluation until explicitly published.
+
+## Prerequisites
+
+- An identity provider connected to Reva (Okta, Microsoft Entra ID, or any SCIM-compatible source)
+- The custom attributes you want to add must already exist on user profiles in the IdP, or be reachable via profile mappings (e.g. app-to-IdP attribute sync)
+- `admin` or `schema:write` role in Reva  
+
+## Adding a Custom Attribute
+
+You can add custom attributes in two ways: via the **Reva AI assistant** (fastest) or manually through the **Schema editor**.
+
+<Tabs>
+<Tab title="Using Reva AI">
+
+<Steps>
+
+### Open the Schema editor
+
+Navigate to your identity connector in Reva (e.g. **Okta**) and click the **Schema** tab. Then click **Edit** to enter editing mode.
+
+### Open the Ask Reva AI panel
+
+The AI assistant panel appears on the left side of the schema editor. It is context-aware and knows which connector and entity type you are working with.
+
+### Describe the attribute in natural language
+
+Type a plain-English instruction describing the attribute you want to add. For example:
+
+```
+add an attribute to entity type user called racfId with type as string
+```
+
+Other examples:
+
+```
+add a boolean attribute called isContractor to the User entity type
+add an attribute called costCenter of type string to UserGroup
+add a set of strings attribute called allowedRegions to User
+```
+
+### Review the proposed schema change
+
+Reva AI responds with a summary of what it will do and surfaces a **Proposed Schema Changes** panel on the right. This shows:
+
+- Attribute name
+- Entity type it belongs to
+- Data type
+
+Review the change. If it looks correct, click **Accept** (the green checkmark button). Click **Reject** to discard it.
+
+<Callout type="info">
+Reva AI will not apply the change until you explicitly accept it. You can ask follow-up questions in the same chat before accepting.
+</Callout>
+
+### Save and publish
+
+Once all desired attributes are accepted, click **Save Schema** to persist the draft, then **Publish** to promote the schema version to live. Only published schemas are used by the policy engine.
+
+</Steps>
+
+</Tab>
+<Tab title="Manual (Schema Editor)">
+
+<Steps>
+
+### Open the Schema editor
+
+Navigate to your connector → **Schema** tab → **Edit**.
+
+### Select the entity type
+
+In the left panel under **Entity Types**, select the entity type you want to extend: **User**, **UserGroup**, or **Application**.
+
+### Add a new attribute
+
+In the attributes list for the selected entity type, click **+ New attribute** at the bottom of the list.
+
+Fill in:
+
+| Field | Description |
+|---|---|
+| **Name** | Attribute key, camelCase (e.g. `racfId`, `costCenter`) |
+| **Type** | `String`, `Boolean`, `Integer`, `Set<String>`, `Set<Application>`, `Set<UserGroup>` |
+| **Possible Values** | Optional. Enumerate allowed values for validation. |
+| **Use for Display** | Toggle on if this attribute should appear in the Reva data explorer UI |
+
+### Save and publish
+
+Click **Save Schema**, then **Publish**.
+
+</Steps>
+
+</Tab>
+</Tabs>
+
+## Identity Provider Reference
+
+The steps above apply to any connected identity provider. The table below maps provider-specific concepts to where custom attributes originate.
+
+| Provider | Where custom attributes live | How they reach Reva |
+|---|---|---|
+| **Okta** | Universal Directory custom attributes; App Profile Mappings (e.g. Mainframe → Okta user profile) | Synced via Okta connector on initial pull and subsequent Event Hook updates |
+| **Microsoft Entra ID** | Extension attributes (`extension_*`); custom security attributes; directory schema extensions | Synced via Entra connector using Microsoft Graph API |
+| **SCIM** | Any attribute in the SCIM `/Users` or `/Groups` schema extension | Synced via SCIM connector; map custom schema fields to Reva attributes |
+| **LDAP / Active Directory** | Custom LDAP operational attributes or schema extensions | Synced via LDAP connector; configure attribute mappings in connector settings |
+| **Generic IdP (SAML/OIDC)** | Claims or assertion attributes configured in your IdP | Available as runtime attributes on auth events; add them as `Run Time Attributes` in the Reva schema |
+
+<Callout type="warning">
+The attribute must exist and be populated in your IdP before Reva can sync its values. Adding a custom attribute to the Reva schema does not push it back to the IdP. The data flow is unidirectional: IdP → Reva.
+</Callout>
+
+## Syncing Data After Schema Changes
+
+After publishing a schema change, trigger a data sync so Reva pulls the attribute values from your IdP.
+
+1. Go to your connector → **Data** tab.
+2. Click **Sync Data**.
+3. A **Data Sync in Progress** banner appears. Reva syncs all entity types (Application, User, UserGroup) in parallel.
+4. Once complete, the new attribute column appears in the data explorer for the relevant entity type.
+
+You can verify the sync by clicking any entity type (e.g. **User**) on the Data tab and searching for a specific record. The new attribute column will be visible in the results table.  
+
+## Using Custom Attributes in Policies
+
+Once an attribute is part of the published schema and its values are synced, it is immediately available as a condition in the policy editor.
+
+**Cedar example: restricting access based on a user's RACF ID**
+
+```cedar
+permit (
+  principal is Okta::User,
+  action == Okta::Action::"read",
+  resource is Okta::Application
+)
+when {
+  principal.racfId != ""
+};
+```
+
+**Example with risk tier:**
+
+```cedar
+forbid (
+  principal is Okta::User,
+  action == Okta::Action::"write",
+  resource is Okta::Application
+)
+when {
+  principal.riskTier == "HIGH"
+};
+```
+
+The attribute name in the policy must match exactly the name defined in the Reva schema (case-sensitive).
+
+## Schema Versioning and Rollback
+
+Every schema edit, whether made via AI or manually, creates a new draft version. The **Version History** tab on the connector shows all published versions with timestamps and changelogs.
+
+To roll back to a previous schema version:
+
+1. Go to **Version History**.
+2. Select the version you want to restore.
+3. Click **Restore this version**.
+4. Confirm and publish.
+
+<Callout type="warning">
+Rolling back a schema version that removed attributes will not automatically restore the data values for those attributes. You will need to trigger a full data sync after restoring.
+</Callout>

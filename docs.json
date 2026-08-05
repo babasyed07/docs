@@ -126,6 +126,7 @@
               "enrich-tokens-with-policy-based-claims",
               "configure-identity-provider-connector",
               "customize-the-schema-for-token-enrichment",
+              "custom-attribute-configuration",
               "token-enrichment-settings",
               "configure-data-fabric-integration",
               "author-cedar-based-token-enrichment-policies",
