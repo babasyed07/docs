@@ -1,10 +1,10 @@
 ---
 title: "Reva API Reference Overview"
-description: "Use Reva APIs to evaluate authorization decisions, secure AI workload execution, and ingest authorization data."
+description: "Use Reva APIs to evaluate authorization decisions, secure AI workload execution, enrich Okta tokens, and ingest authorization data."
 ---
 
 # Reva API Reference Overview  
-The Reva API provides programmatic access to customer-facing Reva platform services through the API Gateway. Use these APIs to evaluate authorization decisions, secure AI workload execution, and ingest authorization context.
+The Reva API provides programmatic access to customer-facing Reva platform services through the API Gateway. Use these APIs to evaluate authorization decisions, secure AI workload execution, enrich Okta tokens, and ingest authorization context.
 
 The API reference is organized by functional area so developers can quickly find the right API for each integration use case.
 
@@ -13,6 +13,7 @@ The API reference is organized by functional area so developers can quickly find
 |---|---|
 | **AI Workload Authorization APIs** | Evaluate agent, tool, model, and AI workload authorization requests. |
 | **Authorization APIs** | Evaluate access decisions using AuthZEN-compatible requests. |
+| **Token Hook APIs** | Return policy-authorized claim patches to Okta during token issuance. |
 | **Data Fabric APIs** | Create, update, replace, and delete authorization context data used by Reva policies. |
 
 ## Common use cases  
@@ -21,6 +22,7 @@ Use the API reference when you want to:
 * Evaluate whether a subject can perform an action on a resource.
 * Send AuthZEN-compatible authorization requests to Reva.
 * Authorize AI agent and tool execution.
+* Enrich Okta access tokens and ID tokens with policy-authorized claims.
 * Ingest entities, attributes, and relationships into Reva Data Fabric.
 
 ## Authorization APIs  
@@ -40,6 +42,12 @@ Use these APIs when you need to control:
 * Which actions are allowed at each step of an AI workload.
 * Whether an AI workflow should continue, be blocked, or require additional review.
 
+## Token Hook APIs
+
+Token Hook APIs connect an identity provider's token-issuance flow to Reva policy evaluation. The Okta Token Inline Hook accepts Okta token-transform events and returns access-token or ID-token claim patch commands.
+
+Configure this endpoint in Okta with the URL, Authentication Field, Authentication Secret, and policy-store header values shown in Reva Token Enrichment settings. See [Okta Token Inline Hook](/okta-token-inline-hook) for configuration and response behavior.
+
 ## Data Fabric APIs  
 Data Fabric APIs are used to ingest authorization context into Reva. This context can include users, groups, applications, roles, entitlements, resources, and relationships.
 
@@ -54,13 +62,13 @@ Use these APIs to:
 The ingested data becomes part of the authorization context used during policy evaluation.
 
 ## Authentication  
-Most Reva APIs require authentication. Include the required token in the request header.
+Most Reva APIs require authentication. Authorization and ingestion APIs typically use a bearer token in the request header.
 
 ```bash
 Authorization: Bearer <token>
 ```
 
-Some APIs may use an API token or service-specific authentication method depending on the integration. Review the endpoint-level authentication requirements before calling an API.
+Token hooks use the Authentication Field and Authentication Secret shown in Reva Token Enrichment settings. Send that secret exactly as displayed; do not add a `Bearer` prefix unless the displayed value includes one. Review the endpoint-level authentication requirements before configuring an integration.
 
 ## Base URLs  
 Use the base URL for your Reva environment.  

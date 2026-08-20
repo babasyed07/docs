@@ -254,6 +254,21 @@
             ]
           },
           {
+            "group": "Token Hook APIs",
+            "expanded": true,
+            "pages": [
+              "okta-token-inline-hook",
+              {
+                "group": "Okta Token Inline Hook",
+                "expanded": true,
+                "openapi": "/api-reference/okta-token-inline-hook-api.json",
+                "pages": [
+                  "POST /pdp/hooks/okta/v1/token"
+                ]
+              }
+            ]
+          },
+          {
             "group": "Data Fabric APIs",
             "expanded": true,
             "pages": [
