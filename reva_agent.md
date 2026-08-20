@@ -37,9 +37,9 @@ above onto that framework's native API.
                        │   Reva PDP  (Policy Decision     │
                        │           Point)                 │
                        │                                  │
-                       │  POST /pdp/access/v1/             │
+                       │  POST /pdp/v2/                    │
                        │    agent/evaluation              │
-                       │  POST /pdp/access/v1/             │
+                       │  POST /pdp/v2/                    │
                        │    token/enrich                  │
                        └──────────────────────────────────┘
                                        ▲

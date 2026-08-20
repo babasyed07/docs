@@ -240,7 +240,7 @@
                 "expanded": true,
                 "openapi": "/api-reference/ai-workload-evaluation-api.json",
                 "pages": [
-                  "POST /pdp/access/v1/ai/evaluation"
+                  "POST /pdp/v2/ai/evaluation"
                 ]
               },
               {
@@ -248,7 +248,7 @@
                 "expanded": true,
                 "openapi": "/api-reference/reva-authorization-api.json",
                 "pages": [
-                  "POST /pdp/access/v1/evaluation"
+                  "POST /pdp/v2/evaluation"
                 ]
               }
             ]
@@ -262,14 +262,14 @@
                 "expanded": true,
                 "openapi": "/api-reference/data-fabric-ingestion-api-final-clean.json",
                 "pages": [
-                  "POST /ingestion/v1/entity",
-                  "POST /ingestion/v1/entity/bulk",
-                  "PATCH /ingestion/v1/entity/{entityId}",
-                  "PATCH /ingestion/v1/entity/bulk",
-                  "PUT /ingestion/v1/entity",
-                  "PUT /ingestion/v1/entity/bulk",
-                  "DELETE /ingestion/v1/entity/{entityId}",
-                  "DELETE /ingestion/v1/entity/bulk"
+                  "POST /ingestion/v2/entity",
+                  "POST /ingestion/v2/entity/bulk",
+                  "PATCH /ingestion/v2/entity/{entityId}",
+                  "PATCH /ingestion/v2/entity/bulk",
+                  "PUT /ingestion/v2/entity",
+                  "PUT /ingestion/v2/entity/bulk",
+                  "DELETE /ingestion/v2/entity/{entityId}",
+                  "DELETE /ingestion/v2/entity/bulk"
                 ]
               }
             ]

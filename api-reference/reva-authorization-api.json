@@ -3,16 +3,16 @@
   "info": {
     "title": "Reva Authorization API",
     "description": "Evaluate one or many authorization requests using a subject, action, resource, and optional context. The request follows the AuthZEN-style decision model and returns allow or deny decisions.",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
       "url": "https://api.pr06.preview.reva.ai",
-      "description": "Preview"
+      "description": "Preview API Gateway"
     },
     {
       "url": "https://api.dv06.dev.reva.ai",
-      "description": "Development"
+      "description": "Development API Gateway"
     }
   ],
   "tags": [
@@ -27,7 +27,7 @@
     }
   ],
   "paths": {
-    "/pdp/access/v1/evaluation": {
+    "/pdp/v2/evaluation": {
       "post": {
         "summary": "Evaluate authorization request",
         "requestBody": {
