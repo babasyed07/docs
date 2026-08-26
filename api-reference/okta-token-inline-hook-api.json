@@ -3,7 +3,7 @@
   "info": {
     "title": "Okta Token Inline Hook API",
     "description": "Enrich Okta access and ID tokens with claims authorized by Reva Cedar policies.",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
@@ -22,7 +22,7 @@
     }
   ],
   "paths": {
-    "/pdp/hooks/okta/v1/token": {
+    "/pdp/v2/hooks/okta/token": {
       "post": {
         "tags": [
           "Okta Token Inline Hook"

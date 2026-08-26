@@ -263,7 +263,7 @@
                 "expanded": true,
                 "openapi": "/api-reference/okta-token-inline-hook-api.json",
                 "pages": [
-                  "POST /pdp/hooks/okta/v1/token"
+                  "POST /pdp/v2/hooks/okta/token"
                 ]
               }
             ]
