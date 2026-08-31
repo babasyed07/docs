@@ -1,0 +1,446 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Okta Token Inline Hook API",
+    "description": "Enrich Okta access and ID tokens with claims authorized by Reva Cedar policies.",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.pr06.preview.reva.ai",
+      "description": "Preview API Gateway"
+    },
+    {
+      "url": "https://api.dv06.dev.reva.ai",
+      "description": "Development API Gateway"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Okta Token Inline Hook",
+      "description": "Token-enrichment callback invoked by Okta during token issuance."
+    }
+  ],
+  "paths": {
+    "/pdp/v2/hooks/okta/token": {
+      "post": {
+        "tags": [
+          "Okta Token Inline Hook"
+        ],
+        "summary": "Enrich an Okta token",
+        "description": "Processes an Okta `com.okta.oauth2.tokens.transform` event and returns access-token or ID-token claim patch commands. This is one operation and one request schema; the named examples show two possible `authorization_code` claim variants.",
+        "operationId": "enrichOktaToken",
+        "security": [
+          {
+            "HookAuthenticationSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "policyStoreId",
+            "in": "header",
+            "required": true,
+            "description": "Policy store used to evaluate token-enrichment policies. Copy the Custom Header Value shown in Reva Token Enrichment settings.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "<policy-store-id>"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenHookRequest"
+              },
+              "examples": {
+                "authorizationCodeIbmLdap": {
+                  "summary": "Authorization code — IBM LDAP role model",
+                  "description": "Synthetic example using `role_model: ibm-ldap`. It uses the same operation and schema as the Okta role-model example.",
+                  "value": {
+                    "eventId": "evt_example_ibm_ldap_001",
+                    "eventTime": "2026-08-20T10:00:00Z",
+                    "eventType": "com.okta.oauth2.tokens.transform",
+                    "eventTypeVersion": "1.0",
+                    "data": {
+                      "context": {
+                        "user": {
+                          "id": "user_example_001",
+                          "profile": {
+                            "login": "user@example.invalid"
+                          }
+                        },
+                        "session": {
+                          "userId": "user_example_001",
+                          "login": "user@example.invalid"
+                        },
+                        "protocol": {
+                          "request": {
+                            "grant_type": "authorization_code",
+                            "client_id": "client_example_001",
+                            "response_type": "code"
+                          },
+                          "client": {
+                            "id": "client_example_001",
+                            "name": "example-application",
+                            "type": "PUBLIC"
+                          }
+                        }
+                      },
+                      "access": {
+                        "claims": {
+                          "sub": "user_example_001",
+                          "role_model": "ibm-ldap",
+                          "app_code": "example-app"
+                        }
+                      },
+                      "identity": {
+                        "claims": {
+                          "sub": "user_example_001",
+                          "preferred_username": "user@example.invalid",
+                          "app_code": "example-app"
+                        }
+                      }
+                    }
+                  }
+                },
+                "authorizationCodeOkta": {
+                  "summary": "Authorization code — Okta role model",
+                  "description": "Synthetic example using `role_model: okta`. It is a second payload example, not a separate API.",
+                  "value": {
+                    "eventId": "evt_example_okta_001",
+                    "eventTime": "2026-08-20T10:00:00Z",
+                    "eventType": "com.okta.oauth2.tokens.transform",
+                    "eventTypeVersion": "1.0",
+                    "data": {
+                      "context": {
+                        "user": {
+                          "id": "user_example_002",
+                          "profile": {
+                            "login": "another-user@example.invalid"
+                          }
+                        },
+                        "session": {
+                          "userId": "user_example_002",
+                          "login": "another-user@example.invalid"
+                        },
+                        "protocol": {
+                          "request": {
+                            "grant_type": "authorization_code",
+                            "client_id": "client_example_002",
+                            "response_type": "code"
+                          },
+                          "client": {
+                            "id": "client_example_002",
+                            "name": "another-example-application",
+                            "type": "PUBLIC"
+                          }
+                        }
+                      },
+                      "access": {
+                        "claims": {
+                          "sub": "user_example_002",
+                          "role_model": "okta",
+                          "app_code": "another-example-app"
+                        }
+                      },
+                      "identity": {
+                        "claims": {
+                          "sub": "user_example_002",
+                          "preferred_username": "another-user@example.invalid",
+                          "app_code": "another-example-app"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Okta-compatible response containing zero or more claim patch commands.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenHookResponse"
+                },
+                "examples": {
+                  "claimsAdded": {
+                    "summary": "Add an access-token claim",
+                    "value": {
+                      "commands": [
+                        {
+                          "type": "com.okta.access.patch",
+                          "value": [
+                            {
+                              "op": "add",
+                              "path": "/claims/roles",
+                              "value": [
+                                "example-role"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "noClaims": {
+                    "summary": "No claims added",
+                    "value": {
+                      "commands": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, unsupported event type, or a policy store identifier that is missing and cannot be resolved from configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "unsupported eventType: example.invalid"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The configured Authentication Secret is missing or invalid."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "HookAuthenticationSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the exact Authentication Secret shown in Reva Token Enrichment settings as the raw header value. Do not add a Bearer prefix unless the value displayed by Reva includes one."
+      }
+    },
+    "schemas": {
+      "TokenHookRequest": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "eventType"
+        ],
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "Okta event identifier."
+          },
+          "eventTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time at which Okta created the event."
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "com.okta.oauth2.tokens.transform"
+            ],
+            "description": "Required Okta token-transform event type."
+          },
+          "eventTypeVersion": {
+            "type": "string",
+            "description": "Okta event contract version."
+          },
+          "data": {
+            "$ref": "#/components/schemas/TokenHookData"
+          }
+        }
+      },
+      "TokenHookData": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/TokenHookContext"
+          },
+          "access": {
+            "$ref": "#/components/schemas/TokenSet"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/TokenSet"
+          }
+        }
+      },
+      "TokenHookContext": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/TokenHookUser"
+          },
+          "session": {
+            "$ref": "#/components/schemas/TokenHookSession"
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/TokenHookProtocol"
+          }
+        }
+      },
+      "TokenHookUser": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "login": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "TokenHookSession": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "login": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenHookProtocol": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/TokenHookProtocolRequest"
+          },
+          "client": {
+            "$ref": "#/components/schemas/TokenHookProtocolClient"
+          }
+        }
+      },
+      "TokenHookProtocolRequest": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "description": "OAuth grant type, such as `authorization_code` or `client_credentials`."
+          },
+          "client_id": {
+            "type": "string"
+          },
+          "response_type": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenHookProtocolClient": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenSet": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "claims": {
+            "type": "object",
+            "description": "Claims already present on the token. Reva uses these values as request context and chooses add or replace for returned claims.",
+            "additionalProperties": true
+          }
+        }
+      },
+      "TokenHookResponse": {
+        "type": "object",
+        "required": [
+          "commands"
+        ],
+        "properties": {
+          "commands": {
+            "type": "array",
+            "description": "Okta claim patch commands. An empty array means that no claims are added.",
+            "items": {
+              "$ref": "#/components/schemas/Command"
+            }
+          }
+        }
+      },
+      "Command": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "com.okta.access.patch",
+              "com.okta.identity.patch"
+            ]
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatchOperation"
+            }
+          }
+        }
+      },
+      "PatchOperation": {
+        "type": "object",
+        "required": [
+          "op",
+          "path"
+        ],
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "add",
+              "replace"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "Token claim path in the form `/claims/{claimName}`."
+          },
+          "value": {
+            "description": "Authorized values for the claim."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

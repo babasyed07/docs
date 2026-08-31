@@ -8,7 +8,7 @@ Design Time Guardrail Rules define what Reva checks when a policy is created or 
 Reva supports two ways to configure design time guardrail rules:
 
 1. Use predefined rules from the **Guardrail Rules** tab.
-2. Create custom rules by using the Guardrail Rule Template API.
+2. Create custom rules from the **Guardrail Rules** tab in Reva.
 
 ## Predefined Design Time Rules
 
@@ -24,29 +24,11 @@ Common predefined rules include:
 | **Prevent Conflicting Policy Effects** | Blocks policies that create permit and deny conflicts for the same principal-action-resource combination. |
 | **Use specific resources instead of wildcard** `*` | Detects wildcard resource usage without strict conditions. |
 
-## Create a Custom Rule by API
+## Create a Custom Rule
 
-You can create custom design time guardrail rules by using the template API.
+Create custom design time guardrail rules from the **Guardrail Rules** tab in Reva. The underlying guardrail service endpoints are internal and are not supported customer APIs.
 
-<Warning>
-Do not copy browser session tokens into documentation or source control. Use a secure access token at runtime and replace the value below with your own token.
-</Warning>
-
-```bash
-curl --location --request PUT 'https://api.pr06.preview.reva.ai/v1/template' \
-  --header 'accept: application/json, text/plain, */*' \
-  --header 'Content-Type: application/json' \
-  --header 'authorization: Bearer <ACCESS_TOKEN>' \
-  --data '{
-    "name": "Missing Policy Condition Detection",
-    "description": "Detects policies that do not define any conditions. Flags policy definitions where access is granted without constraints such as role, time, or location. These policies may allow overly broad or unintended access.",
-    "regoPolicy": "some i\npolicy := input.entries[i]\npolicy.type == \"permit\"\nnot policy.conditions\n",
-    "configJson": {},
-    "type": "DESIGN_TIME"
-  }'
-```
-
-## Request Fields
+## Rule Fields
 | Field | Required | Description |
 |---|---|---|
 | **name** | Yes | Name of the custom guardrail rule. |

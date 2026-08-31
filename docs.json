@@ -240,7 +240,7 @@
                 "expanded": true,
                 "openapi": "/api-reference/ai-workload-evaluation-api.json",
                 "pages": [
-                  "POST /pdp/access/v1/ai/evaluation"
+                  "POST /pdp/v2/ai/evaluation"
                 ]
               },
               {
@@ -248,28 +248,24 @@
                 "expanded": true,
                 "openapi": "/api-reference/reva-authorization-api.json",
                 "pages": [
-                  "POST /pdp/access/v1/evaluation"
-                ]
-              },
-              {
-                "group": "PDP Edge Authorization",
-                "expanded": true,
-                "openapi": "/api-reference/pdp-edge-authorization-api.json",
-                "pages": [
-                  "POST /v1/authorize"
+                  "POST /pdp/v2/evaluation"
                 ]
               }
-
             ]
           },
           {
-            "group": "Access Search APIs",
+            "group": "Token Hook APIs",
             "expanded": true,
-            "openapi": "/api-reference/pdp-edge-search-api.json",
             "pages": [
-              "POST /access/v1/search/subject",
-              "POST /access/v1/search/action",
-              "POST /access/v1/search/resource"
+              "okta-token-inline-hook",
+              {
+                "group": "Okta Token Inline Hook",
+                "expanded": true,
+                "openapi": "/api-reference/okta-token-inline-hook-api.json",
+                "pages": [
+                  "POST /pdp/v2/hooks/okta/token"
+                ]
+              }
             ]
           },
           {
@@ -281,94 +277,14 @@
                 "expanded": true,
                 "openapi": "/api-reference/data-fabric-ingestion-api-final-clean.json",
                 "pages": [
-                  "POST /ingestion/v1/entity",
-                  "POST /ingestion/v1/entity/bulk",
-                  "PATCH /ingestion/v1/entity/{entityId}",
-                  "PATCH /ingestion/v1/entity/bulk",
-                  "PUT /ingestion/v1/entity",
-                  "PUT /ingestion/v1/entity/bulk",
-                  "DELETE /ingestion/v1/entity/{entityId}",
-                  "DELETE /ingestion/v1/entity/bulk"
-                ]
-              },
-              {
-                "group": "Access Map APIs",
-                "expanded": true,
-                "openapi": "/api-reference/access-map-api.json",
-                "pages": [
-                  "PUT /v1/application/{applicationName}/policy-store/{policyStoreName}/accessmap"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Guardrail APIs",
-            "expanded": true,
-            "pages": [
-              {
-                "group": "Guardrail Templates",
-                "expanded": true,
-                "openapi": "/api-reference/guardrail-templates-api.json",
-                "pages": [
-                  "GET /v1/template",
-                  "PUT /v1/template",
-                  "GET /v1/template/{id}",
-                  "PATCH /v1/template/{id}",
-                  "DELETE /v1/template/{id}"
-                ]
-              },
-              {
-                "group": "Guardrail Rules",
-                "expanded": true,
-                "openapi": "/api-reference/guardrail-rules-api.json",
-                "pages": [
-                  "GET /v1/rule",
-                  "PUT /v1/rule",
-                  "GET /v1/rule/{id}",
-                  "PATCH /v1/rule/{id}",
-                  "DELETE /v1/rule/{id}",
-                  "PUT /v1/rule/draft",
-                  "GET /v1/rule/draft/{id}",
-                  "PATCH /v1/rule/draft/{id}",
-                  "DELETE /v1/rule/draft/{id}",
-                  "POST /v1/rule/test",
-                  "POST /v1/rule/refresh",
-                  "POST /v1/rule/fetch",
-                  "GET /v1/rule/{name}/check",
-                  "GET /v1/rule/violation",
-                  "GET /v1/rule/policy-store/{id}"
-                ]
-              },
-              {
-                "group": "Guardrail Rule Builder",
-                "expanded": false,
-                "openapi": "/api-reference/guardrail-rule-builder-api.json",
-                "pages": [
-                  "POST /v1/rule/api-init",
-                  "POST /v1/rule/api-message",
-                  "POST /v1/rule/api-destroy"
-                ]
-              },
-              {
-                "group": "Guardrail Stores",
-                "expanded": true,
-                "openapi": "/api-reference/guardrail-stores-api.json",
-                "pages": [
-                  "GET /v1/guardrail-store",
-                  "PUT /v1/guardrail-store",
-                  "GET /v2/guardrail-store",
-                  "GET /v1/guardrail-store/{guardrailStoreId}",
-                  "PATCH /v1/guardrail-store/{guardrailStoreId}",
-                  "DELETE /v1/guardrail-store/{guardrailStoreId}",
-                  "PUT /v1/guardrail-store/config",
-                  "POST /v1/guardrail-store/config/ids",
-                  "GET /v1/guardrail-store/{guardrailStoreId}/policy-stores",
-                  "GET /v1/guardrail-store/tags",
-                  "GET /v1/guardrail-store/configs",
-                  "DELETE /v1/guardrail-store/configs",
-                  "GET /v1/policy-store/{policyStoreId}/guardrails/resolved",
-                  "GET /v1/policy-store/{policyStoreId}/guardrails/configs",
-                  "GET /v1/draft/{draftId}/guardrails/resolved"
+                  "POST /ingestion/v2/entity",
+                  "POST /ingestion/v2/entity/bulk",
+                  "PATCH /ingestion/v2/entity/{entityId}",
+                  "PATCH /ingestion/v2/entity/bulk",
+                  "PUT /ingestion/v2/entity",
+                  "PUT /ingestion/v2/entity/bulk",
+                  "DELETE /ingestion/v2/entity/{entityId}",
+                  "DELETE /ingestion/v2/entity/bulk"
                 ]
               }
             ]

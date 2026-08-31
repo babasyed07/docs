@@ -3,16 +3,16 @@
   "info": {
     "title": "Agentic AI Evaluation API",
     "description": "Evaluate a single agent-chain call — user → agent, agent → agent, or agent → tool / MCP / model — against your Reva policies and guardrails, and return an allow / deny decision. Reva evaluates the call's subject, action, and resource plus the surrounding context (the conversation so far and the prior hops) so policies can reason about intent and behaviour, not just identity.",
-    "version": "1.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
       "url": "https://api.pr06.preview.reva.ai",
-      "description": "Preview"
+      "description": "Preview API Gateway"
     },
     {
       "url": "https://api.dv06.dev.reva.ai",
-      "description": "Development"
+      "description": "Development API Gateway"
     }
   ],
   "tags": [
@@ -22,7 +22,7 @@
     }
   ],
   "paths": {
-    "/pdp/access/v1/ai/evaluation": {
+    "/pdp/v2/ai/evaluation": {
       "post": {
         "tags": [
           "Agentic AI Evaluation"

@@ -3,16 +3,16 @@
   "info": {
     "title": "Reva PDP – Access Evaluation API",
     "description": "Authorize one or many access-control requests in a single call.\n\n* A client may send **either**\n  • a single JSON object of type **AuthZENRequest**, **or**\n  • a JSON array of **AuthZENRequest** objects.\n* The service returns a 200 response whose body mirrors the caller’s format\n  (single **AuthZENResponse** or an array of them).\n* `400` – input problems (empty payload, malformed JSON, missing env-vars, …)\n* `500` – server / AWS errors.",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
       "url": "https://api.pr06.preview.reva.ai",
-      "description": "Preview"
+      "description": "Preview API Gateway"
     },
     {
       "url": "https://api.dv06.dev.reva.ai",
-      "description": "Development"
+      "description": "Development API Gateway"
     }
   ],
     "tags": [
@@ -22,7 +22,7 @@
         }
     ],
   "paths": {
-    "/pdp/access/v1/evaluation": {
+    "/pdp/v2/evaluation": {
       "post": {
         "summary": "Evaluate access decisions request",
         "tags": ["Authorization APIs - AuthZEN Complaint"],

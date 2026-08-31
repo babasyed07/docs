@@ -18,7 +18,7 @@ If you can't (or don't want to) embed the [`reva-ai-authz` SDK](/ai-workload-dev
 
 | Method & path | Purpose |
 |:--------------|:--------|
-| `POST /pdp/access/v1/ai/evaluation` | Evaluate a single agent-chain call (user → agent, agent → agent, agent → tool / MCP / model) and return **allow / deny**. |
+| `POST /pdp/v2/ai/evaluation` | Evaluate a single agent-chain call (user → agent, agent → agent, agent → tool / MCP / model) and return **allow / deny**. |
 
 The base URL is your tenant's API host — for example `https://api.pr06.preview.reva.ai` (Preview) or `https://api.dv06.dev.reva.ai` (Development).
 
@@ -58,7 +58,7 @@ Each request describes one authorization decision — the call itself, plus the 
 The agent was asked to fetch a risk score (see `context.conversation`), but the current `transmission` asks it to email confidential data to an external address. The prior calls are in `context.hops`. A behavioural policy denies it.
 
 ```bash cURL
-curl -X POST "https://api.dv06.dev.reva.ai/pdp/access/v1/ai/evaluation" \
+curl -X POST "https://api.dv06.dev.reva.ai/pdp/v2/ai/evaluation" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <oauth-token>" \
   -H "policyStoreId: <your-policy-store-id>" \

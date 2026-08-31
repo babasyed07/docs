@@ -13,16 +13,16 @@
       "name": "Reva.ai License",
       "url": "http://www.reva.ai/license"
     },
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
       "url": "https://api.pr06.preview.reva.ai",
-      "description": "Preview"
+      "description": "Preview API Gateway"
     },
     {
       "url": "https://api.dv06.dev.reva.ai",
-      "description": "Development"
+      "description": "Development API Gateway"
     }
   ],
   "security": [
@@ -37,7 +37,7 @@
     }
   ],
   "paths": {
-    "/ingestion/v1/entity/bulk": {
+    "/ingestion/v2/entity/bulk": {
       "put": {
         "tags": [
           "REST APIs"
@@ -451,7 +451,7 @@
         ]
       }
     },
-    "/ingestion/v1/entity": {
+    "/ingestion/v2/entity": {
       "put": {
         "tags": [
           "REST APIs"
@@ -1286,7 +1286,7 @@
         }
       }
     },
-    "/ingestion/v1/entity/{entityId}": {
+    "/ingestion/v2/entity/{entityId}": {
       "get": {
         "tags": [
           "REST APIs"
