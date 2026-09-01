@@ -194,6 +194,7 @@
               "github-integration",
               "gitlab-integration",
               "azure-devops-integration",
+              "microsoft-entra-identity-integration",
               "okta-identity-integration"
             ]
           },
