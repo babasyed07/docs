@@ -199,6 +199,12 @@
             ]
           },
           {
+            "group": "Plugins",
+            "pages": [
+              "plugins/kong-plugin"
+            ]
+          },
+          {
             "group": "Start Using Reva Library",
             "pages": [
               "library",
