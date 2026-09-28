@@ -11,7 +11,7 @@ For the workspace administrator and the security team reviewing an AI coding age
   Overview  ·  How guardrails work  ·  How to read this guide  ·  Guardrails at a glance<br />
   Data protection  ·  Command and execution safety<br />
   Tool and connector access  ·  Agent behaviour integrity<br />
-  Where to start  ·  Glossary  ·  Next steps  ·  Get help
+  Where to start  ·  Glossary  ·  Next steps  ·  Helpful references
 </Info>
 
 ## Overview
@@ -291,13 +291,86 @@ Turning on twelve guardrails at once is the fastest way to have them all turned 
 - **Start in Monitor:** A week of Monitor data tells you which guardrails are ready to enforce and which need tuning. Enforce from evidence, not from the default.
 - **Know where the detail goes:** The decision record is where the reason lives, since the agent is never told. Make sure the people who will be asked "why was this blocked" know where to look.
 
-## Get help
+## Helpful references
 
-| For | Contact |
-|:----|:--------|
-| **Guardrail configuration and tuning** | [support@reva.ai](mailto:support@reva.ai) |
-| **Reviewing a block your team disagrees with** | [support@reva.ai](mailto:support@reva.ai) |
-| **Custom categories, rules, or department scoping** | [support@reva.ai](mailto:support@reva.ai) |
-| **Product documentation** | [https://docs.reva.ai/](https://docs.reva.ai/) |
+Related AI Coding Agents guides.
+
+<CardGroup cols={3}>
+  <Card
+    title="Getting started – Day0 Onboarding Flow"
+    icon="rocket"
+    href="/ai-coding-agents/getting-started-day0-onboarding-flow"
+  >
+    Set up your workspace and govern your first coding-agent session.
+  </Card>
+
+  <Card
+    title="Workspace settings"
+    icon="gear"
+    href="/ai-coding-agents/workspace-settings"
+  >
+    Manage your workspace details, plans, members, and plugin configuration.
+  </Card>
+</CardGroup>
+
+Claude Code's native controls referenced throughout this guide.
+
+<CardGroup cols={3}>
+  <Card
+    title="Claude Code hooks"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/hooks"
+  >
+    The hook events the Reva plugin uses to inspect prompts, tool calls, sessions, and sub-agents.
+  </Card>
+
+  <Card
+    title="Claude Code permissions"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/permissions"
+  >
+    Allow, ask, and deny permission rules.
+  </Card>
+
+  <Card
+    title="Claude Code settings"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/settings"
+  >
+    Settings files, precedence, and managed settings.
+  </Card>
+
+  <Card
+    title="Claude Code and MCP"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/mcp"
+  >
+    Connecting MCP servers and managing which servers are allowed.
+  </Card>
+
+  <Card
+    title="Claude Code sandboxing"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/sandboxing"
+  >
+    OS-level sandboxing for the Bash tool.
+  </Card>
+
+  <Card
+    title="Claude Code subagents"
+    icon="book-open"
+    href="https://code.claude.com/docs/en/sub-agents"
+  >
+    How sub-agents are created and what they inherit.
+  </Card>
+
+  <Card
+    title="Model Context Protocol"
+    icon="book-open"
+    href="https://modelcontextprotocol.io/"
+  >
+    What MCP servers are and how agents connect to them.
+  </Card>
+</CardGroup>
 
 _Reva · Guardrails for AI coding agents · Version 1.0 · For workspace administrators_
