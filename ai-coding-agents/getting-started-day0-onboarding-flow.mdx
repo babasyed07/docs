@@ -5,7 +5,7 @@ description: "Workspace onboarding for AI coding agents"
 
 A guide for the workspace administrator, from first sign-in to your first governed coding-agent session.
 
-## 1. Overview
+## Overview
 
 This guide walks you through setting up workspace and getting your development team governed, most administrators complete it in under 15 minutes.
 
@@ -16,226 +16,15 @@ Your engineers are already using AI coding agents such as Claude Code, Codex, Ki
 - **Automatic intervention —** high-risk actions are intercepted before they execute, not reported after the fact.
 - **Evidence —** every decision is logged with the context behind it, ready for audit and compliance review.
 
-<Info>
+<Note>
   **Your developers keep their existing workflow**
 
   Reva runs alongside your coding agents through a lightweight plugin. Developers use the same tools, the same commands, and the same repositories as before. Nothing about how they write code changes.
-</Info>
-
-## 2. Get Started
-
-### 2.1 Register your organization
-
-If you have not registered yet, start here:
-
-- [https://codingagent.dev.reva.ai/register](https://codingagent.dev.reva.ai/register)
-
-Registration is completed by an authorized representative of your organization  typically an IT/Security administrator or engineering leader. Once your registration is completed, Reva provisions a tenant for your organization and emails you the access details you will use for your first sign-in.
-
-<Note>
-  **Note**
-
-  Your organization gets exactly one workspace. If any of you internal team/Colleague has already registered, you will have to check with your internal team. Still you need a separate environment for evaluation or self-served POC, contact the Reva team and we will arrange it.
 </Note>
 
-### Before you begin
+## Helpful references
 
-Gathering these first is the difference between a 15-minute setup and a half-day one.
-
-| What you need | Why |
-|:--------------|:----|
-| **Administrator access** | You should be the person who registered your organization, or someone that person has designated as workspace administrator. |
-| **Your workspace access details** | Emailed to the registrant once the workspace is approved. Used for your first sign-in. |
-| **Your list of coding agents** | You will select which agents Reva should govern. Check with your engineering leads if you are unsure. |
-| **Your list of developers** | Work email addresses of the people who use those agents. You need at least one to finish setup - and that can be you as well. |
-| **Agents already installed** | Each developer should have their coding agent installed and signed in on their own machine before installing the Reva plugin. |
-
-<Tip>
-  **Tip**
-
-  If you are evaluating Reva on a trial, your evaluation period starts at registration, not at first install. Getting one developer installed in your first session gives your team the full window to assess the product against real activity.
-</Tip>
-
-### 2.2 Onboarding at a glance
-
-Onboarding runs in four stages. The first three happen once. The fourth is repeated for each coding agent you selected.
-
-| Stage | What you do | Typical time |
-|:------|:------------|:-------------|
-| **Introduction** | Sign in for the first time and review what Reva does. | 2 minutes |
-| **Create workspace** | Name your workspace and select the coding agents to govern. | 1 minutes |
-| **Provisioning** | Reva creates your workspace. Nothing is required from you. | Usually under 2 minutes |
-| **Agent setup** | Per agent: choose a plan, add your team, install the plugin. | 10 minutes per agent |
-
-## 3. Set up your workspace
-
-### 3.1 Sign in for the first time
-
-Sign in using the access details from your workspace email. You will be asked to set your own password.
-
-### 3.2 Create your workspace
-
-Your workspace is where your organization governs its coding agents: its policies, its team, its activity history. You provide four things.
-
-| Field | Guidance |
-|:------|:---------|
-| **Workspace name** | Use your organization or business-unit name - the name developers will recognise when asked to join. Avoid environment names such as "Test" or "POC"; this is the workspace your organization keeps. |
-| **Description** | Optional. A short line describing scope, useful when several teams share the workspace. You can change it later. |
-| **Workspace administrator** | Confirm who administers this workspace. Defaults to you. The administrator manages policies, team members, and plugin access. |
-| **Coding agents** | Select every coding agent you want Reva to govern. This is a multiple selection - choose all that apply. |
-
-### 3.3 Selecting your coding agents
-
-Some agents can be selected immediately; others are enabled on request. If an agent your team uses is not listed, request it from the same page. Reva Expert will reach out to you.
-
-This selection scopes the rest of setup. Each agent you choose is configured separately, because licensing, team membership, and plugin installation differ from one agent to another. You can add more agents later from Settings.
-
-### 3.4 Workspace Creation
-
-Once you click on Create, Reva provisions your workspace. This usually completes within a few minutes while you wait.
-
-Occasionally it takes longer. If provisioning runs past the expected time, you will see a notice that it may take up to fifteen minutes, and you will receive an email as soon as the workspace is ready. It is safe to close the browser at that point and you can return through the link in that email.
-
-## 4. Set up your coding agents
-
-Complete these four sections once for each coding agent you selected.
-
-<Tip>
-  **Tip**
-
-  We Default Workspace Admin as Member, Most administrators want to see Reva working on their own machine before asking developers to install anything. At Same time we are also giving feasibility, It takes one click to remove from Default and add your members
-</Tip>
-
-### 4.1 Choose a Coding Agent licensing plan
-
-Your choice determines how team members join and who installs the plugin. See Compare licensing plans for the full picture.
-
-- **Individual :** each developer/user is invited and completes their own plugin setup.
-- **Teams : you add developers/users directly and configure the plugin once, centrally, for everyone.**
-- **Enterprise :** **N/A for Trial tenant**
-
-### 4.2 Add your team
-
-Add the developers/users who will use this coding agent. How you do that depends on the plan you selected.
-
-| Plan | How team members are added |
-|:-----|:---------------------------|
-| **Individual** | Invite each developer by work email address. They receive an invitation containing their own setup instructions and complete plugin configuration themselves. |
-| **Teams** | Add developers directly from the workspace. No invitation is required, and each member is covered by your shared licence pool. |
-| **Enterprise** | Please reach out to Reva Team |
-
-At least one team member is required before you can continue. If you are evaluating on your own, add yourself and proceed, you can invite the rest of the team at any time.
-
-### 4.3 Install the Reva plugin
-
-This is the part that matters most. Until the plugin is installed on a developer machine, that developer’s sessions are not governed and no activity appears in Insights.
-
-The plugin connects the coding agent to your workspace. It sends each action the agent attempts to Reva, receives a decision, and enforces it. There is nothing for developers to report manually.
-
-<Warning>
-  **Warning**
-
-  Treat your OAuth token like a password. Anyone holding it can send activity to your workspace. Share it only through your organization’s approved channels, never in a public repository, ticket, or group chat.
-
-  You can generate a new token at any time under Settings → Plugin access. Generating a new token immediately stops any plugin still using the old one, so plan to reissue it to your developers when you do.
-</Warning>
-
-### 4.4 Verify Post Installation of Plugin
-
-Do not assume setup worked because the wizard finished. Verify it on a real machine, it takes a minute.
-
-- **Open** your coding agent on a machine where the Reva plugin is installed. Start a new Session
-- **Run** any ordinary prompt — reading a file or listing a directory is enough.
-- **Open** Insights in Reva.
-- **Confirm you can see** the decision for that action, with the agent, the user, and the outcome.
-
-## 5. Next steps
-
-Once your first agent is governed, these are worth doing in your first week.
-
-- **Get your first installs in:** Insights stays empty until a developer/user installs the plugin and runs a session. Track who has installed and follow up with anyone who has not, an uninstalled developer/user is an ungoverned one.
-- **Review the defaults:** Your workspace starts with a default policy set and default runtime guardrails. Review them against how your organization works and adjust before you widen the rollout.
-- **Watch real traffic:** The first few days of real activity tell you more than any configuration screen. Look at what agents are attempting, what was allowed, and what was stopped.
-- **Expand deliberately:** Add the remaining agents and developers once you are satisfied with the picture from your first team.
-
-### 5.1. What you can do
-
-Once your first agent is governed, these are the things your workspace gives you.
-
-**See every agent action in one place**
-
-A single, continuous record of what every governed coding agent is doing: which agent, which developer, which action, and what happened next. No per-tool consoles to reconcile.
-
-**One policy set, not one per Coding Agent**
-
-Policies are defined once in your workspace and applied to every governed agent. Adding a new coding agent extends your existing rules to it rather than starting a new configuration from scratch.
-
-**Observe risky behaviour at runtime**
-
-Runtime guardrails watch for patterns that a static rule cannot anticipate, an agent drifting away from what it was asked to do, or a prompt attempting to redirect it. Your workspace starts with a default set enabled in monitor mode.
-
-**Enforce Guardrails, stop high-risk actions before they run**
-
-When an agent attempts something, your guardrails forbid, Reva blocks it at the point of execution rather than reporting it afterwards. The developer sees that the action was blocked; the reasoning stays in your decision record.
-
-**Produce evidence on demand**
-
-Every decision is logged with the context behind it, giving security and compliance teams an audit-ready account of how AI coding agents are governed in your organization.
-
-## 6. Compare licensing plans
-
-A plan is selected per coding agent, so you can run different plans for different agents if that suits your organization.
-
-|  | Individual | Teams | Enterprise |
-|:-|:-----------|:------|:-----------|
-| **Team member onboarding** | Developers are invited by email and join individually. | You add developers directly; no invitation is required. | N/A |
-| **Plugin configuration** | Each developer configures the plugin themselves, using the instructions they receive. | You configure the plugin once, centrally, for the whole team. | N/A |
-| **Licence management** | Each developer holds their own licence. | Your team draws from a shared licence pool that you manage. | Contact the Reva team for Enterprise Workspace |
-| **Best suited to** | Smaller teams, and teams that prefer to manage licensing independently. | Teams that want centralised administration and a single shared pool. | Large organizations with advanced governance, compliance, or deployment requirements. |
-| **How to start** | Available directly in the workspace. | Available directly in the workspace. | Contact the Reva team and we will set it up with you. |
-
-## 7. Common tasks
-
-After onboarding, here is where to go for the things administrators do most.
-
-| I want to… | Where to go |
-|:-----------|:------------|
-| Add another coding agent | Settings. If the agent is not listed, request it from the Reva team. |
-| Invite more developers to an agent | The members section in your workspace. |
-| Check who has installed the plugin | Your workspace install status for that agent. |
-| Reissue or rotate the OAuth token | Settings → Plugin . |
-| Review or change the default policies | Policies in your workspace. |
-| See what agents attempted and what was stopped | Insights. |
-| Pull the decision record for an audit | Decision logs. |
-| Change your licensing plan | Contact the Reva team. |
-
-## 8. Troubleshooting
-
-| What you are seeing | What to do |
-|:--------------------|:-----------|
-| A workspace already exists for your organization | Each organization has exactly one workspace, and someone at your organization has already created it. Contact your existing workspace administrator to be added. If you need a separate environment for evaluation, contact the Reva team. |
-| Provisioning is taking longer than expected | Provisioning may take up to fifteen minutes. No action is needed. You will receive an email when the workspace is ready, and it is safe to close the browser in the meantime. |
-| You are asked to add at least one team member | A coding agent cannot be set up with nobody assigned to it. Add at least one member, You can invite others. |
-| Insights is empty after setup | Expected until a developer/user installs the plugin and runs a session. Confirm the plugin is installed on at least one machine and that a prompt has been run since installation. |
-| The plugin cannot connect to the workspace | Check that the OAuth token were entered exactly as shown, with no trailing spaces. If the token has been regenerated since installation, the old one no longer works — reissue the current token from Settings → Plugin . |
-| A developer/user cannot reach the plugin repository | Confirm the developer/user has been added to the workspace and is signed in to their own coding-agent account. If access is still refused, contact the Reva team. |
-| A coding agent your team uses is not listed | Request it during workspace creation, or contact the Reva team. Availability is confirmed case by case and does not block you from governing the agents already available. |
-
-## 9. Glossary
-
-| Term | Meaning |
-|:-----|:--------|
-| **Workspace** | Your organization’s environment in Reva, its guardrails, team members, coding agents, and activity history. One per organization. |
-| **Workspace administrator** | The person responsible for configuring and managing the workspace. |
-| **Reva plugin** | The lightweight component installed alongside a coding agent. It sends each attempted action to Reva and enforces the decision returned. |
-| **Guardrail** | A runtime control that detects risky agent behaviour as it happens, such as an unexpected change in what the agent is trying to do. |
-| **Decision** | The outcome Reva returns for a single attempted action, together with the context behind it. Decisions form your audit record. |
-| **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
-| **OAuth token** | The credential that authorises the plugin to send decisions to your workspace. Sensitive/Confidential - treat it like a password. |
-
-## 10. Helpful references
-
-Continue with the rest of the AI Coding Agents guides and the plugin setup.
+Related guides for AI coding agents.
 
 <CardGroup cols={3}>
   <Card
@@ -262,5 +51,208 @@ Continue with the rest of the AI Coding Agents guides and the plugin setup.
     Install the Reva plugin and connect it to your workspace.
   </Card>
 </CardGroup>
+
+## Get Started
+
+### Register your organization
+
+If you have not registered yet, start here:
+
+- [https://codingagent.dev.reva.ai/register](https://codingagent.dev.reva.ai/register)
+
+Registration is completed by an authorized representative of your organization  typically an IT/Security administrator or engineering leader. Once your registration is completed, Reva provisions a tenant for your organization and emails you the access details you will use for your first sign-in.
+
+<Note>
+  Your organization gets exactly one workspace. If any of you internal team/Colleague has already registered, you will have to check with your internal team. Still you need a separate environment for evaluation or self-served POC, contact the Reva team and we will arrange it.
+</Note>
+
+### Before you begin
+
+Gathering these first is the difference between a 15-minute setup and a half-day one.
+
+| What you need | Why |
+|:--------------|:----|
+| **Administrator access** | You should be the person who registered your organization, or someone that person has designated as workspace administrator. |
+| **Your workspace access details** | Emailed to the registrant once the workspace is approved. Used for your first sign-in. |
+| **Your list of coding agents** | You will select which agents Reva should govern. Check with your engineering leads if you are unsure. |
+| **Your list of developers** | Work email addresses of the people who use those agents. You need at least one to finish setup - and that can be you as well. |
+| **Agents already installed** | Each developer should have their coding agent installed and signed in on their own machine before installing the Reva plugin. |
+
+<Tip>
+  If you are evaluating Reva on a trial, your evaluation period starts at registration, not at first install. Getting one developer installed in your first session gives your team the full window to assess the product against real activity.
+</Tip>
+
+### Onboarding at a glance
+
+Onboarding runs in four stages. The first three happen once. The fourth is repeated for each coding agent you selected.
+
+| Stage | What you do | Typical time |
+|:------|:------------|:-------------|
+| **Introduction** | Sign in for the first time and review what Reva does. | 2 minutes |
+| **Create workspace** | Name your workspace and select the coding agents to govern. | 1 minutes |
+| **Provisioning** | Reva creates your workspace. Nothing is required from you. | Usually under 2 minutes |
+| **Agent setup** | Per agent: choose a plan, add your team, install the plugin. | 10 minutes per agent |
+
+## Set up your workspace
+
+### Sign in for the first time
+
+Sign in using the access details from your workspace email. You will be asked to set your own password.
+
+### Create your workspace
+
+Your workspace is where your organization governs its coding agents: its policies, its team, its activity history. You provide four things.
+
+| Field | Guidance |
+|:------|:---------|
+| **Workspace name** | Use your organization or business-unit name - the name developers will recognise when asked to join. Avoid environment names such as "Test" or "POC"; this is the workspace your organization keeps. |
+| **Description** | Optional. A short line describing scope, useful when several teams share the workspace. You can change it later. |
+| **Workspace administrator** | Confirm who administers this workspace. Defaults to you. The administrator manages policies, team members, and plugin access. |
+| **Coding agents** | Select every coding agent you want Reva to govern. This is a multiple selection - choose all that apply. |
+
+### Selecting your coding agents
+
+Some agents can be selected immediately; others are enabled on request. If an agent your team uses is not listed, request it from the same page. Reva Expert will reach out to you.
+
+This selection scopes the rest of setup. Each agent you choose is configured separately, because licensing, team membership, and plugin installation differ from one agent to another. You can add more agents later from Settings.
+
+### Workspace Creation
+
+Once you click on Create, Reva provisions your workspace. This usually completes within a few minutes while you wait.
+
+Occasionally it takes longer. If provisioning runs past the expected time, you will see a notice that it may take up to fifteen minutes, and you will receive an email as soon as the workspace is ready. It is safe to close the browser at that point and you can return through the link in that email.
+
+## Set up your coding agents
+
+Complete these four sections once for each coding agent you selected.
+
+<Tip>
+  We Default Workspace Admin as Member, Most administrators want to see Reva working on their own machine before asking developers to install anything. At Same time we are also giving feasibility, It takes one click to remove from Default and add your members
+</Tip>
+
+### Choose a Coding Agent licensing plan
+
+Your choice determines how team members join and who installs the plugin. See Compare licensing plans for the full picture.
+
+- **Individual :** each developer/user is invited and completes their own plugin setup.
+- **Teams : you add developers/users directly and configure the plugin once, centrally, for everyone.**
+- **Enterprise :** **N/A for Trial tenant**
+
+### Add your team
+
+Add the developers/users who will use this coding agent. How you do that depends on the plan you selected.
+
+| Plan | How team members are added |
+|:-----|:---------------------------|
+| **Individual** | Invite each developer by work email address. They receive an invitation containing their own setup instructions and complete plugin configuration themselves. |
+| **Teams** | Add developers directly from the workspace. No invitation is required, and each member is covered by your shared licence pool. |
+| **Enterprise** | Please reach out to Reva Team |
+
+At least one team member is required before you can continue. If you are evaluating on your own, add yourself and proceed, you can invite the rest of the team at any time.
+
+### Install the Reva plugin
+
+This is the part that matters most. Until the plugin is installed on a developer machine, that developer’s sessions are not governed and no activity appears in Insights.
+
+The plugin connects the coding agent to your workspace. It sends each action the agent attempts to Reva, receives a decision, and enforces it. There is nothing for developers to report manually.
+
+<Warning>
+  Treat your OAuth token like a password. Anyone holding it can send activity to your workspace. Share it only through your organization’s approved channels, never in a public repository, ticket, or group chat.
+
+  You can generate a new token at any time under Settings → Plugin access. Generating a new token immediately stops any plugin still using the old one, so plan to reissue it to your developers when you do.
+</Warning>
+
+### Verify Post Installation of Plugin
+
+Do not assume setup worked because the wizard finished. Verify it on a real machine, it takes a minute.
+
+1. **Open** your coding agent on a machine where the Reva plugin is installed. Start a new Session
+2. **Run** any ordinary prompt — reading a file or listing a directory is enough.
+3. **Open** Insights in Reva.
+4. **Confirm you can see** the decision for that action, with the agent, the user, and the outcome.
+
+## Next steps
+
+Once your first agent is governed, these are worth doing in your first week.
+
+- **Get your first installs in:** Insights stays empty until a developer/user installs the plugin and runs a session. Track who has installed and follow up with anyone who has not, an uninstalled developer/user is an ungoverned one.
+- **Review the defaults:** Your workspace starts with a default policy set and default runtime guardrails. Review them against how your organization works and adjust before you widen the rollout.
+- **Watch real traffic:** The first few days of real activity tell you more than any configuration screen. Look at what agents are attempting, what was allowed, and what was stopped.
+- **Expand deliberately:** Add the remaining agents and developers once you are satisfied with the picture from your first team.
+
+### What you can do
+
+Once your first agent is governed, these are the things your workspace gives you.
+
+**See every agent action in one place**
+
+A single, continuous record of what every governed coding agent is doing: which agent, which developer, which action, and what happened next. No per-tool consoles to reconcile.
+
+**One policy set, not one per Coding Agent**
+
+Policies are defined once in your workspace and applied to every governed agent. Adding a new coding agent extends your existing rules to it rather than starting a new configuration from scratch.
+
+**Observe risky behaviour at runtime**
+
+Runtime guardrails watch for patterns that a static rule cannot anticipate, an agent drifting away from what it was asked to do, or a prompt attempting to redirect it. Your workspace starts with a default set enabled in monitor mode.
+
+**Enforce Guardrails, stop high-risk actions before they run**
+
+When an agent attempts something, your guardrails forbid, Reva blocks it at the point of execution rather than reporting it afterwards. The developer sees that the action was blocked; the reasoning stays in your decision record.
+
+**Produce evidence on demand**
+
+Every decision is logged with the context behind it, giving security and compliance teams an audit-ready account of how AI coding agents are governed in your organization.
+
+## Compare licensing plans
+
+A plan is selected per coding agent, so you can run different plans for different agents if that suits your organization.
+
+|  | Individual | Teams | Enterprise |
+|:-|:-----------|:------|:-----------|
+| **Team member onboarding** | Developers are invited by email and join individually. | You add developers directly; no invitation is required. | N/A |
+| **Plugin configuration** | Each developer configures the plugin themselves, using the instructions they receive. | You configure the plugin once, centrally, for the whole team. | N/A |
+| **Licence management** | Each developer holds their own licence. | Your team draws from a shared licence pool that you manage. | Contact the Reva team for Enterprise Workspace |
+| **Best suited to** | Smaller teams, and teams that prefer to manage licensing independently. | Teams that want centralised administration and a single shared pool. | Large organizations with advanced governance, compliance, or deployment requirements. |
+| **How to start** | Available directly in the workspace. | Available directly in the workspace. | Contact the Reva team and we will set it up with you. |
+
+## Common tasks
+
+After onboarding, here is where to go for the things administrators do most.
+
+| I want to… | Where to go |
+|:-----------|:------------|
+| Add another coding agent | Settings. If the agent is not listed, request it from the Reva team. |
+| Invite more developers to an agent | The members section in your workspace. |
+| Check who has installed the plugin | Your workspace install status for that agent. |
+| Reissue or rotate the OAuth token | Settings → Plugin . |
+| Review or change the default policies | Policies in your workspace. |
+| See what agents attempted and what was stopped | Insights. |
+| Pull the decision record for an audit | Decision logs. |
+| Change your licensing plan | Contact the Reva team. |
+
+## Troubleshooting
+
+| What you are seeing | What to do |
+|:--------------------|:-----------|
+| A workspace already exists for your organization | Each organization has exactly one workspace, and someone at your organization has already created it. Contact your existing workspace administrator to be added. If you need a separate environment for evaluation, contact the Reva team. |
+| Provisioning is taking longer than expected | Provisioning may take up to fifteen minutes. No action is needed. You will receive an email when the workspace is ready, and it is safe to close the browser in the meantime. |
+| You are asked to add at least one team member | A coding agent cannot be set up with nobody assigned to it. Add at least one member, You can invite others. |
+| Insights is empty after setup | Expected until a developer/user installs the plugin and runs a session. Confirm the plugin is installed on at least one machine and that a prompt has been run since installation. |
+| The plugin cannot connect to the workspace | Check that the OAuth token were entered exactly as shown, with no trailing spaces. If the token has been regenerated since installation, the old one no longer works — reissue the current token from Settings → Plugin . |
+| A developer/user cannot reach the plugin repository | Confirm the developer/user has been added to the workspace and is signed in to their own coding-agent account. If access is still refused, contact the Reva team. |
+| A coding agent your team uses is not listed | Request it during workspace creation, or contact the Reva team. Availability is confirmed case by case and does not block you from governing the agents already available. |
+
+## Glossary
+
+| Term | Meaning |
+|:-----|:--------|
+| **Workspace** | Your organization’s environment in Reva, its guardrails, team members, coding agents, and activity history. One per organization. |
+| **Workspace administrator** | The person responsible for configuring and managing the workspace. |
+| **Reva plugin** | The lightweight component installed alongside a coding agent. It sends each attempted action to Reva and enforces the decision returned. |
+| **Guardrail** | A runtime control that detects risky agent behaviour as it happens, such as an unexpected change in what the agent is trying to do. |
+| **Decision** | The outcome Reva returns for a single attempted action, together with the context behind it. Decisions form your audit record. |
+| **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
+| **OAuth token** | The credential that authorises the plugin to send decisions to your workspace. Sensitive/Confidential - treat it like a password. |
 
 Not registered yet: **[https://codingagent.dev.reva.ai/register](https://codingagent.dev.reva.ai/register)**
