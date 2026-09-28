@@ -121,6 +121,14 @@
             ]
           },
           {
+            "group": "AI Coding Agents",
+            "pages": [
+              "ai-coding-agents/getting-started-day0-onboarding-flow",
+              "ai-coding-agents/workspace-settings",
+              "ai-coding-agents/guardrails"
+            ]
+          },
+          {
             "group": "Token Enrichment with Reva Trust Guardian",
             "pages": [
               "enrich-tokens-with-policy-based-claims",
