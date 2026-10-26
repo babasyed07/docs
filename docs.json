@@ -21,6 +21,14 @@
     {
       "source": "/ai-coding-agents/guardrails",
       "destination": "/ai-coding-agents/guardrails/overview"
+    },
+    {
+      "source": "/ai-coding-agents/guardrails/where-to-start",
+      "destination": "/ai-coding-agents/guardrails/overview#where-to-start"
+    },
+    {
+      "source": "/ai-coding-agents/workspace-settings/plan-and-users/remove-a-member",
+      "destination": "/ai-coding-agents/workspace-settings/basic-info"
     }
   ],
   "navigation": {
@@ -165,7 +173,6 @@
                       "ai-coding-agents/workspace-settings/plan-and-users/choose-a-plan-for-each-agent",
                       "ai-coding-agents/workspace-settings/plan-and-users/add-members",
                       "ai-coding-agents/workspace-settings/plan-and-users/configure-the-plugin-for-your-team",
-                      "ai-coding-agents/workspace-settings/plan-and-users/remove-a-member",
                       "ai-coding-agents/workspace-settings/plan-and-users/request-an-agent"
                     ]
                   },
@@ -184,8 +191,7 @@
                   "ai-coding-agents/guardrails/data-protection",
                   "ai-coding-agents/guardrails/command-and-execution-safety",
                   "ai-coding-agents/guardrails/mcp-server-access",
-                  "ai-coding-agents/guardrails/agent-behaviour-integrity",
-                  "ai-coding-agents/guardrails/where-to-start"
+                  "ai-coding-agents/guardrails/agent-behaviour-integrity"
                 ]
               }
             ]

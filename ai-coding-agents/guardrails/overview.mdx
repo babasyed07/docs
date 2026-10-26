@@ -17,6 +17,19 @@ Guardrails sit between the agent and the action. Each one watches for a specific
 
 This guide covers every guardrail available to your workspace. Each entry gives the scenario it exists for, an example that triggers it, what the developer sees, and what you are exposed to if you leave it off.
 
+## Where to start
+
+Turning on twelve guardrails at once is the fastest way to have them all turned off again a week later. A staged rollout gets you to the same place with your developers still on side.
+
+- **Week one.** Put every guardrail in Monitor. Nothing is blocked, and you find out what your developers are actually doing — which is rarely what anyone predicts.
+- **Week two.** Enforce the guardrails that carry no tuning burden and no legitimate use case: secrets, personal data, destructive commands, prompt injection, content safety, and unsanctioned connectors. These rarely produce a false positive worth arguing about.
+- **Week three.** Tune and then enforce the environment-specific ones. File sensitivity needs your category definitions. Device posture needs approved machine lists populated first. Session and sub-agent limits need a week of real numbers before you know what normal looks like.
+- **Ongoing.** Review what fired. A guardrail firing constantly against legitimate work is misconfigured, not vindicated — fix the rule rather than asking your developers to live with it.
+
+<Warning>
+  Device Posture is the one to sequence carefully. Enforcing it before your approved machine lists are populated will block your entire team at once, including you.
+</Warning>
+
 ## Glossary
 
 | Term | Meaning |
@@ -38,3 +51,5 @@ This guide covers every guardrail available to your workspace. Each entry gives 
 - **Prepare the inputs:** Populate approved machine lists, define your sensitive file categories, and confirm your approved connectors before enforcing the guardrails that depend on them.
 - **Start in Monitor:** A week of Monitor data tells you which guardrails are ready to enforce and which need tuning. Enforce from evidence, not from the default.
 - **Know where the detail goes:** The decision record is where the reason lives, since the agent is never told. Make sure the people who will be asked "why was this blocked" know where to look.
+
+_Reva · Guardrails for AI coding agents · Version 1.0 · For workspace administrators_

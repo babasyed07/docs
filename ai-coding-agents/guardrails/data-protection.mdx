@@ -28,7 +28,7 @@ Detects leaked credentials in prompts, responses, and conversation history — A
 | **Risk exposure without Guardrail** | Live production credentials sit in a third-party conversation history and in your own logs. Every exposed key must be treated as compromised and rotated  and without detection, nobody knows to start. This is the single cheapest guardrail to enforce and the most expensive one to have skipped. |
 | **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially, and not by design. The Claude model often recognises a pasted credential, warns the developer and refuses to use it, but that is the model's judgement, not a control: it is not guaranteed on every prompt, and by the time the model responds the key has already been sent to the provider and written to the conversation history. Anthropic documents no secrets scanning of prompts; its hooks documentation leaves prompt-level blocking to a customer-written UserPromptSubmit hook, and Claude Code keeps session transcripts in plaintext on the developer's machine (30 days by default).<br /><br />**What the Reva plugin adds:** The prompt is inspected at the hook and blocked before it leaves the machine, every time, independent of how the model would have reacted. The credential types are recorded against the user and session, so your security team knows exactly what to rotate. |
 
-## CodingAgent File Sensitivity Evaluator
+## File Sensitivity Evaluator
 
 Gates which files an agent may read, by path and by the content of shell commands it runs. You define the sensitive categories — secrets, configuration, source, or your own — and set rules per user, per category, and per action.
 
