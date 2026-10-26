@@ -1,0 +1,866 @@
+---
+title: "Kong Plugin"
+description: "Authorize every model, tool, and agent call passing through Kong Gateway against a Reva policy store — with no application changes."
+---
+
+The **Reva AI Runtime Authorization** plugin enforces Reva policy at the **Kong API gateway**. Every OpenAI-style model call, MCP tool call, and A2A agent call that passes through Kong is evaluated by the [Reva Trust Guardian](/ai-workload-security-overview) before it reaches an upstream, and a denied call never leaves the gateway.
+
+Unlike request-level filtering, the plugin evaluates the **delegation chain**. It correlates the hops of one agent turn on a shared `traceparent` and the turns of one chat on a session id, so a policy can be written against what an agent is actually doing across a conversation rather than against a single request in isolation.
+
+| Detail | Value |
+|:--|:--|
+| Plugin id | `reva-ai-runtime-authorization` |
+| Requires | Kong Gateway 3.12 or later |
+| Runs in | the `access` phase, at priority `1000` |
+| Evaluates at | `POST /pdp/v2/ai/evaluation` on your Reva host |
+| Scope | Global, or scoped to a Service or a Route |
+
+Because enforcement lives in the gateway, the application holds no model key and no policy credential. It can only reach a model, a tool, or another agent *through* Kong, so authorization cannot be bypassed by the caller.
+
+## How It Works
+
+```
+                     ┌──────────────────────────────┐
+                     │   Reva Trust Guardian (PDP)   │
+                     │   policies + guardrails       │
+                     └──────────────────────────────┘
+                                    ▲
+                    POST /pdp/v2/ai/evaluation
+                                    │
+  Caller ──▶  Kong Gateway  ──────────────────▶  Model / MCP server / Agent
+             reva-ai-runtime-authorization         (upstream, only on allow)
+```
+
+On every request, in the `access` phase:
+
+<Steps>
+  <Step title="Classify the call">
+    Path prefixes (`/llm`, `/mcp/`, `/a2a/` by default) identify the call type while `path_identification` is on. If the path matches nothing, or that group is off, the plugin inspects the body instead. A payload that matches none of the known shapes is proxied untouched.
+  </Step>
+  <Step title="Resolve identity">
+    The user always comes from the JWT claim named by `jwt_user_claim`. With `authorize_agent` off — the default — that user is both `subject` and `principal` on every hop. With it on, the entry hop of a turn is still the user; only a later hop is treated as an agent acting on its own.
+  </Step>
+  <Step title="Record the hop">
+    The inbound `traceparent` is reused, or minted when absent, and this call is recorded against it — so the Trust Guardian sees the whole delegation path rather than just the current leg.
+  </Step>
+  <Step title="Evaluate">
+    The plugin POSTs an evaluation request to `/pdp/v2/ai/evaluation` on `reva_host_url` and waits for a decision.
+  </Step>
+  <Step title="Enforce">
+    An allow proxies the request upstream with the `traceparent` attached. Anything else terminates it with `deny_status` — unless `monitor_mode` is on, in which case the would-be denial is logged and the request proxied anyway.
+  </Step>
+</Steps>
+
+## Before You Begin
+
+You need:
+
+- **Kong Gateway 3.12 or later**, self-hosted or Konnect.
+- **The plugin files** — the packed `.rock`, or `handler.lua` and `schema.lua`. Contact [info@reva.ai](mailto:info@reva.ai) to obtain them.
+- **An authorization token** for the Trust Guardian, from the policy store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime).
+- **Outbound HTTPS** from every data plane node to your Reva host.
+
+<Note>
+  The plugin sends no policy store field of its own — it presents only the bearer token. Use the token issued by the **policy store you want the gateway evaluated against**.
+</Note>
+
+## Install
+
+The plugin is two Lua files — `handler.lua` and `schema.lua` — and nothing else. In hybrid mode both must be present on **every data plane node**; the control plane only ever receives `schema.lua`.
+
+<Tabs>
+  <Tab title="kong.conf">
+    1. Install the plugin on each data plane node:
+
+       ```bash
+       luarocks install kong-plugin-reva-ai-runtime-authorization-0.1.0-1.all.rock
+       ```
+
+    2. Add the plugin and its shared dictionary to `kong.conf`, making sure the `plugins` line isn't commented out:
+
+       ```yaml
+       plugins = bundled,reva-ai-runtime-authorization
+       nginx_http_lua_shared_dict = reva_ai_runtime_authorization 64m
+       ```
+
+    3. Restart Kong:
+
+       ```bash
+       kong restart
+       ```
+
+    A plugin code change requires a restart, not only a config reload — Kong loads Lua at worker startup.
+  </Tab>
+  <Tab title="Docker">
+    ```docker
+    FROM kong/kong-gateway:latest
+
+    USER root
+
+    COPY kong/plugins/reva-ai-runtime-authorization /opt/kong/kong/plugins/reva-ai-runtime-authorization
+    RUN chown -R kong:kong /opt/kong/kong/plugins/reva-ai-runtime-authorization
+
+    USER kong
+
+    ENV KONG_PLUGINS=bundled,reva-ai-runtime-authorization
+    ENV KONG_LUA_PACKAGE_PATH="/opt/kong/?.lua;;"
+
+    # Hop chains and chat history live in a shared dictionary. It must be one
+    # Kong does not manage: kong_db_cache is flushed on every config reload,
+    # which would erase a conversation mid-flight.
+    ENV KONG_NGINX_HTTP_LUA_SHARED_DICT="reva_ai_runtime_authorization 64m"
+    ```
+  </Tab>
+  <Tab title="Konnect">
+    1. Upload `schema.lua` as a **custom plugin** on your control plane. This creates the configurable entity and renders the plugin form.
+    2. Install `schema.lua` **and** `handler.lua` on each data plane node (see the Docker or kong.conf tab). A node without these files cannot run the plugin, and Konnect reports it as incompatible.
+    3. Declare the shared dictionary on each node with `KONG_NGINX_HTTP_LUA_SHARED_DICT`.
+
+    You can then configure the plugin like any other plugin in Konnect.
+  </Tab>
+</Tabs>
+
+<Warning>
+  The shared dictionary must **not** be one Kong manages itself. `kong_db_cache` is flushed on every configuration reload, which erases conversations in flight — a chat silently restarts at turn 1. If the dictionary named by `hop_storage_dict` is missing, the plugin falls back to `kong_db_cache` and logs a warning rather than failing the request.
+</Warning>
+
+### Prepare the routes
+
+The plugin reads the request body, so every route it covers needs `request_buffering` enabled. MCP endpoints stream over SSE and additionally need `response_buffering` disabled.
+
+```yaml decK
+_format_version: "3.0"
+services:
+  - name: billing-mcp
+    url: http://billing-mcp:8080
+    routes:
+      - name: billing-mcp-route
+        paths:
+          - /mcp/billing
+        request_buffering: true
+        response_buffering: false
+```
+
+<Tip>
+  Put an authentication plugin — [`jwt`](https://developer.konghq.com/plugins/jwt/), [`openid-connect`](https://developer.konghq.com/plugins/openid-connect/), or [`key-auth`](https://developer.konghq.com/plugins/key-auth/) — in front of these routes. This plugin decodes the JWT payload but does **not** verify its signature, and at priority `1000` it runs after the bundled auth plugins, so a credential is already resolved by the time it looks at one.
+</Tip>
+
+## Enable the Plugin
+
+Two fields are required — `reva_host_url` and `auth_token`. Everything else has a working default.
+
+<CodeGroup>
+```yaml decK
+_format_version: "3.0"
+plugins:
+  - name: reva-ai-runtime-authorization
+    config:
+      reva_host_url: https://api.example.reva.ai
+      auth_token: ${{ env "DECK_REVA_AUTH_TOKEN" }}
+      fail_open: false
+```
+
+```bash Admin API
+curl -i -X POST http://localhost:8001/plugins/ \
+  --header "Content-Type: application/json" \
+  --data '{"name":"reva-ai-runtime-authorization","config":{
+            "reva_host_url":"https://api.example.reva.ai",
+            "auth_token":"'"$REVA_AUTH_TOKEN"'"}}'
+```
+
+```yaml Scoped to one Service
+_format_version: "3.0"
+services:
+  - name: billing-mcp
+    url: http://billing-mcp:8080
+    plugins:
+      - name: reva-ai-runtime-authorization
+        config:
+          reva_host_url: https://api.example.reva.ai
+          auth_token: "{vault://env/reva-ai-runtime-authorization-token}"
+```
+</CodeGroup>
+
+Enabled globally, every route on the control plane is authorized against the Reva policy store. Scope it to a Service or a Route instead when you only want to govern part of your traffic.
+
+## Configuration Reference
+
+Every field below is set under `config`. The description on each one is the same text Konnect renders in the plugin form.
+
+### Connection
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `reva_host_url` | string | **required** | Base URL of your Reva tenant |
+| `auth_token` | string | **required** | Bearer token presented to the Trust Guardian |
+| `ssl_verify` | boolean | `true` | Verify the Trust Guardian's TLS certificate |
+
+#### reva_host_url
+
+Base URL of your Reva tenant, for example `https://api.example.reva.ai`. The value must start with `http://` or `https://`; trailing slashes are trimmed.
+
+The plugin always appends `/pdp/v2/ai/evaluation` and evaluates every matching call there — the path is not configurable, so a token issued for an older evaluation contract will be rejected against it.
+
+```yaml
+config:
+  reva_host_url: https://api.example.reva.ai
+```
+
+#### auth_token
+
+Bearer token Kong presents to the Trust Guardian on every evaluation, as `Authorization: Bearer <token>`. Copy it from the policy store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime).
+
+The field is **referenceable**: in production give it a [vault reference](https://developer.konghq.com/gateway/entities/vault/) rather than a literal, so the secret never lands in a decK file or a config export.
+
+```yaml
+config:
+  auth_token: "{vault://env/reva-ai-runtime-authorization-token}"
+```
+
+<Warning>
+  This token is a secret with policy-evaluation rights. Never commit or log it. Rotate it from the same Settings panel if it is exposed.
+</Warning>
+
+#### ssl_verify
+
+Verify the TLS certificate presented by the Trust Guardian. Defaults to `true`.
+
+Turn it off **only** against a test instance with a self-signed certificate. Disabling it on a production data plane means the gateway cannot tell your Trust Guardian from anything that can intercept the connection.
+
+```yaml
+config:
+  ssl_verify: false   # test environments only
+```
+
+### Enforcement
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `monitor_mode` | boolean | `false` | Evaluate and log, but never block |
+| `fail_open` | boolean | `false` | Proxy when no decision could be obtained |
+| `deny_status` | integer | `403` | HTTP status returned on a refusal |
+| `deny_message` | string | `Blocked by Reva` | Message returned on a refusal |
+
+#### monitor_mode
+
+Evaluate every call and log the verdict, but never block. Defaults to `false`.
+
+This is the natural first step of a rollout: point the plugin at real traffic, see what *would* have been refused, then turn it off to enforce. A would-be denial is logged at `warn`, so it stays visible at a log level you actually keep:
+
+```
+[reva-ai-runtime-authorization] MONITOR would deny invokeTool billing-mcp/get_refunds for support-agent:
+           authorization denied by policy (proxying anyway)
+```
+
+```yaml
+config:
+  monitor_mode: true   # observe first, enforce later
+```
+
+<Note>
+  `monitor_mode` decides what to do with a decision Reva **gave**. `fail_open` decides what to do when Reva could not be **reached**. They are independent.
+</Note>
+
+#### fail_open
+
+Proxy the request when the Trust Guardian cannot be reached or returns no decision. Defaults to `false` — an outage refuses calls rather than passing them unevaluated.
+
+The plugin allows 5 seconds per evaluation attempt and retries up to three times before giving up, so `fail_open` only comes into play once all of those have failed.
+
+Setting it to `true` proxies unauthorized agentic traffic during an outage and should be a deliberate, documented choice.
+
+```yaml
+config:
+  fail_open: false   # fail closed (default)
+```
+
+#### deny_status
+
+HTTP status returned when a call is refused, either by policy or because no decision could be obtained. Defaults to `403`; any value between `100` and `599` is accepted.
+
+Use it when a client library treats `403` specially and you would rather it saw, say, `451` or `409` for a policy refusal.
+
+```yaml
+config:
+  deny_status: 403
+```
+
+<Note>
+  The `401` and `400` refusals the plugin raises **before** calling Reva — a missing token, an unusable JWT, a missing agent header — keep their own status. `deny_status` does not apply to them.
+</Note>
+
+#### deny_message
+
+Message returned to the caller in the response body when a call is refused. Defaults to `Blocked by Reva`. The specific `reason` is returned alongside it:
+
+```json
+{ "message": "Blocked by Reva", "reason": "authorization denied by policy" }
+```
+
+Unlike `deny_status`, this message **does** apply to the pre-evaluation `401` and `400` refusals as well.
+
+```yaml
+config:
+  deny_message: "Request blocked by your organization's AI policy"
+```
+
+### Identity
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `authorize_agent` | boolean | `false` | Make the calling agent the subject |
+| `jwt_user_claim` | string | `sub` | JWT claim identifying the user |
+| `jwt_groups_claim` | string | `groups` | JWT claim carrying group memberships |
+| `agent_header` | string | `X-Reva-Agent-Id` | Header carrying the agent id |
+| `require_identity_headers` | boolean | `true` | Refuse a request with no agent id |
+| `identity_source` | string | `header` | Where the agent identity comes from |
+| `consumer_id_field` | string | `username` | Which Consumer property names the agent |
+
+#### authorize_agent
+
+Make the calling agent the subject of each evaluation. Defaults to `false`.
+
+With it off, every LLM, MCP, and A2A hop is still evaluated — the user from the JWT is simply both `subject` and `principal`. Turn it on when your callers can send an agent identity and you want policy written against the agent itself.
+
+| `authorize_agent` | `subject` | Agent id |
+|:--|:--|:--|
+| `false` (default) | `User::<jwt claim>` | Not required; ignored if sent |
+| `true`, entry hop of a turn | `User::<jwt claim>` | Not required for this hop |
+| `true`, every later hop | `Agent::<id>` | Required, via `identity_source` |
+
+The **entry hop** — the first hop of a turn, where no prior hop exists yet for this `traceparent` — is always evaluated as the user. It is the user's own action however it was relayed to reach the gateway; only a later hop, made by something that already received an authorized hop, is a real agent acting on its own. A UI process that merely forwards the user's first message therefore stays a `User` subject on that call, with no special-cased routing.
+
+<Note>
+  `authorize_agent` also gates **chat session tracking**. With it off, `session` is never populated and the shared-dictionary reads and writes it costs never run.
+</Note>
+
+```yaml
+config:
+  authorize_agent: true
+```
+
+#### jwt_user_claim
+
+JWT claim read from the inbound `Authorization: Bearer` token to identify the user. Defaults to `sub`. Common alternatives are `preferred_username` and `cognito:username`.
+
+That value is always sent as `principal` of type `User`, and as `subject` whenever the call is attributed to the user.
+
+- **Nested claims** use a dotted path: `user.id`.
+- **Colon-style keys** such as `cognito:username` are a single claim name, not a path.
+- The plugin **decodes** the JWT payload; it does not verify the signature. Put `jwt` or `openid-connect` in front of these routes.
+
+A missing token, an unreadable JWT, or an empty claim is refused with `401` before Reva is called. There is no header fallback — the human principal comes from the token, or the request does not proceed.
+
+```yaml
+config:
+  jwt_user_claim: preferred_username
+```
+
+#### jwt_groups_claim
+
+JWT claim holding the user's group memberships, read from the same token. Defaults to `groups`.
+
+The groups are sent to the Trust Guardian as Cedar-style parents of the user entity, so a policy can be written against a group rather than a person — *anyone in `Finance` may invoke this agent* — which is what lets a policy store scale past naming individuals.
+
+| Identity provider | Typical value |
+|:--|:--|
+| Generic OIDC | `groups` |
+| RBAC-style tokens | `roles` |
+| Keycloak | `realm_access.roles` |
+| Amazon Cognito | `cognito:groups` |
+
+Non-string entries are dropped rather than failing the claim, and a token without the claim simply sends no groups.
+
+```yaml
+config:
+  jwt_groups_claim: cognito:groups
+```
+
+#### agent_header
+
+Request header carrying the calling agent's id. Defaults to `X-Reva-Agent-Id`.
+
+It is read **only** when `authorize_agent` is on, and only when `identity_source` permits the header. Change it when your fleet already stamps an agent id under a different name.
+
+```yaml
+config:
+  agent_header: X-Acme-Agent
+```
+
+#### require_identity_headers
+
+Refuse a request that is missing the agent id rather than proxying it unevaluated. Defaults to `true`.
+
+It applies only when `authorize_agent` is on, and only on the hops where an agent id is actually required — that is, every hop after the entry hop. The user is always required regardless of this setting.
+
+| Value | A later hop with no agent id |
+|:--|:--|
+| `true` (default) | Refused with `400`, without calling Reva |
+| `false` | Proxied **unevaluated**, with a notice logged when `debug` is on |
+
+<Warning>
+  Setting this to `false` means a caller that omits the agent header skips authorization entirely. Leave it on unless you are deliberately staging a rollout where some callers cannot yet send an id.
+</Warning>
+
+#### identity_source
+
+Where the calling agent's identity comes from. Defaults to `header`. Used only when `authorize_agent` is on.
+
+| Value | Behavior |
+|:--|:--|
+| `header` (default) | Take the agent from `agent_header` as sent. Convenient behind a trusted network. |
+| `consumer` | Take it from the Kong Consumer an authentication plugin resolved. A caller cannot forge this. |
+| `consumer_then_header` | Prefer the Consumer, fall back to the header. |
+
+With `identity_source: consumer` and no authenticated Consumer, the request is refused with `401` rather than falling back to the header — falling back would quietly undo the point of the setting.
+
+<Warning>
+  With `identity_source: header`, the agent header is an **assertion, not a credential**: any caller that can reach the gateway can name a privileged agent and inherit its policy. On any gateway reachable from a network you do not control, set `identity_source: consumer` and put `key-auth`, `jwt`, or `openid-connect` in front of these routes.
+</Warning>
+
+```yaml
+config:
+  identity_source: consumer
+```
+
+#### consumer_id_field
+
+Which property of the authenticated Kong Consumer names the agent: `username` (default), `custom_id`, or `id`.
+
+Use `custom_id` when your Consumers are provisioned from an external registry and their Reva agent id lives there rather than in the Kong username.
+
+```yaml
+config:
+  identity_source: consumer
+  consumer_id_field: custom_id
+```
+
+### Call Classification
+
+How the plugin decides whether a call is an LLM, MCP, or A2A request. These four fields sit inside the `path_identification` record.
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `path_identification.enabled` | boolean | `true` | Classify by request path prefix |
+| `path_identification.llm_path_prefix` | string | `/llm` | Prefix for model invocations |
+| `path_identification.mcp_path_prefix` | string | `/mcp/` | Prefix for MCP tool calls |
+| `path_identification.a2a_path_prefix` | string | `/a2a/` | Prefix for A2A agent invocations |
+
+#### path_identification.enabled
+
+Classify calls by their request path prefix. Defaults to `true`.
+
+Turn it off when your LLM, MCP, and A2A services sit on arbitrary URLs; the plugin then inspects the request body instead. If it is on and the path matches none of the prefixes, the body is inspected anyway — so the prefixes are a hint, never a gate.
+
+```yaml
+config:
+  path_identification:
+    enabled: false   # classify by body shape alone
+```
+
+#### path_identification.llm_path_prefix
+
+Requests under this path prefix are treated as OpenAI-style model invocations, such as chat completions. Defaults to `/llm`.
+
+The resource id is the `model` field from the request body. A body with no usable `model` is reported as `unknown-model`, which no policy will match — so an unset `LLM_MODEL` in a caller shows up in the decision log rather than silently passing.
+
+#### path_identification.mcp_path_prefix
+
+MCP tool calls are identified by this path prefix. Defaults to `/mcp/`.
+
+The **next path segment names the MCP server**: `/mcp/github/` yields the server `github`, and the resource id is `<server>/<tool>` where the tool comes from `params.name`. Only the `tools/call` method is evaluated — discovery calls such as `tools/list` and `initialize` are proxied untouched.
+
+```yaml
+config:
+  path_identification:
+    mcp_path_prefix: /tools/
+```
+
+#### path_identification.a2a_path_prefix
+
+A2A agent invocations are identified by this path prefix. Defaults to `/a2a/`.
+
+The **target agent is identified by the Kong Service host, not by the path**. Only the `message/send` method is evaluated.
+
+### Payload and Chat History
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `prompt_key` | string | `content` | Field carrying the prompt text |
+| `a2a_content_path` | string | `params.message.parts` | Path to the current A2A message |
+| `a2a_history_path` | string | `params.history` | Path to prior A2A turns |
+| `a2a_routing_path` | string | `params.routing` | Path to the declared hop chain |
+| `session_header` | string | `X-Reva-Session-Id` | Header carrying the chat session id |
+| `max_session_messages` | integer | `10` | Completed turns sent as history |
+| `session_ttl` | integer | `86400` | Seconds a chat's history survives |
+
+#### prompt_key
+
+Names the field carrying the prompt text in the evaluation request. Defaults to `content`.
+
+The plugin sends `transmission.promptKey` set to this value and places the prompt itself under the same key, so a policy that reads `content` keeps working. Change it only when your policies were authored against a different field name — the two must match.
+
+```yaml
+config:
+  prompt_key: content
+```
+
+#### a2a_content_path
+
+Path within the JSON-RPC body to the current A2A message. Defaults to `params.message.parts`, which is the A2A specification field.
+
+Each part's `text` is joined with newlines into one prompt. Change it only if your callers place the message elsewhere.
+
+#### a2a_history_path
+
+Path within the JSON-RPC body to prior conversation turns. Defaults to `params.history`.
+
+This is **not** part of the A2A specification — point it wherever your callers store history. The plugin looks at `params.message.metadata.chatHistory` first and only falls back to this path. Both A2A-shaped entries (`role` plus `parts`) and plain `role`/`content` pairs are accepted.
+
+#### a2a_routing_path
+
+Path within the JSON-RPC body to the declared hop chain. Defaults to `params.routing`.
+
+Also not part of the A2A specification. A `maxHops` value found there is carried to the Trust Guardian as `context.maxHops`, so a policy can refuse a chain that declares more delegation than it should.
+
+#### session_header
+
+Request header carrying the chat session id, which groups separate requests into one conversation. Defaults to `X-Reva-Session-Id`.
+
+The session id is resolved in this order, and only when `authorize_agent` is on:
+
+1. This header.
+2. An A2A `params.contextId`, or `params.message.contextId`.
+3. The `mcp-session-id` header.
+4. The request id — which is unique per request, so every message looks like a fresh chat.
+
+Without a stable value from the first three, no history is sent. Making every message of a chat carry the same header value is the single highest-value change a calling application can make.
+
+```yaml
+config:
+  session_header: X-Acme-Conversation-Id
+```
+
+#### max_session_messages
+
+How many completed turns to send as chat history, newest kept. Defaults to `10`; accepts `1` to `100`.
+
+The Trust Guardian rejects a request body over 1 MiB **before** authorizing it, so an unbounded history would eventually fail every call in a long chat rather than just one. Raise it for policies that need a long run-up; lower it for chatty traffic with large messages.
+
+```yaml
+config:
+  max_session_messages: 20
+```
+
+#### session_ttl
+
+How long a chat's turn history survives on the data plane, in seconds. Defaults to `86400` (24 hours); accepts `60` to `604800` (7 days).
+
+After it expires, the next request starts a new conversation at turn 1.
+
+### Data Plane State and Diagnostics
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `hop_storage_dict` | string | `reva_ai_runtime_authorization` | nginx shared dictionary for state |
+| `hop_ttl` | integer | `3600` | Seconds a hop chain survives |
+| `forward_traceparent` | boolean | `true` | Pass `traceparent` to the upstream |
+| `debug` | boolean | `false` | Log decisions and payloads at notice |
+
+#### hop_storage_dict
+
+Name of the nginx shared dictionary holding hop chains and chat history. Defaults to `reva_ai_runtime_authorization`, and must match the dictionary you declared:
+
+```yaml
+nginx_http_lua_shared_dict = reva_ai_runtime_authorization 64m
+```
+
+It must be a dictionary you declare **for this plugin**, not one Kong manages. If it is absent the plugin falls back to `kong_db_cache` and warns once — that cache is flushed on every config reload, which erases conversations in flight.
+
+<Note>
+  This state is per data plane node. Two nodes behind a load balancer each see half a chat. Where that matters, have the caller supply history in the request instead — caller-supplied history is used in preference to what the node remembers.
+</Note>
+
+#### hop_ttl
+
+How long a hop chain survives on the data plane, in seconds. Defaults to `3600`; accepts `60` to `86400`.
+
+A chain older than this starts over as a fresh call, so the next hop is evaluated as an entry hop. Set it comfortably longer than your slowest agent turn.
+
+#### forward_traceparent
+
+Pass the `traceparent` used for the authorization decision on to the upstream service. Defaults to `true`, so one trace id spans the gateway, your backend, and the Reva decision log.
+
+Turn it off only if an upstream rejects unexpected trace headers.
+
+#### debug
+
+Log each decision, and the full request sent to the Trust Guardian, at `notice` level. Defaults to `false`.
+
+It also logs why a request was **skipped** — useful when a call you expected to be evaluated is being proxied untouched. The payload includes prompt text, so use it while tuning policy and leave it off in production.
+
+```yaml
+config:
+  debug: true
+```
+
+## How a Call Is Classified
+
+With `path_identification` on, the request path decides:
+
+| Path prefix | Action | Resource id |
+|:--|:--|:--|
+| `/llm` | `invokeModel` | The `model` in the request body |
+| `/mcp/` | `invokeTool` | `server/tool`, from the next path segment and `params.name` |
+| `/a2a/` | `invokeAgent` | The Kong Service URL this route proxies to |
+
+If the prefixes are off, or the path matches none of them, the plugin sniffs the body in this order:
+
+1. JSON-RPC `tools/call` → `invokeTool`, resource id `<Kong Service host>/<tool>`
+2. JSON-RPC `message/send` → `invokeAgent`, resource id the Kong Service host
+3. An OpenAI `messages` array → `invokeModel`, resource id `body.model`
+
+Payloads matching none of those shapes are proxied untouched.
+
+<Note>
+  An Agent resource id is always `protocol://host[:port]` — never a path, even when the Kong Service has one configured, and never the inbound request path. A policy therefore matches the host, for example `Agent::"http://ticketing-agent:8003"`. Two agents are two Kong Services on two hosts in this model, so the host alone identifies the resource.
+</Note>
+
+Of the MCP methods only `tools/call` is evaluated, and of the A2A methods only `message/send`.
+
+## What Reva Sees
+
+For each evaluated call the plugin builds one [evaluation request](/ai-workload-developer-evaluation-api) and POSTs it to `/pdp/v2/ai/evaluation`:
+
+| Header | Value |
+|:--|:--|
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer` plus `auth_token` |
+| `traceparent` | The inbound trace id, or one minted for this turn |
+| `x-ms-correlation-id` | The Kong request id, or an inbound `x-request-id` |
+
+A second hop of a tool call, with `authorize_agent` on, looks like this:
+
+```json
+{
+  "subject":   { "type": "Agent", "id": "support-agent" },
+  "action":    { "name": "invokeTool" },
+  "resource":  { "type": "Tool", "id": "billing-mcp/get_refunds", "name": "billing-mcp/get_refunds" },
+  "principal": { "type": "User", "id": "amit" },
+  "context": {
+    "hops": [
+      { "seq": 1,
+        "subject":  { "type": "User", "id": "amit" },
+        "action":   { "name": "invokeAgent" },
+        "resource": { "type": "Agent", "id": "support-agent" },
+        "time": "2026-09-22T09:58:00Z" }
+    ],
+    "conversation": {
+      "messages": [
+        { "seq": 1, "role": "user", "contentType": "text/plain",
+          "content": "Refund order 4821", "timestamp": "2026-09-22T09:58:00Z" }
+      ]
+    }
+  },
+  "transmission": {
+    "promptKey": "content", "role": "assistant", "contentType": "text/plain",
+    "content": "order_id=4821"
+  },
+  "session": {
+    "id": "chat-7f2c", "startedAt": "2026-09-22T09:55:10Z", "turn": 2,
+    "messages": [
+      { "turn": 1,
+        "request":  { "role": "user", "contentType": "text/plain",
+                      "content": "What did we charge order 4820?",
+                      "timestamp": "2026-09-22T09:55:10Z" },
+        "response": { "role": "assistant", "contentType": "text/plain",
+                      "content": "Order 4820 was charged $240.00.",
+                      "timestamp": "2026-09-22T09:55:14Z" } }
+    ]
+  },
+  "inputValues": { "order_id": "4821" },
+  "entities": [
+    { "uid": { "type": "User", "id": "amit" },
+      "parents": [ { "type": "UserGroup", "id": "Support" } ] }
+  ]
+}
+```
+
+What each part carries:
+
+- **`context.hops`** — who invoked whom on *this turn*, excluding the call being evaluated. The first hop of a turn therefore sends an empty array.
+- **`context.conversation.messages`** — what was said on those hops, one entry per hop. Its length always matches `hops`.
+- **`session.messages`** — completed **prior turns** of the same chat, as request/response pairs. The turn in flight has no answer yet, so it is excluded, and a turn whose reply was never captured is dropped rather than sent incomplete.
+- **`inputValues`** — the structured tool arguments, when the call is an MCP `tools/call`.
+- **`entities`** — the user's group memberships from `jwt_groups_claim`, as Cedar parents.
+
+Where caller-supplied history is read from:
+
+| Call type | Read from |
+|:--|:--|
+| Model | Every entry in the body's `messages` before the last user message |
+| Tool | `params._meta.chatHistory`, or `params.metadata.chatHistory` |
+| Agent | `params.message.metadata.chatHistory`, then `a2a_history_path` |
+
+<Tip>
+  A tool or agent call carries no conversation of its own, so the caller has to supply one. Without it the call is evaluated with no run-up — which matters most for exactly the calls that act. A refund is unremarkable until you can see the two turns that led to it.
+</Tip>
+
+## When a Call Is Refused
+
+A refused call is terminated with `deny_status` and `deny_message`, and the upstream is never contacted. The body carries a `reason` naming the specific case:
+
+| Status | Reason | Meaning |
+|:--|:--|:--|
+| `deny_status` | `authorization denied by policy`, or the reason Reva returned | Reva evaluated the call and refused it |
+| `deny_status` | `authorization service unavailable` | The Trust Guardian could not be reached; no decision was made |
+| `deny_status` | `could not build authorization request` | The plugin could not encode the evaluation request |
+| `401` | `missing Authorization bearer token` | No bearer token was presented |
+| `401` | `Authorization bearer token is not a JWT` | A bearer was presented but could not be decoded |
+| `401` | `jwt claim ... is empty` | The JWT decoded, but `jwt_user_claim` held no value |
+| `401` | `no authenticated consumer...` | `identity_source` is `consumer`, but no auth plugin resolved one |
+| `400` | `missing ... header` | `authorize_agent` and `require_identity_headers` are on, and the agent header is absent |
+
+Applications should surface these differently: a policy denial has a matching row in the [decision logs](/decision-logs), the others have none. The `401` and `400` refusals are raised before Reva is called, so they are unaffected by `fail_open`, `monitor_mode`, or `deny_status`.
+
+## Guardrails
+
+Policies are not the only thing that can refuse a call. A policy store can also carry [guardrails](/guardrails/overview) — content-level evaluators such as intent-drift detection and jailbreak or prompt-injection checks, configured in the Reva console rather than in this plugin.
+
+**Nothing in the plugin configures them, and nothing needs to.** Guardrails run inside the same evaluation, and their verdict is folded into the single decision the plugin receives. From the gateway's point of view a guardrail denial is indistinguishable from a policy denial: same status, same `reason`, same fail-closed behavior.
+
+The distinction is visible where it matters — the [decision logs](/decision-logs) record evaluated policies and evaluated guardrails separately, so an operator can see which of the two refused a request. If a call is being blocked and no policy explains it, look at the guardrails before changing policy.
+
+## Verify the Install
+
+<Steps>
+  <Step title="Send a call with no bearer token">
+    The plugin should refuse it itself, which proves it is loaded and running:
+
+    ```bash
+    curl -i -X POST http://localhost:8000/llm/chat/completions \
+      -H 'Content-Type: application/json' \
+      -d '{"model":"gpt-4o","messages":[{"role":"user","content":"hi"}]}'
+    ```
+
+    ```
+    HTTP/1.1 401
+    {"message":"Blocked by Reva","reason":"missing Authorization bearer token"}
+    ```
+  </Step>
+  <Step title="Repeat with a JWT">
+    Add a bearer token carrying the claim named by `jwt_user_claim`. With `authorize_agent` off — the default — no agent header is needed.
+
+    ```bash
+    curl -i -X POST http://localhost:8000/llm/chat/completions \
+      -H 'Authorization: Bearer <jwt>' \
+      -H 'Content-Type: application/json' \
+      -d '{"model":"gpt-4o","messages":[{"role":"user","content":"hi"}]}'
+    ```
+  </Step>
+  <Step title="Check the decision">
+    Decisions are logged at `info`, one line per call, and appear in the Reva [decision logs](/decision-logs):
+
+    ```
+    [reva-ai-runtime-authorization] invokeModel gpt-4o                        allowed=true  status=200
+    [reva-ai-runtime-authorization] invokeTool billing-mcp/get_billing_report allowed=true  status=200
+    [reva-ai-runtime-authorization] invokeModel gpt-4o                        allowed=false status=403
+    ```
+
+    Set `KONG_LOG_LEVEL=info` or lower — at `notice` the whole decision trail is hidden.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Every request is denied, including ones that should be allowed
+
+Calls a policy permits are refused, and the decision log has **no matching rows**. The absent rows are the tell — a genuine policy denial always produces one.
+
+- Verify `auth_token` is still accepted. A token issued for an older evaluation contract is rejected with `401` against `/pdp/v2/ai/evaluation`, which the plugin always calls, and that looks identical to an expired credential.
+- Check the `reason` in the response body. `authorization service unavailable` means no decision was made at all — not a policy problem.
+
+### Plugin not found, or 500 errors after enabling
+
+- Install `handler.lua` **and** `schema.lua` on every data plane node. In hybrid mode the control plane only distributes the schema.
+- Ensure `KONG_PLUGINS` includes `reva-ai-runtime-authorization`.
+- Confirm the plugin is on the search path: `luarocks list | grep reva`.
+- Restart Kong. A code change needs a restart, not just a config reload.
+
+### Chat history resets mid-conversation
+
+`session.turn` returns to `1` and `session.messages` is empty part way through a chat, often just after a configuration change.
+
+- Set `hop_storage_dict` to a dictionary Kong does not manage, and declare it with `nginx_http_lua_shared_dict`.
+- Confirm the application sends the same `session_header` value for every message of a chat.
+
+### MCP calls fail with "Session terminated"
+
+- Enable `request_buffering` on the route — the plugin reads the request body.
+- Disable `response_buffering` — MCP streams over SSE.
+
+### Calls are proxied without being evaluated
+
+- Turn on `debug`; a skipped request logs the reason at `notice`.
+- Check the path prefixes, or turn `path_identification` off so the body is sniffed instead.
+- Remember that only MCP `tools/call` and A2A `message/send` are evaluated.
+- With `require_identity_headers` off, a later hop missing its agent id is proxied unevaluated by design.
+
+### Connectivity
+
+Requests are slow, or the Reva console shows no decisions.
+
+- Ensure the data plane has outbound HTTPS access to `reva_host_url`.
+- Each attempt times out after 5 seconds and is retried up to three times, so an unreachable host costs about 15 seconds before `fail_open` decides the outcome.
+
+## A Rollout That Works
+
+<Steps>
+  <Step title="Observe">
+    Enable the plugin with `monitor_mode: true` and `debug: true` on a single Service. Nothing is blocked; the log shows what *would* have been refused.
+  </Step>
+  <Step title="Tune policy">
+    Work through the would-be denials in the [decision logs](/decision-logs) until the verdicts match your intent.
+  </Step>
+  <Step title="Enforce">
+    Set `monitor_mode: false`, leave `fail_open: false`, and turn `debug` off.
+  </Step>
+  <Step title="Harden identity">
+    Put an authentication plugin in front, then set `identity_source: consumer` and `authorize_agent: true` so agents are named by a credential rather than a header — and so chat sessions are correlated.
+  </Step>
+</Steps>
+
+```yaml Production example
+config:
+  reva_host_url: https://api.example.reva.ai
+  auth_token: "{vault://env/reva-ai-runtime-authorization-token}"
+  ssl_verify: true
+  monitor_mode: false
+  fail_open: false
+  authorize_agent: true
+  identity_source: consumer
+  consumer_id_field: username
+  jwt_user_claim: sub
+  jwt_groups_claim: cognito:groups
+  session_header: X-Reva-Session-Id
+  max_session_messages: 10
+  hop_storage_dict: reva_ai_runtime_authorization
+  debug: false
+```
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Connect Your Agents" icon="plug" href="/ai-workload-integration-options">
+    Compare the SDK, the Evaluation API, and gateway enforcement.
+  </Card>
+  <Card title="Evaluation API" icon="code" href="/ai-workload-developer-evaluation-api">
+    The request the plugin builds for you, documented field by field.
+  </Card>
+  <Card title="Developer Settings" icon="key" href="/ai-workload-developer-settings">
+    Where to find the token the plugin presents.
+  </Card>
+  <Card title="Decision Logs" icon="list-check" href="/decision-logs">
+    Every allow and deny the gateway produced.
+  </Card>
+</CardGroup>
