@@ -9,6 +9,12 @@
     "dark": "#15803D"
   },
   "favicon": "/favicon.ico",
+  "redirects": [
+    {
+      "source": "/ai-coding-agents/getting-started-day0-onboarding-flow",
+      "destination": "/ai-coding-agents/overview"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -123,7 +129,23 @@
           {
             "group": "AI Coding Agents",
             "pages": [
-              "ai-coding-agents/getting-started-day0-onboarding-flow",
+              "ai-coding-agents/overview",
+              {
+                "group": "Get Started",
+                "expanded": true,
+                "pages": [
+                  "ai-coding-agents/get-started/register-your-organization",
+                  "ai-coding-agents/get-started/before-you-begin",
+                  "ai-coding-agents/get-started/onboarding-at-a-glance",
+                  "ai-coding-agents/get-started/set-up-your-workspace",
+                  "ai-coding-agents/get-started/set-up-your-coding-agents",
+                  "ai-coding-agents/get-started/next-steps",
+                  "ai-coding-agents/get-started/compare-licensing-plans",
+                  "ai-coding-agents/get-started/common-tasks",
+                  "ai-coding-agents/get-started/troubleshooting",
+                  "ai-coding-agents/get-started/glossary"
+                ]
+              },
               "ai-coding-agents/workspace-settings",
               "ai-coding-agents/guardrails"
             ]
