@@ -4,6 +4,18 @@ title: "Agent behaviour integrity"
 
 The hardest failures to spot are the ones where the agent is working normally, and the problem is what it has been persuaded to work on.
 
+## Device Posture Evaluator
+
+Restricts which machines may run an agent, based on the list of approved machines held against each user. A machine that is not on that user’s list is blocked. There is nothing to configure on the guardrail itself.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer works over the weekend from a personal laptop  not enrolled in your device management, not on your patching schedule, possibly without disk encryption. |
+| **Example** | `Action: an agent session is started from a machine that`<br />`does not appear on the user’s approved machine list.` |
+| **What happens** | The session is blocked before the agent starts. |
+| **Risk exposure without Guardrail** | Your source code, your credentials, and your agent’s permissions all land on a device outside every control you have — no encryption guarantee, no patching, no remote wipe. Every other guardrail in this document assumes the machine underneath it is one you trust. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Claude Code runs on any machine a user can sign in from. Managed settings only reach machines you already manage, so an unmanaged personal laptop simply never receives them, and network-level controls such as IP allowlisting restrict location, not the machine.<br /><br />**What the Reva plugin adds:** The session-start hook identifies the machine and checks it against the user's approved machine list before the agent starts. A machine that is not on the list is blocked, and the attempt is recorded against the user. |
+
 ## Intent Drift Evaluator
 
 Compares what the agent is doing now against what the user originally approved, scores how far it has diverged, and attributes the drift to the step that caused it.
