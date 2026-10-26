@@ -1,0 +1,50 @@
+---
+title: "Set up your coding agents"
+---
+
+Complete these four sections once for each coding agent you selected.
+
+<Tip>
+  We Default Workspace Admin as Member, Most administrators want to see Reva working on their own machine before asking developers to install anything. At Same time we are also giving feasibility, It takes one click to remove from Default and add your members
+</Tip>
+
+## Choose a Coding Agent licensing plan
+
+Your choice determines how team members join and who installs the plugin. See [Compare licensing plans](/ai-coding-agents/overview#compare-licensing-plans) for the full picture.
+
+- **Individual :** each developer/user is invited and completes their own plugin setup.
+- **Teams : you add developers/users directly and configure the plugin once, centrally, for everyone.**
+- **Enterprise :** **N/A for Trial tenant**
+
+## Add your team
+
+Add the developers/users who will use this coding agent. How you do that depends on the plan you selected.
+
+| Plan | How team members are added |
+|:-----|:---------------------------|
+| **Individual** | Invite each developer by work email address. They receive an invitation containing their own setup instructions and complete plugin configuration themselves. |
+| **Teams** | Add developers directly from the workspace. No invitation is required, and each member is covered by your shared licence pool. |
+| **Enterprise** | Please reach out to Reva Team |
+
+At least one team member is required before you can continue. If you are evaluating on your own, add yourself and proceed, you can invite the rest of the team at any time.
+
+## Install the Reva plugin
+
+This is the part that matters most. Until the plugin is installed on a developer machine, that developer’s sessions are not governed and no activity appears in Insights.
+
+The plugin connects the coding agent to your workspace. It sends each action the agent attempts to Reva, receives a decision, and enforces it. There is nothing for developers to report manually.
+
+<Warning>
+  Treat your OAuth token like a password. Anyone holding it can send activity to your workspace. Share it only through your organization’s approved channels, never in a public repository, ticket, or group chat.
+
+  You can generate a new token at any time under Settings → Plugin access. Generating a new token immediately stops any plugin still using the old one, so plan to reissue it to your developers when you do.
+</Warning>
+
+## Verify Post Installation of Plugin
+
+Do not assume setup worked because the wizard finished. Verify it on a real machine, it takes a minute.
+
+1. **Open** your coding agent on a machine where the Reva plugin is installed. Start a new Session
+2. **Run** any ordinary prompt — reading a file or listing a directory is enough.
+3. **Open** Insights in Reva.
+4. **Confirm you can see** the decision for that action, with the agent, the user, and the outcome.

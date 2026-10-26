@@ -1,0 +1,41 @@
+---
+title: "Command and execution safety"
+---
+
+Agents execute. These guardrails constrain what they may run, how many of them may run, and how far they may replicate themselves.
+
+## CodingAgent Command Execution Evaluator
+
+Blocks destructive shell commands and flags restricted ones, using the command list that matches the workstation’s operating system. Compound commands are inspected segment by segment, so a dangerous instruction cannot be hidden behind a harmless one. Rules can be scoped by department.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer asks the agent to tidy up disk space before a build. The agent produces a chained command that is mostly harmless and partly catastrophic. |
+| **Example** | `Free up some space — clean the build artefacts and`<br />`clear out the old database volume.`<br /><br />`  rm -rf ./build && rm -rf /var/lib/postgresql/data` |
+| **What happens** | Each segment is evaluated separately. The build cleanup is permitted; the destructive segment is blocked, and the command does not run. |
+| **Risk exposure without Guardrail** | Irreversible data loss on a developer machine or, worse, a shared environment. Agents do not pause to reconsider a command before running it, and there is no undo. A single unreviewed chained command can cost more than the entire governance programme. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially. Bash deny rules are prefix patterns, and Anthropic's own documentation cautions that patterns constraining command arguments are fragile: the same destructive outcome can be reached with a different flag order, another tool, or an interpreter one-liner. There are no OS-specific command lists and approval prompts depend on a developer who is often auto-approving.<br /><br />**What the Reva plugin adds:** The pre-tool hook splits compound commands and evaluates each segment against the command list for the workstation's operating system, scoped by department. The decision is made centrally, not by the agent or the developer's local settings, and every blocked or flagged segment lands in the decision record. |
+
+## CodingAgent Concurrent Session Ceiling
+
+Caps how many agent sessions may run at once. A hard limit blocks further sessions; a lower soft threshold lets them through but flags them for review.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer parallelises a large refactor by opening a session per service. What began as three sessions becomes fifteen, and a script starts launching them automatically. |
+| **Example** | `Luanch multiple sessions from multiple runtime channels(Cli,VSCode etc..)` |
+| **What happens** | Sessions beyond the soft threshold are allowed but flagged. Sessions at or above the hard ceiling are blocked. |
+| **Risk exposure without Guardrail** | Agent activity becomes impossible to attribute or budget for. Licence seats and model spend climb without a corresponding increase in work, and a stolen credential can be used to run agents at scale without the volume ever looking unusual. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** No. Each Claude Code session is an independent process on a device; there is no organization-wide view of how many are running for a user across the CLI, IDE extensions and machines, and no setting to cap them. Usage and spend reporting only shows the consumption after the fact.<br /><br />**What the Reva plugin adds:** The session-start hook registers every session against the user's identity with Reva, which holds the one place a live count can exist. Sessions above the soft threshold are flagged and those at the hard ceiling are blocked, across every runtime channel(Cli,VSCode etc..) and every supported agent. |
+
+## CodingAgent Ephemeral Agent Control
+
+Caps how many sub-agents may spawn.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer asks the agent to handle a migration across every service in a monorepo. The agent decides the efficient approach is to spawn a sub-agent per service, and each sub-agent reaches the same conclusion about its own work. |
+| **Example** | `Break this migration into parallel workstreams and`<br />`spawn a dedicated sub-agent for each of the 40 services.` |
+| **What happens** | Spawning is permitted up to the soft threshold, flagged beyond it, and blocked at the hard limit. |
+| **Risk exposure without Guardrail** | Uncontrolled fan-out: dozens of agents acting concurrently, each inheriting the parent’s permissions, none of them individually reviewed. Cost is the visible problem. The real one is that no human is watching any single agent in the swarm. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially. Claude Code lets you deny the sub-agent tool outright through permission rules, but that is all-or-nothing: there is no flag-before-block, and no record of which session spawned which sub-agent or what each one did in runtime<br /><br />**What the Reva plugin adds:** The plugin hooks sub-agent spawning and counts it against soft and hard thresholds per user. Each sub-agent's own actions still pass through every other guardrail and are attributed back to the parent session, so the swarm is never unwatched. |

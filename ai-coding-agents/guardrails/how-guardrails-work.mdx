@@ -1,0 +1,48 @@
+---
+title: "How guardrails work"
+---
+
+## Enforced and Monitor
+
+Every guardrail runs in one of two modes, set independently.
+
+| Mode | Behaviour |
+|:-----|:----------|
+| **Enforced** | The action is blocked. The agent cannot proceed, and the decision is recorded. |
+| **Monitor** | The action proceeds and is recorded. Nothing is blocked. Use this to see what a guardrail would have caught before you switch it on. |
+
+Monitor mode is not a weaker setting — it is how you find out whether a guardrail fits your environment. A week in Monitor tells you the true rate of a guardrail firing against real work, which is the only reliable basis for enforcing it without disrupting your developers.
+
+## What the developer sees
+
+When a guardrail blocks an action, the agent receives a single flat message:
+
+<Note>
+  **Blocked by Reva Governance Policy**
+
+  That is the entire message. It does not name the guardrail, the rule, or the reason.
+</Note>
+
+This is deliberate. An agent told why it was blocked will negotiate against the reason — rephrasing the request, splitting the command, or routing around the specific condition it was given. Withholding the cause removes that opening.
+
+The full detail — which guardrail fired, on what content, for which user, at which step — goes to your decision record, where your team can review it and the developer cannot game it.
+
+## Claude Code's native controls and the Reva plugin
+
+Claude Code ships useful controls of its own: allow, ask and deny permission rules, managed settings pushed to devices through MDM, managed MCP server lists, sandboxing, plan mode, and hooks. Several guardrails in this guide overlap with them, and each guardrail's table has a row that says exactly where.
+
+What the native controls do not give you is governance. They are static files on each machine, identical for every user of that machine; they have no Monitor mode; they mostly match on tool names and path patterns rather than content; they leave no central decision record tied to a person; and they cover Claude Code only.
+
+The Reva plugin uses Claude Code's hooks at the points where the agent acts: when a prompt is submitted, before and after a tool runs, when a session starts and when a sub-agent is spawned. At each point the plugin extracts the context (who, on which machine, what action, on what content) and asks Reva's central policy decision point. The plugin never decides; the policy does. The result is allow, block or flag, the detail goes to the decision record, and the same policies apply to Codex and Kiro.
+
+## How to read this guide
+
+Each guardrail below follows the same five-part structure.
+
+| Field | What it tells you |
+|:------|:------------------|
+| **Scenario** | The real situation this guardrail exists for - usually developer doing something reasonable. |
+| **Example** | The prompt or action that triggers it. Prompt-driven guardrails show a prompt; session and device guardrails show the action instead. |
+| **What happens** | The outcome when the guardrail is enforced. |
+| **Risk exposure without Guardrail** | What you are exposed to without it. This is the row to read if you are deciding what to enforce first. |
+| **Why Claude Code alone isn't enough** | Which parts of the guardrail Claude Code's native controls already cover, where they stop, and what the Reva plugin adds on top through its hooks and central policy decision. |

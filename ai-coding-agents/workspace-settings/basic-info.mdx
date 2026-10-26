@@ -1,0 +1,49 @@
+---
+title: "Basic info"
+description: "Manage your workspace details, plans, members, and plugin configuration."
+---
+
+For the workspace administrator. Everything in this guide lives under Settings in your Reva workspace.
+
+Settings is where you name your workspace, pick a plan for each coding agent, decide who can use it, and get the Reva plugin onto developer machines.
+
+Settings has two sections:
+
+- **Basic info :** your workspace name, description, and administrator.
+- **Plan & Users :** your current plan, your seat usage, and per-agent configuration, who is on it, how they join, and how the plugin is installed.
+
+<Note>
+  Countdown in the top-right corner shows the time remaining. It runs from registration, not from your first install, so the sooner your developers are set up, the more of the window you spend looking at real activity.
+</Note>
+
+Three fields identify your workspace to everyone who joins it.
+
+| Field | What it is and when to change it |
+|:------|:---------------------------------|
+| **Workspace title** | The name your members see. Use your organization or business-unit name — the name a developer will recognise in an invitation. |
+| **Description** | A short line describing what this workspace governs. Useful when several teams share it, and a good place to record scope decisions your successor will want to know. |
+| **Admin** | The account responsible for this workspace: plans, members, and plugin access. This is the person who registered your organization with Reva. |
+
+<Note>
+  Changing the workspace info what members see, but it does not affect anything already installed. Plugins stay connected, and your activity history is unaffected.
+</Note>
+
+## Glossary
+
+| Term | Meaning |
+|:-----|:--------|
+| **Workspace** | Your organization’s environment in Reva: its plan, members, coding agents, and activity history. |
+| **Seat** | One member’s place on your plan. Held by active members and by outstanding invitations. |
+| **Active member** | Someone who has completed plugin setup and plugin connected to the workspace. |
+| **Invited member** | Someone who has been sent an invitation but has not yet completed setup. |
+| **Coding agent plan** | The Individual, Teams, or Enterprise option chosen for a single coding agent. Held per agent, not per workspace. |
+| **Workspace token** | The credential that authorises the plugin to send activity to your workspace. Sensitive/Confidential; treat it like a password. |
+| **Managed settings** | The configuration file distributed to workstations so the plugin is deployed centrally rather than installed by each developer. |
+| **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
+
+## Best practices
+
+- **Confirm the rollout landed:** Adding a member is not the same as governing them. Track who has actually produced activity, and follow up with anyone who has not.
+- **Work one agent at a time:** Complete one coding agent end to end before starting the next. Partially configured agents are easy to forget and hard to spot later.
+- **Keep the member list current:** Remove people who have left and withdraw invitations who did not installed due to any circumstances. It keeps your seat count honest and your access list accurate.
+- **Treat the token as a managed secret:** Rotate the workspace token on the schedule your security policy requires.

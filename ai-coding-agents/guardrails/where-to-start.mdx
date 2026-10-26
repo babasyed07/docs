@@ -1,0 +1,16 @@
+---
+title: "Where to start"
+---
+
+Turning on twelve guardrails at once is the fastest way to have them all turned off again a week later. A staged rollout gets you to the same place with your developers still on side.
+
+- **Week one.** Put every guardrail in Monitor. Nothing is blocked, and you find out what your developers are actually doing — which is rarely what anyone predicts.
+- **Week two.** Enforce the guardrails that carry no tuning burden and no legitimate use case: secrets, personal data, destructive commands, prompt injection, content safety, and unsanctioned connectors. These rarely produce a false positive worth arguing about.
+- **Week three.** Tune and then enforce the environment-specific ones. File sensitivity needs your category definitions. Device posture needs approved machine lists populated first. Session and sub-agent limits need a week of real numbers before you know what normal looks like.
+- **Ongoing.** Review what fired. A guardrail firing constantly against legitimate work is misconfigured, not vindicated — fix the rule rather than asking your developers to live with it.
+
+<Warning>
+  Device Posture is the one to sequence carefully. Enforcing it before your approved machine lists are populated will block your entire team at once, including you.
+</Warning>
+
+_Reva · Guardrails for AI coding agents · Version 1.0 · For workspace administrators_

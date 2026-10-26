@@ -1,0 +1,41 @@
+---
+title: "Data protection"
+---
+
+These three cover the most common way governed organizations lose data to an AI tool: not an attack, but a developer pasting something they should not have, or an agent reading a file nobody thought about.
+
+## PII Detection Evaluator
+
+Detects personally identifiable information in prompts and responses — names, contact details, financial accounts, government identifiers, and health information.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer is debugging a parser that fails on certain customer records. To get useful help, they paste a real failing row from the production database straight into the agent. |
+| **Example** | `Debug why the address parser throws on this record:`<br />`{ "name": "Priya Menon", "dob": "1991-04-12",`<br />`  "govt_id": "4521 8890 1123",`<br />`  "email": "priya.menon@acme.in",`<br />`  "policy_no": "HLT-88231" }` |
+| **What happens** | The prompt is blocked before it reaches the model. The decision record captures which categories were detected, without storing the values themselves. |
+| **Risk exposure without Guardrail** | Production personal data leaves your environment and enters a third-party model provider, along with its retention and logging. Under most privacy regimes this is a reportable disclosure and without a guardrail you have no record that it happened, so you cannot scope it, notify, or remediate. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially, and not by design. The model may notice personal data and caution the developer, but that is its judgement, not a control: it is not guaranteed, and the data has already been sent to the provider and saved in the local transcript by the time it responds. Anthropic documents no personal-data scanning of prompts; blocking one requires a customer-written prompt hook, with its own detection, policy and audit trail maintained on every machine.<br /><br />**What the Reva plugin adds:** The plugin's prompt-submit hook passes the prompt to Reva's central policy decision before it reaches the model. |
+
+## Secrets Detection Evaluator
+
+Detects leaked credentials in prompts, responses, and conversation history — API keys, access tokens, passwords, and private keys.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A deployment is failing and the developer pastes their environment file into the agent to ask why, without registering that it contains live credentials. |
+| **Example** | `My deploy keeps failing, here is my .env:`<br />`AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCY`<br />`STRIPE_SECRET_KEY=sk_live_51H8xQ2LkD9vRt3nZ`<br />`DB_PASSWORD=Pr0d!Acme2026` |
+| **What happens** | The prompt is blocked and the affected credential types are recorded, so your security team knows what to rotate. |
+| **Risk exposure without Guardrail** | Live production credentials sit in a third-party conversation history and in your own logs. Every exposed key must be treated as compromised and rotated  and without detection, nobody knows to start. This is the single cheapest guardrail to enforce and the most expensive one to have skipped. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially, and not by design. The Claude model often recognises a pasted credential, warns the developer and refuses to use it, but that is the model's judgement, not a control: it is not guaranteed on every prompt, and by the time the model responds the key has already been sent to the provider and written to the conversation history. Anthropic documents no secrets scanning of prompts; its hooks documentation leaves prompt-level blocking to a customer-written UserPromptSubmit hook, and Claude Code keeps session transcripts in plaintext on the developer's machine (30 days by default).<br /><br />**What the Reva plugin adds:** The prompt is inspected at the hook and blocked before it leaves the machine, every time, independent of how the model would have reacted. The credential types are recorded against the user and session, so your security team knows exactly what to rotate. |
+
+## CodingAgent File Sensitivity Evaluator
+
+Gates which files an agent may read, by path and by the content of shell commands it runs. You define the sensitive categories — secrets, configuration, source, or your own — and set rules per user, per category, and per action.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer asks the agent to document the service. The agent does what it was asked and walks the whole repository, including the files nobody meant to include. |
+| **Example** | `Read every file in this repo, including config and`<br />`Env files, and write me a summary of our infrastructure.` |
+| **What happens** | Reads against your secret and configuration categories are blocked; source files are unaffected. The agent completes the task with the material it is allowed to see. |
+| **Risk exposure without Guardrail** | Credential files, private keys, and infrastructure configuration are pulled into the agent’s context and Blast radius is whatever your repository happens to contain. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Partially. Managed Read deny rules can block paths such as .env for Claude Code's own file tools, but they match path patterns, not categories you define, and on their own they do not stop the same file being read through a shell command (cat, grep, a script) unless OS-level sandboxing is also configured. Rules are static files on each machine, identical for every user on it, with no Monitor mode.<br /><br />**What the Reva plugin adds:** The pre-tool hook sends both file-tool paths and shell command content to the policy decision, so a read is caught whichever way the agent attempts it. Sensitive categories are defined once applied per category and per action. |

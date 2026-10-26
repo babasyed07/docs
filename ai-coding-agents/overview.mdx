@@ -1,0 +1,90 @@
+---
+title: "Overview"
+description: "Workspace onboarding for AI coding agents"
+---
+
+A guide for the workspace administrator, from first sign-in to your first governed coding-agent session.
+
+This guide walks you through setting up workspace and getting your development team governed, most administrators complete it in under 15 minutes.
+
+Your engineers are already using AI coding agents such as Claude Code, Codex, Kiro, Cursor, and GitHub Copilot. In most organizations those agents operate outside existing security controls: nobody can say with confidence which agents are running, what they touched, or what stopped them from doing something they should not have. Reva closes that gap.
+
+- **Visibility —** a single, continuous record of what every coding agent in your organization is doing.
+- **Consistent policy —** one set of rules applied consistently to every agent your team uses, rather than configured separately in each tool.
+- **Automatic intervention —** high-risk actions are intercepted before they execute, not reported after the fact.
+- **Evidence —** every decision is logged with the context behind it, ready for audit and compliance review.
+
+<Note>
+  **Your developers keep their existing workflow**
+
+  Reva runs alongside your coding agents through a lightweight plugin. Developers use the same tools, the same commands, and the same repositories as before. Nothing about how they write code changes.
+</Note>
+
+## What you can do
+
+Once your first agent is governed, these are the things your workspace gives you.
+
+**See every agent action in one place**
+
+A single, continuous record of what every governed coding agent is doing: which agent, which developer, which action, and what happened next. No per-tool consoles to reconcile.
+
+**One policy set, not one per Coding Agent**
+
+Policies are defined once in your workspace and applied to every governed agent. Adding a new coding agent extends your existing rules to it rather than starting a new configuration from scratch.
+
+**Observe risky behaviour at runtime**
+
+Runtime guardrails watch for patterns that a static rule cannot anticipate, an agent drifting away from what it was asked to do, or a prompt attempting to redirect it. Your workspace starts with a default set enabled in monitor mode.
+
+**Enforce Guardrails, stop high-risk actions before they run**
+
+When an agent attempts something, your guardrails forbid, Reva blocks it at the point of execution rather than reporting it afterwards. The developer sees that the action was blocked; the reasoning stays in your decision record.
+
+**Produce evidence on demand**
+
+Every decision is logged with the context behind it, giving security and compliance teams an audit-ready account of how AI coding agents are governed in your organization.
+
+## Compare licensing plans
+
+A plan is selected per coding agent, so you can run different plans for different agents if that suits your organization.
+
+|  | Individual | Teams | Enterprise |
+|:-|:-----------|:------|:-----------|
+| **Team member onboarding** | Developers are invited by email and join individually. | You add developers directly; no invitation is required. | N/A |
+| **Plugin configuration** | Each developer configures the plugin themselves, using the instructions they receive. | You configure the plugin once, centrally, for the whole team. | N/A |
+| **Licence management** | Each developer holds their own licence. | Your team draws from a shared licence pool that you manage. | Contact the Reva team for Enterprise Workspace |
+| **Best suited to** | Smaller teams, and teams that prefer to manage licensing independently. | Teams that want centralised administration and a single shared pool. | Large organizations with advanced governance, compliance, or deployment requirements. |
+| **How to start** | Available directly in the workspace. | Available directly in the workspace. | Contact the Reva team and we will set it up with you. |
+
+## Glossary
+
+| Term | Meaning |
+|:-----|:--------|
+| **Workspace** | Your organization’s environment in Reva, its guardrails, team members, coding agents, and activity history. One per organization. |
+| **Workspace administrator** | The person responsible for configuring and managing the workspace. |
+| **Reva plugin** | The lightweight component installed alongside a coding agent. It sends each attempted action to Reva and enforces the decision returned. |
+| **Guardrail** | A runtime control that detects risky agent behaviour as it happens, such as an unexpected change in what the agent is trying to do. |
+| **Decision** | The outcome Reva returns for a single attempted action, together with the context behind it. Decisions form your audit record. |
+| **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
+| **OAuth token** | The credential that authorises the plugin to send decisions to your workspace. Sensitive/Confidential - treat it like a password. |
+
+## Best practices
+
+Once your first agent is governed, these are worth doing in your first week.
+
+- **Get your first installs in:** Insights stays empty until a developer/user installs the plugin and runs a session. Track who has installed and follow up with anyone who has not, an uninstalled developer/user is an ungoverned one.
+- **Review the defaults:** Your workspace starts with a default policy set and default runtime guardrails. Review them against how your organization works and adjust before you widen the rollout.
+- **Watch real traffic:** The first few days of real activity tell you more than any configuration screen. Look at what agents are attempting, what was allowed, and what was stopped.
+- **Expand deliberately:** Add the remaining agents and developers once you are satisfied with the picture from your first team.
+
+## Helpful references
+
+<CardGroup cols={1}>
+  <Card
+    title="Not registered yet"
+    icon="user-plus"
+    href="https://agentsecurity.reva.ai/register"
+  >
+    https://agentsecurity.reva.ai/register
+  </Card>
+</CardGroup>

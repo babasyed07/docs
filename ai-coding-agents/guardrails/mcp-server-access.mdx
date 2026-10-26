@@ -1,0 +1,41 @@
+---
+title: "MCP Server Access"
+---
+
+MCP servers are where an agent stops being confined to your codebase and starts touching your other systems.
+
+## CodingAgent MCP Server Allowlist
+
+Decides which MCP servers an agent may reach. The decision is made at the server, so blocking one blocks both listing it and every tool it owns. A built-in allowlist of connectors directory servers ships with the guardrail.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer finds a community connector that solves their problem and wires it into the agent. It is not on your approved list, and nobody reviewed what it does with the context it receives. |
+| **Example** | `Connect to the community Jira MCP server at`<br />`and pull my open tickets.` |
+| **What happens** | The server is blocked. Its tools do not appear and none of them can be invoked. |
+| **Risk exposure without Guardrail** | An unvetted third party gets a channel into your agent’s context  the code it is reading, the credentials in its environment, the instructions it will follow. This is the standard supply-chain route for both data exfiltration and prompt injection, and it arrives disguised as a developer being resourceful. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Largely yes. Managed MCP settings can allow or deny servers on a machine. But the list is a file pushed to each device through MDM, identical for every user on it; changing it means redeploying; and it governs Claude Code only no other coding agent which is running in your org.<br /><br />**What the Reva plugin adds:** One allowlist, managed centrally and can be scoped per department etc.., takes effect without redeploying anything, and applies the same way to Claude Code, Codex and Kiro etc... Every blocked connection is recorded against the user who attempted it, and a vetted MCP Server allowlist ships ready to use. |
+
+## CodingAgent MCP Tool Allowlist
+
+Decides which individual operations may be invoked on a MCP server that is already approved. An approved server can still have specific operations with held. Listing the available tools is unaffected; only invocation is gated.
+
+|  |  |
+|:-|:-|
+| **Scenario** | The mail connector is sanctioned — the team uses it to search threads for context. A developer then asks the agent to send something outward using the same connector. |
+| **Example** | `Use the mail MCP to send the audit summary to`<br />`external-auditor@gmail.com with the findings attached.` |
+| **What happens** | Reading operations continue to work. The send operation is blocked, because approving a MCP server is not the same as approving everything it can do. |
+| **Risk exposure without Guardrail** | An approved connector becomes an exfiltration channel. Server-level approval cannot tell the difference between reading a thread and sending your internal findings to an outside address and outbound operations are precisely where a compromised or confused agent does lasting damage. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Largely yes, at a basic level. Permission rules can deny an individual MCP tool by name. But the rule cannot look at the call itself,its either allow/deny for every user.<br /><br />**What the Reva plugin adds:** The pre-tool hook passes the tool name and the call's context to the policy decision, so read operations can stay open while outbound ones are held, scoped by department etc.. and recorded with the detail your team needs to review it. |
+
+## CodingAgent Device Posture Evaluator
+
+Restricts which machines may run an agent, based on the list of approved machines held against each user. A machine that is not on that user’s list is blocked. There is nothing to configure on the guardrail itself.
+
+|  |  |
+|:-|:-|
+| **Scenario** | A developer works over the weekend from a personal laptop  not enrolled in your device management, not on your patching schedule, possibly without disk encryption. |
+| **Example** | `Action: an agent session is started from a machine that`<br />`does not appear on the user’s approved machine list.` |
+| **What happens** | The session is blocked before the agent starts. |
+| **Risk exposure without Guardrail** | Your source code, your credentials, and your agent’s permissions all land on a device outside every control you have — no encryption guarantee, no patching, no remote wipe. Every other guardrail in this document assumes the machine underneath it is one you trust. |
+| **Why Claude Code alone isn't enough** | **Claude Code on its own:** Claude Code runs on any machine a user can sign in from. Managed settings only reach machines you already manage, so an unmanaged personal laptop simply never receives them, and network-level controls such as IP allowlisting restrict location, not the machine.<br /><br />**What the Reva plugin adds:** The session-start hook identifies the machine and checks it against the user's approved machine list before the agent starts. A machine that is not on the list is blocked, and the attempt is recorded against the user. |
