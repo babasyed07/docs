@@ -16,7 +16,7 @@
     },
     {
       "source": "/ai-coding-agents/workspace-settings",
-      "destination": "/ai-coding-agents/workspace-settings/overview"
+      "destination": "/ai-coding-agents/workspace-settings/basic-info"
     },
     {
       "source": "/ai-coding-agents/guardrails",
@@ -148,19 +148,28 @@
                   "ai-coding-agents/get-started/set-up-your-workspace",
                   "ai-coding-agents/get-started/set-up-your-coding-agents",
                   "ai-coding-agents/get-started/next-steps",
-                  "ai-coding-agents/get-started/compare-licensing-plans",
                   "ai-coding-agents/get-started/common-tasks",
-                  "ai-coding-agents/get-started/troubleshooting",
-                  "ai-coding-agents/get-started/glossary"
+                  "ai-coding-agents/get-started/troubleshooting"
                 ]
               },
               {
                 "group": "Workspace settings",
                 "expanded": true,
                 "pages": [
-                  "ai-coding-agents/workspace-settings/overview",
                   "ai-coding-agents/workspace-settings/basic-info",
-                  "ai-coding-agents/workspace-settings/plan-and-users",
+                  {
+                    "group": "Plan & Users",
+                    "expanded": true,
+                    "pages": [
+                      "ai-coding-agents/workspace-settings/plan-and-users/read-your-plan-and-seat-usage",
+                      "ai-coding-agents/workspace-settings/plan-and-users/select-a-coding-agent",
+                      "ai-coding-agents/workspace-settings/plan-and-users/choose-a-plan-for-each-agent",
+                      "ai-coding-agents/workspace-settings/plan-and-users/add-members",
+                      "ai-coding-agents/workspace-settings/plan-and-users/configure-the-plugin-for-your-team",
+                      "ai-coding-agents/workspace-settings/plan-and-users/remove-a-member",
+                      "ai-coding-agents/workspace-settings/plan-and-users/request-an-agent"
+                    ]
+                  },
                   "ai-coding-agents/workspace-settings/upgrade-your-plan",
                   "ai-coding-agents/workspace-settings/common-tasks",
                   "ai-coding-agents/workspace-settings/troubleshooting",
