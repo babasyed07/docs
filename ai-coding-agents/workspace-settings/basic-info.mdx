@@ -27,3 +27,23 @@ Three fields identify your workspace to everyone who joins it.
 <Note>
   Changing the workspace info what members see, but it does not affect anything already installed. Plugins stay connected, and your activity history is unaffected.
 </Note>
+
+## Glossary
+
+| Term | Meaning |
+|:-----|:--------|
+| **Workspace** | Your organization’s environment in Reva: its plan, members, coding agents, and activity history. |
+| **Seat** | One member’s place on your plan. Held by active members and by outstanding invitations. |
+| **Active member** | Someone who has completed plugin setup and plugin connected to the workspace. |
+| **Invited member** | Someone who has been sent an invitation but has not yet completed setup. |
+| **Coding agent plan** | The Individual, Teams, or Enterprise option chosen for a single coding agent. Held per agent, not per workspace. |
+| **Workspace token** | The credential that authorises the plugin to send activity to your workspace. Sensitive/Confidential; treat it like a password. |
+| **Managed settings** | The configuration file distributed to workstations so the plugin is deployed centrally rather than installed by each developer. |
+| **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
+
+## Best practices
+
+- **Confirm the rollout landed:** Adding a member is not the same as governing them. Track who has actually produced activity, and follow up with anyone who has not.
+- **Work one agent at a time:** Complete one coding agent end to end before starting the next. Partially configured agents are easy to forget and hard to spot later.
+- **Keep the member list current:** Remove people who have left and withdraw invitations who did not installed due to any circumstances. It keeps your seat count honest and your access list accurate.
+- **Treat the token as a managed secret:** Rotate the workspace token on the schedule your security policy requires.

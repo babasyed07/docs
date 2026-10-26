@@ -20,6 +20,30 @@ Your engineers are already using AI coding agents such as Claude Code, Codex, Ki
   Reva runs alongside your coding agents through a lightweight plugin. Developers use the same tools, the same commands, and the same repositories as before. Nothing about how they write code changes.
 </Note>
 
+## What you can do
+
+Once your first agent is governed, these are the things your workspace gives you.
+
+**See every agent action in one place**
+
+A single, continuous record of what every governed coding agent is doing: which agent, which developer, which action, and what happened next. No per-tool consoles to reconcile.
+
+**One policy set, not one per Coding Agent**
+
+Policies are defined once in your workspace and applied to every governed agent. Adding a new coding agent extends your existing rules to it rather than starting a new configuration from scratch.
+
+**Observe risky behaviour at runtime**
+
+Runtime guardrails watch for patterns that a static rule cannot anticipate, an agent drifting away from what it was asked to do, or a prompt attempting to redirect it. Your workspace starts with a default set enabled in monitor mode.
+
+**Enforce Guardrails, stop high-risk actions before they run**
+
+When an agent attempts something, your guardrails forbid, Reva blocks it at the point of execution rather than reporting it afterwards. The developer sees that the action was blocked; the reasoning stays in your decision record.
+
+**Produce evidence on demand**
+
+Every decision is logged with the context behind it, giving security and compliance teams an audit-ready account of how AI coding agents are governed in your organization.
+
 ## Compare licensing plans
 
 A plan is selected per coding agent, so you can run different plans for different agents if that suits your organization.
@@ -43,6 +67,15 @@ A plan is selected per coding agent, so you can run different plans for differen
 | **Decision** | The outcome Reva returns for a single attempted action, together with the context behind it. Decisions form your audit record. |
 | **Insights** | The view showing governed activity across your coding agents, what was attempted, what was allowed, and what was stopped. |
 | **OAuth token** | The credential that authorises the plugin to send decisions to your workspace. Sensitive/Confidential - treat it like a password. |
+
+## Best practices
+
+Once your first agent is governed, these are worth doing in your first week.
+
+- **Get your first installs in:** Insights stays empty until a developer/user installs the plugin and runs a session. Track who has installed and follow up with anyone who has not, an uninstalled developer/user is an ungoverned one.
+- **Review the defaults:** Your workspace starts with a default policy set and default runtime guardrails. Review them against how your organization works and adjust before you widen the rollout.
+- **Watch real traffic:** The first few days of real activity tell you more than any configuration screen. Look at what agents are attempting, what was allowed, and what was stopped.
+- **Expand deliberately:** Add the remaining agents and developers once you are satisfied with the picture from your first team.
 
 ## Helpful references
 
