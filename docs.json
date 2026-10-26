@@ -13,6 +13,14 @@
     {
       "source": "/ai-coding-agents/getting-started-day0-onboarding-flow",
       "destination": "/ai-coding-agents/overview"
+    },
+    {
+      "source": "/ai-coding-agents/workspace-settings",
+      "destination": "/ai-coding-agents/workspace-settings/overview"
+    },
+    {
+      "source": "/ai-coding-agents/guardrails",
+      "destination": "/ai-coding-agents/guardrails/overview"
     }
   ],
   "navigation": {
@@ -146,8 +154,36 @@
                   "ai-coding-agents/get-started/glossary"
                 ]
               },
-              "ai-coding-agents/workspace-settings",
-              "ai-coding-agents/guardrails"
+              {
+                "group": "Workspace settings",
+                "expanded": true,
+                "pages": [
+                  "ai-coding-agents/workspace-settings/overview",
+                  "ai-coding-agents/workspace-settings/basic-info",
+                  "ai-coding-agents/workspace-settings/plan-and-users",
+                  "ai-coding-agents/workspace-settings/upgrade-your-plan",
+                  "ai-coding-agents/workspace-settings/common-tasks",
+                  "ai-coding-agents/workspace-settings/troubleshooting",
+                  "ai-coding-agents/workspace-settings/glossary",
+                  "ai-coding-agents/workspace-settings/next-steps"
+                ]
+              },
+              {
+                "group": "Guardrails",
+                "expanded": true,
+                "pages": [
+                  "ai-coding-agents/guardrails/overview",
+                  "ai-coding-agents/guardrails/how-guardrails-work",
+                  "ai-coding-agents/guardrails/guardrails-at-a-glance",
+                  "ai-coding-agents/guardrails/data-protection",
+                  "ai-coding-agents/guardrails/command-and-execution-safety",
+                  "ai-coding-agents/guardrails/mcp-server-access",
+                  "ai-coding-agents/guardrails/agent-behaviour-integrity",
+                  "ai-coding-agents/guardrails/where-to-start",
+                  "ai-coding-agents/guardrails/glossary",
+                  "ai-coding-agents/guardrails/next-steps"
+                ]
+              }
             ]
           },
           {

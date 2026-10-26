@@ -1,0 +1,20 @@
+---
+title: "Guardrails at a glance"
+---
+
+Twelve guardrails, grouped by what they protect. The suggested starting mode is a recommendation, not a default — see [Where to start](/ai-coding-agents/guardrails/where-to-start).
+
+| Guardrail | Protects against | Suggested start |
+|:----------|:-----------------|:----------------|
+| **PII Detection** | Personal data leaving your environment inside a prompt | Monitor |
+| **Secrets Detection** | Credentials pasted into prompts, responses, or history | Monitor |
+| **File Sensitivity** | Agents reading credential, config, and other sensitive files | Monitor |
+| **Command Execution** | Destructive and restricted shell commands | Monitor |
+| **Concurrent Session Ceiling** | Uncontrolled parallel agent sessions | Monitor |
+| **Ephemeral Agent Control** | Runaway sub-agent spawning | Monitor |
+| **MCP Server Allowlist** | Unsanctioned connectors reaching your agent | Monitor |
+| **MCP Tool Allowlist** | Dangerous operations on an otherwise approved connector | Monitor |
+| **Device Posture** | Agents running from unmanaged machines | Monitor |
+| **Intent Drift** | Agents working on something nobody approved | Monitor |
+| **Jailbreak & Prompt Injection** | Instructions that hijack the agent | Monitor |
+| **Content Safety** | Toxic or harmful content in prompts and responses | Monitor |

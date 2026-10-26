@@ -1,0 +1,18 @@
+---
+title: "Overview"
+description: "What each guardrail catches, the scenario behind it, and what you are exposed to without it."
+---
+
+For the workspace administrator and the security team reviewing an AI coding agent rollout.
+
+<Note>
+  **In one line**
+
+  Guardrails are the checks that run on every action your coding agents attempt — they catch the request that should never have been made, before it runs.
+</Note>
+
+An AI coding agent does not hesitate. Asked to clean up a directory, it runs the command. Asked to debug a failing record, it reads whatever you paste. Told by a file it is reading to do something else, it may simply do it. The speed that makes agents useful is the same property that makes a single bad instruction expensive.
+
+Guardrails sit between the agent and the action. Each one watches for a specific class of problem  a credential in a prompt, a destructive shell command, an unsanctioned connector/MCP server, an agent quietly working on something nobody approved  and stops or flags it at the point of execution.
+
+This guide covers every guardrail available to your workspace. Each entry gives the scenario it exists for, an example that triggers it, what the developer sees, and what you are exposed to if you leave it off.

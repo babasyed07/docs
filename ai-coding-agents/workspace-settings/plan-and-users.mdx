@@ -1,0 +1,92 @@
+---
+title: "Plan & Users"
+---
+
+This is where you spend most of your administration time. Everything on the page is scoped to one coding agent at a time.
+
+## Read your plan and seat usage
+
+The card at the top of the page summarises where you stand.
+
+| What you see | What it means |
+|:-------------|:--------------|
+| **Plan name** | Your current subscription. On a trial this reads Trial Plan and is capped at a fixed number of seats. |
+| **Seats used** | How many of your seats are taken. A seat is consumed when a member is active not the outstanding invitation |
+| **Registered and pending** | The split beneath the bar separates members who have completed setup from invitations still awaiting a response. |
+| **Upgrade plan** | Opens the upgrade path when you need more seats or Enterprise capabilities. |
+
+<Tip>
+  If the seat count is not capped yet then check the Invited list. Unanswered invitations. Delete the ones that are not going to be install or resend the invitations. Make use of all the seats within the trial period.
+</Tip>
+
+## Select a coding agent
+
+The row of tabs: Claude Code, Kiro, Codex CLI, Cursor, GitHub Copilot, switches which agent you are configuring. Plan, members, and plugin setup are all held per agent, so a change on one tab does not carry to another.
+
+Configure one agent completely before moving to the next. If a tab shows a request screen instead of configuration, that agent is not yet enabled for your workspace. see Request an agent.
+
+## Choose a plan for each agent
+
+Your choice determines how members join and who installs the plugin.
+
+|  | Individual | Teams | Enterprise |
+|:-|:-----------|:------|:-----------|
+| **How members join** | Send invitations by email. Members will receive plugin instructions and appear under Invited until they install the plugin | You add members directly. They become active immediately, with no invitation step. | Arranged with the Reva team as part of your Enterprise setup. |
+| **Who installs the plugin** | Each member installs it themselves, using the instructions emailed with their invitation. | Coding Agent Owner install it centrally on their behalf. | Configured with the Reva team to match your deployment standards. |
+| **Best suited to** | Small teams, and teams whose developers manage their own machines. | Teams with managed workstations, where central deployment is available to you. | Large organizations with advanced governance or deployment requirements. |
+
+<Note>
+  Choose the plan before adding anyone. Switching plans changes how members are onboarded, so it is cleaner to decide first than to move people across afterwards.
+</Note>
+
+## Add members
+
+### Individual plan
+
+1. **Enter** one or more work email addresses into the Add members field. Each becomes a chip, so you can invite several people at once.
+2. **Click** Send invite.
+
+Each person receives an email containing their plugin configuration instructions. They appear under Invited until they complete setup, then move to Active.
+
+Use Resend beside any invited member who has not responded. Use the delete icon to withdraw an invitation.
+
+### Teams plan
+
+1. **Enter** the work email addresses into the Add members field.
+2. **Select** Add members.
+
+Members appear under Active straight away. There is no invitation and no Invited list, because you are installing the plugin on their behalf rather than asking them to do it.
+
+<Warning>
+  Adding a member on the Teams plan does not put the plugin on their machine. Until you complete Configure plugin, those members are listed as active but their sessions are not yet governed.
+</Warning>
+
+## Configure the plugin for your team
+
+Available on the Teams plan. This section lets you deploy the Reva plugin across managed workstations so no member has to install anything individually.
+
+<Note>
+  Follow the **Plugin and Instructions** section to install the plugin and connect it to your workspace.
+</Note>
+
+<Warning>
+  For Individual Plan, Each member receives email along with Access Token and plugin installation instructions guide. Members has to install plugin themselves, using the instructions emailed with their invitation.
+</Warning>
+
+## Remove a member
+
+Removing a member revokes their workspace access and stops them using the Reva plugin.
+
+1. **Select** the delete icon beside the member, under Active or Invited.
+2. **Read** the confirmation dialog, which names the member being removed.
+3. **Select** Remove access. A confirmation message appears once the member is removed.
+
+The seat is released and can be reassigned. The member’s past activity stays in your records, removing someone ends their access, it does not erase what was already decided and logged.
+
+<Note>
+  Removal takes effect on the member’s next session. If someone is leaving under difficult circumstances, coordinate this with the account revocation you would normally perform in your identity provider rather than relying on Reva alone.
+</Note>
+
+## Request an agent
+
+Select Contact Reva team from that tab. The Reva team will confirm availability and enable it for you. Requesting one agent does not interrupt anything already configured and carry on setting up the agents you can use now.
