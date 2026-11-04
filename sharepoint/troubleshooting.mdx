@@ -1,15 +1,14 @@
 ---
 title: "Troubleshooting"
 ---
-
 | What you see | Cause | What to do |
 | --- | --- | --- |
-| Test fails with `AADSTS7000215` | The Secret ID was entered instead of the Value, or the secret expired. | Create a new secret and enter its Value. |
-| Test fails with `AADSTS700016` or `AADSTS90002` | The client ID or tenant ID is wrong. | Copy both from the app's Overview page again. |
-| 403 naming `Sites.Read.All and Files.Read.All` | The permissions are Delegated, or admin consent was not granted. | Add them as Application permissions and grant admin consent. |
-| Warning naming `Group.Read.All` | The permission is not granted, or admin consent is missing. | Add it as an Application permission and grant admin consent. |
-| Fewer sites than expected | Sites to scan lists only some sites. | Edit the list, or leave it blank for every site. |
-| Entities disappeared after an import | A site was removed from Sites to scan, or the items were deleted in SharePoint. | Expected. Each import keeps exactly what it read. |
-| Run failed with "rate limit wait budget exhausted" | Microsoft throttled the app for more than 15 minutes. | Sync again later. The run resumes from its checkpoint. |
-| Governance shows only Is Malware (no sensitivity label) | Purview labels are not set up, not yet published (up to 24 hours), not applied to the file, or the file type cannot carry one, such as a plain text file. | Follow section [4.5](/sharepoint/register-the-app-in-microsoft-entra-id#turn-on-sensitivity-labels-in-microsoft-purview-for-the-governance-fields), check the file's Sensitivity field in SharePoint, then Sync again. |
-| "a run is already in progress" | An import is still running for this connection. | Wait for it to finish. |
+| Test fails with `AADSTS7000215` | The Secret ID was entered instead of the Value, or the secret has expired. | Create a new secret and enter its Value. |
+| Test fails with `AADSTS700016` or `AADSTS90002` | The client ID or tenant ID is incorrect. | Copy both values again from the app's Overview page. |
+| 403 naming `Sites.Read.All and Files.Read.All` | The permissions are Delegated, or admin consent has not been granted. | Add them as Application permissions and grant admin consent. |
+| Warning naming `Group.Read.All` | The permission has not been granted, or admin consent is missing. | Add it as an Application permission and grant admin consent. |
+| Fewer sites than expected | Sites to scan includes only some sites. | Update the list, or leave it blank to include every site. |
+| Entities disappeared after an import | A site was removed from Sites to scan, or the items were deleted in SharePoint. | This is expected. Each import retains exactly what it read. |
+| Run failed with "rate limit wait budget exhausted" | Microsoft throttled the app for more than 15 minutes. | Run Sync again later. The import resumes from its checkpoint. |
+| Governance shows only Is Malware (no sensitivity label) | Purview labels are not configured, have not yet been published (which can take up to 24 hours), have not been applied to the file, or the file type cannot carry a label, such as a plain text file. | Follow [Turn on sensitivity labels in Microsoft Purview (for the Governance fields)](/sharepoint/register-the-app-in-microsoft-entra-id#turn-on-sensitivity-labels-in-microsoft-purview-for-the-governance-fields), check the file's Sensitivity field in SharePoint, and then run Sync again. |
+| "a run is already in progress" | An import is still running for this connection. | Wait for the current import to finish. |

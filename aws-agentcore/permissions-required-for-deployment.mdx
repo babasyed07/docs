@@ -1,0 +1,11 @@
+---
+title: "Permissions Required for Deployment"
+---
+These permissions are required once to run the CloudFormation deployment. They are separate from the permissions the connector uses at runtime. A deployment role that can create IAM roles needs iam:CreateRole, iam:AttachRolePolicy, iam:PutRolePolicy, and iam:PassRole, along with cloudformation:CreateStack and cloudformation:UpdateStack.
+
+| Deploy | The stack creates | The operator also runs |
+| --- | --- | --- |
+| EKS | An IAM role, two or three managed policies, and a Secrets Manager secret. No cluster, node group, or repository. | eks:DescribeCluster to read the OIDC issuer, along with the IAM permissions needed to attach a policy to the existing node roles specified in ImagePullRoleNames. |
+| ECS | Two IAM roles, a secret, a log group, a security group, an ECS cluster, a task definition, and a service. | No additional resources outside the stack are required, apart from selecting an existing VPC and subnets. The deployment role needs ecs:*, ec2:CreateSecurityGroup, logs:CreateLogGroup, and the IAM actions listed above. |
+
+Updating a secret value later requires secretsmanager:PutSecretValue permission on that secret. Forcing a new ECS deployment requires ecs:UpdateService. Installing Helm requires Kubernetes permissions to create a namespace, a service account, and a deployment in that namespace. It does not require any additional AWS permissions beyond those already granted to the pod role.

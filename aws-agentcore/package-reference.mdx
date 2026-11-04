@@ -1,15 +1,14 @@
 ---
 title: "Package Reference"
 ---
-
 | Item | EKS package | ECS package |
 | --- | --- | --- |
 | Template | customer-eks-permissions.json | reva-agentcore-ecs-fargate.json |
 | Values | customer-values.yaml and chart/ | Parameters on the stack. No Helm chart. |
-| Namespace or cluster | Helm namespace must match KubernetesNamespace. README example: rtg. Template default: reva-agentcore. | Cluster reva-agentcore-cluster, service reva-agentcore-service. |
+| Namespace or cluster | The Helm namespace must match KubernetesNamespace. README example: rtg. Template default: reva-agentcore. | Cluster reva-agentcore-cluster, service reva-agentcore-service. |
 | Identity | IRSA pod role. Service account reva-agentcore. | ECS task role, trusted by ecs-tasks.amazonaws.com. |
 | Image | customer-values.yaml image.repository and tag | Pinned in the task definition |
 | Token env | Set STORE_TOKEN_SECRET_ARN in env. The chart also sets REVA_TOKEN_ARN from secrets.tokenArn. | STORE_TOKEN_SECRET_ARN is set to the stack secret. |
-| Token JSON field | STORE_API_TOKEN unless TokenSecretKey and STORE_TOKEN_SECRET_KEY say otherwise | STORE_API_TOKEN |
-| Port | 8055, not exposed as a Service | 8055, security group ingress from 0.0.0.0/0 in the template |
+| Token JSON field | STORE_API_TOKEN unless TokenSecretKey and STORE_TOKEN_SECRET_KEY specify otherwise | STORE_API_TOKEN |
+| Port | 8055, not exposed as a Service | 8055, with security group ingress from 0.0.0.0/0 in the template |
 | Logs | kubectl logs | /ecs/reva-agentcore-discovery, 30 days |

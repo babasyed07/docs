@@ -1,26 +1,25 @@
 ---
 title: "Create the Connector in the Reva Console"
 ---
-
-Create the integration before you deploy anything in AWS. Activation is what issues the OAuth token and unlocks the deployment zip. The AWS account ID on the form is the account that hosts the ECR image you will pull. In the current packages that account is 732029699072, the registry in the image URI 732029699072.dkr.ecr.us-east-1.amazonaws.com/ecr-awsaiworkloadconnectorsvc.
+Create the integration before deploying anything in AWS. Activating the integration issues the OAuth token and makes the deployment ZIP available for download.
 
 ## Open AI Workload and choose the template
 
 1. In the Reva console, open Integrations.
 
-1. Create a connector from the AI Workload option.
+1. Create a connector using the AI Workload option.
 
 1. Select AWS AI Workload Discovery and continue to Basic Information.
 
 ## Enter the connection and choose External
 
-1. Enter a name and a description. Both are required.
+1. Enter a name and description. Both fields are required.
 
 1. Set Deployment Type to External.
 
-1. Enter AWS Account ID. This is required for External. It is the account from which the ECR image is downloaded, not a label you can leave blank.
+1. AWS Account ID is optional.
 
-1. Enter Regions as a comma-separated list of the regions to scan, for example us-east-1, us-west-2. These are the regions the connector will search for AgentCore and Bedrock resources.
+1. Enter Regions as a comma-separated list of the regions to scan, for example us-east-1, us-west-2. These are the regions in which the connector searches for AgentCore and Bedrock resources.
 
 1. Click Next.
 
@@ -28,7 +27,7 @@ Create the integration before you deploy anything in AWS. Activation is what iss
   <img src="/images/aws-agentcore-basic-information-external.png" alt="Basic Information with Deployment Type set to External" />
 </Frame>
 
-Internal is a different form. It asks for an AWS access key, a secret access key, an optional session token, an assume-role ARN, and an external ID. Do not fill those fields for the deployment in this document.
+Internal is a different deployment form. It asks for an AWS access key, a secret access key, an optional session token, an assume-role ARN, and an external ID. Do not fill in these fields for the deployment described in this document.
 
 <Frame caption="Figure 2. Internal deployment. This guide does not use these fields.">
   <img src="/images/aws-agentcore-internal-deployment-fields.png" alt="Internal deployment fields" />
@@ -36,7 +35,7 @@ Internal is a different form. It asks for an AWS access key, a secret access key
 
 ## Activate
 
-1. On the review step, confirm the name, description, External, the account ID, and the regions.
+1. On the review step, confirm the name, description, deployment type (External), and the regions.
 
 1. Click Activate.
 
@@ -46,7 +45,7 @@ Internal is a different form. It asks for an AWS access key, a secret access key
 
 ## Open the integration
 
-1. Return to the AI Workload integration that owns this connector. In the screenshots that integration is AGENTCORE.
+1. Return to the AI Workload integration that owns this connector. In the screenshots, this integration is named AGENTCORE.
 
 1. On the connector row, open the menu and select Manage.
 
@@ -54,7 +53,7 @@ Internal is a different form. It asks for an AWS access key, a secret access key
   <img src="/images/aws-agentcore-manage-on-the-connector-row.png" alt="Manage on the connector row" />
 </Frame>
 
-Integration Details shows the name, the description, and the OAuth Token. The copy control next to the token is how you take the value that goes into Secrets Manager. Regenerate Key issues a new token. After a regeneration, update the secret before the next import, or the connector receives HTTP 401.
+Integration Details displays the name, description, and OAuth Token. Use the copy control next to the token to copy the value that goes into Secrets Manager. Regenerate Key issues a new token. After regenerating the key, update the secret before the next import; otherwise, the connector receives HTTP 401.
 
 <Frame caption="Figure 5. Integration Details. Copy the OAuth Token from here. It is the store API token.">
   <img src="/images/aws-agentcore-integration-details-with-the-oauth-token.png" alt="Integration Details with the OAuth token" />

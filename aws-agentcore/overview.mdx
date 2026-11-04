@@ -1,0 +1,47 @@
+---
+title: "Overview"
+description: "Setup, permissions, and network requirements for the external AWS AI Workload Discovery connector on Amazon EKS, Amazon ECS, and Amazon EC2."
+---
+This document is intended for the team that creates the AWS AI Workload Discovery integration in Reva and the cloud, identity, and network teams that deploy the connector in the customer AWS account. It covers the console setup steps, the files included in the deployment packages, the IAM permissions created by those packages, and the network paths used by the connector.
+
+The AWS AI AgentCore connector discovers Amazon Bedrock AgentCore and Amazon Bedrock agent resources in a customer account and sends them to Reva. In the external deployment described here, the connector runs in the customer account. Reva does not assume a role in that account or establish a connection into the customer network. Instead, the connector communicates with Reva over outbound HTTPS using a token stored by the customer in AWS Secrets Manager.
+
+## What it discovers
+
+| Entity | Read from |
+| --- | --- |
+| Agent | AgentCore runtimes and classic Bedrock agents |
+| MCP server | AgentCore gateways |
+| Tool | Gateway targets |
+| API | OpenAPI operations on gateway targets |
+| Skill | Classic Bedrock agent action groups |
+| Model | Models declared on the agents, and the Bedrock model catalog |
+| Identity | IAM roles used by those agents, workload identities, and OAuth credential providers |
+
+Discovery is read-only. The connector lists and reads AWS resources but does not create, update, invoke, or delete them. The only secret value it reads is the Reva API token in the secret specified by this deployment. It does not read customer application secrets, OAuth token values, or API keys stored for the agents it discovers.
+
+All three deployment packages are provided in full. Each ZIP contains a README and a CloudFormation template. The EKS ZIP also contains the Helm chart and customer-values.yaml. The package downloaded by the customer contains the complete set of files for the selected deployment option.
+
+| Package | File | Where it runs |
+| --- | --- | --- |
+| Deploy as EKS | agentcoreeks.zip | A pod in an existing Amazon EKS cluster. The zip contains the README, the permissions CloudFormation template, the Helm chart, and customer-values.yaml. IAM access is IRSA. There are no static AWS keys. |
+| Deploy as ECS | agentcoreecs.zip | An Amazon ECS service on Fargate, created by CloudFormation in an existing customer VPC. The zip contains the README and the full ECS CloudFormation template. |
+| Deploy as EC2 | agentcoreec2.zip | An EC2 instance in the customer account. The zip contains the README and the full CloudFormation template for that deployment. After the stack is up, use [Secrets Manager and the API Token](/aws-agentcore/secrets-manager-and-the-api-token) and [Start Discovery](/aws-agentcore/start-discovery) to configure the token and start the import. |
+
+The console also offers an Internal deployment type. Internal runs the connector in Reva and requires AWS access keys or an assume-role ARN on the form. This document covers the External deployment path. Use only one deployment path for a given integration.
+
+## Security summary
+
+- Read-only discovery. The IAM policies in both templates allow List, Get, and Describe actions on Bedrock, AgentCore, the agent registry, Lambda configuration, and IAM role policies. They do not allow write, invoke, or delete actions.
+
+- One secret value. The pod or task role can call secretsmanager:GetSecretValue on the single Reva token secret created or specified by this deployment. It cannot read other secrets.
+
+- The Reva token is a credential. Copy it from the integration details page and store it in Secrets Manager. Rotate it using Regenerate Key in the console, then update the secret.
+
+- Scope is the customer's. The regions specified on the integration form limit what is scanned. The EKS CloudFormation template defaults AllowedRegions to us-east-1 and us-east-2. Change that list to the regions the customer wants to permit. Do not grant discovery actions in every region. AgentRoleNamePattern and FunctionNamePattern limit which IAM roles and Lambda functions can be read. Narrow both patterns if the account should not be scanned using *.
+
+- No inbound path from Reva. Reva does not connect to the VPC. All Reva traffic is outbound HTTPS from the pod or task. The connector listens on port 8055 only to allow an operator to start an import.
+
+- Image pull is cross-account and pull-only. Nodes or the ECS execution role can pull from one private ECR repository in the Reva publisher account. The customer stack does not change that repository's policy. The publisher account must allow the customer pull role.
+
+- Optional CloudTrail reads. On EKS, cloudtrail:LookupEvents is disabled unless EnableModelCallCorrelation is true. The ECS template does not grant CloudTrail access.

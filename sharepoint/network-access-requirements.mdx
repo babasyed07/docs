@@ -1,22 +1,21 @@
 ---
 title: "Network Access Requirements"
 ---
-
-In the internal deployment the connector runs in Reva, so the customer network needs no firewall change. The connector makes outbound HTTPS (TCP 443) calls from Reva to the Microsoft endpoints below.
+In the internal deployment, the connector runs in Reva, so the customer network requires no firewall changes. The connector makes outbound HTTPS (TCP 443) calls from Reva to the Microsoft endpoints listed below.
 
 ## Microsoft destinations
 
 | Destination | Hostname | Purpose |
 | --- | --- | --- |
-| Microsoft Entra ID token endpoint | `login.microsoftonline.com` (HTTPS, TCP 443) | `POST /{tenant-id}/oauth2/v2.0/token` with the client credentials. Returns a Graph access token, cached and renewed before it expires. |
-| Microsoft Graph | `graph.microsoft.com` (HTTPS, TCP 443) | Every read in section [9](/sharepoint/permissions-the-connector-uses), under `/v1.0`. Per-file details are grouped 20 to a `$batch` request. |
+| Microsoft Entra ID token endpoint | `login.microsoftonline.com` (HTTPS, TCP 443) | `POST /{tenant-id}/oauth2/v2.0/token` with the client credentials. Returns a Graph access token, which is cached and renewed before it expires. |
+| Microsoft Graph | `graph.microsoft.com` (HTTPS, TCP 443) | Handles every read listed in [Permissions the Connector Uses](/sharepoint/permissions-the-connector-uses), under `/v1.0`. Per-file details are grouped into requests of 20 through `$batch`. |
 
 ## Reva console
 
-The people who create the integration open the Reva console in a browser to create it, run Test and Sync, read the import status and view the data in Access Explorer.
+People who create the integration use a browser to access the Reva console, create the integration, run Test and Sync, review the import status, and view the data in Access Explorer.
 
 ## Customer tenant settings that can block the connector
 
-- **IP or location restrictions.** If the tenant limits app sign-ins or SharePoint access by IP address (Conditional Access for workload identities, or SharePoint's network location setting), add Reva's outbound IP addresses. Reva provides them for the tenant.
-- **Admin consent.** Application permissions only work after an administrator grants consent (section [4.3](/sharepoint/register-the-app-in-microsoft-entra-id#add-the-microsoft-graph-permissions-and-grant-consent)). Without it the token is issued but every Graph read returns 403.
-- **Throttling.** Microsoft throttles each app per tenant. The connector waits for the time Graph asks for in `Retry-After`, up to 15 minutes in total per walk, then ends the run and resumes later from its checkpoint. Large first imports run best outside business hours, when Microsoft throttles less.
+- **IP or location restrictions.** If the tenant restricts app sign-ins or SharePoint access by IP address (through Conditional Access for workload identities or SharePoint's network location setting), add Reva's outbound IP addresses. Reva provides these addresses for the tenant.
+- **Admin consent.** Application permissions work only after an administrator grants consent ([Add the Microsoft Graph permissions and grant consent](/sharepoint/register-the-app-in-microsoft-entra-id#add-the-microsoft-graph-permissions-and-grant-consent)). Without consent, the token is issued, but every Graph read returns 403.
+- **Throttling.** Microsoft throttles each app per tenant. The connector waits for the duration specified by Graph in `Retry-After`, up to a total of 15 minutes per walk. It then ends the run and resumes later from its checkpoint. Large first imports are best run outside business hours, when Microsoft is less likely to throttle requests.

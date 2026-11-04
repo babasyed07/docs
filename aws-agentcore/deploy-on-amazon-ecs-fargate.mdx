@@ -1,20 +1,19 @@
 ---
 title: "Deploy on Amazon ECS Fargate"
 ---
-
-Use this section with agentcoreecs.zip. One CloudFormation stack creates the secret, the task execution role, the task role, a log group, a security group, an ECS cluster, a task definition, and a Fargate service. You supply a VPC and subnets. The stack does not create a VPC.
+Use this page with agentcoreecs.zip. A single CloudFormation stack creates the secret, task execution role, task role, log group, security group, ECS cluster, task definition, and Fargate service. You must supply a VPC and subnets. The stack does not create a VPC.
 
 ## How the pieces fit
 
-- Task role. Read-only discovery, plus secretsmanager:GetSecretValue and secretsmanager:DescribeSecret on the token secret.
+- Task role. Provides read-only discovery access, along with secretsmanager:GetSecretValue and secretsmanager:DescribeSecret permissions on the token secret.
 
-- Task execution role. Pulls the image from the publisher ECR repository and writes CloudWatch Logs. It also has the Amazon managed policy AmazonECSTaskExecutionRolePolicy.
+- Task execution role. Pulls the image from the publisher ECR repository and writes to CloudWatch Logs. It also has the Amazon managed policy AmazonECSTaskExecutionRolePolicy.
 
-- Secrets Manager. Same token secret contract as EKS. The task definition sets STORE_TOKEN_SECRET_ARN to the secret the stack creates.
+- Secrets Manager. Uses the same token secret contract as EKS. The task definition sets STORE_TOKEN_SECRET_ARN to the secret created by the stack.
 
 ## Deploy the stack
 
-The subnets need a route to the Reva API and to the AWS endpoints in section [3](/aws-agentcore/network-access-requirements). Use public subnets with AssignPublicIp ENABLED, or private subnets with a NAT gateway and AssignPublicIp DISABLED.
+The subnets need a route to the Reva API and to the AWS endpoints listed in Network Access Requirements. Use public subnets with AssignPublicIp ENABLED, or private subnets with a NAT gateway and AssignPublicIp DISABLED.
 
 ```bash
 STACK_NAME="reva-agentcore-ecs"
@@ -39,9 +38,9 @@ Optional parameters, with their defaults:
 
 - TokenSecretName defaults to reva/agentcore/store-token.
 
-- AgentRoleNamePattern defaults to *. Tighten it the same way as on EKS.
+- AgentRoleNamePattern defaults to *. Tighten it in the same way as on EKS.
 
-- FunctionNamePattern defaults to *. The Lambda permission uses that pattern in every region.
+- FunctionNamePattern defaults to *. The Lambda permission uses this pattern in every region.
 
 Read the outputs:
 
@@ -53,11 +52,11 @@ TASK_EXECUTION_ROLE_ARN=$(aws cloudformation describe-stacks --stack-name "$STAC
   --query "Stacks[0].Outputs[?OutputKey=='TaskExecutionRoleArn'].OutputValue | [0]" --output text)
 ```
 
-The stack also outputs ClusterName, ServiceName, and TaskRoleArn. The cluster is reva-agentcore-cluster and the service is reva-agentcore-service. Give the publisher account the task execution role ARN so that account can allow ecr:BatchGetImage on ecr-awsaiworkloadconnectorsvc. The customer stack cannot edit the publisher repository policy.
+The stack also outputs ClusterName, ServiceName, and TaskRoleArn. The cluster is reva-agentcore-cluster, and the service is reva-agentcore-service. Provide the task execution role ARN to the publisher account so that it can allow ecr:BatchGetImage on ecr-awsaiworkloadconnectorsvc. The customer stack cannot edit the publisher repository policy.
 
 ## Put the Reva token in the secret
 
-The secret is created with a placeholder. The task definition already sets STORE_TOKEN_SECRET_ARN to this secret, and the connector reads the JSON field STORE_API_TOKEN. Update the secret, then start a new deployment so the running task picks it up.
+The stack creates the secret with a placeholder. The task definition already sets STORE_TOKEN_SECRET_ARN to this secret, and the connector reads the JSON field STORE_API_TOKEN. Update the secret, then start a new deployment so the running task picks up the updated value.
 
 ```bash
 aws secretsmanager put-secret-value \
@@ -72,7 +71,7 @@ aws ecs update-service \
   --region "$REGION"
 ```
 
-To use a secret you created yourself, set the task environment variable STORE_TOKEN_SECRET_ARN to that secret’s ARN. If the JSON field is not named STORE_API_TOKEN, also set STORE_TOKEN_SECRET_KEY to the field name. The task role needs secretsmanager:GetSecretValue and secretsmanager:DescribeSecret on that ARN. Changing the task definition is a new revision, then a new deployment.
+To use a secret you created yourself, set the task environment variable STORE_TOKEN_SECRET_ARN to that secret's ARN. If the JSON field is not named STORE_API_TOKEN, also set STORE_TOKEN_SECRET_KEY to the field name. The task role needs secretsmanager:GetSecretValue and secretsmanager:DescribeSecret permissions on that ARN. Updating the task definition creates a new revision, after which you must start a new deployment.
 
 ## Check the service
 
@@ -87,4 +86,4 @@ A healthy start looks like this:
 {"level":"INFO","msg":"aws-aiworkload-connector listening","addr":":8055","version":"dev"}
 ```
 
-The task is 256 CPU units and 512 MiB, desired count 1, network mode awsvpc. Logs are kept for 30 days in /ecs/reva-agentcore-discovery.
+The task is configured with 256 CPU units and 512 MiB of memory, a desired count of 1, and network mode awsvpc. Logs are retained for 30 days in /ecs/reva-agentcore-discovery.

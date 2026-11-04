@@ -1,5 +1,5 @@
 ---
-title: "Permissions the Templates Grant"
+title: "Permissions Granted by the Templates"
 ---
 
 These are the permissions in customer-eks-permissions.json and reva-agentcore-ecs-fargate.json. Both policies are read-only. Replace * in AgentRoleNamePattern or FunctionNamePattern only when you have set those parameters. The EKS regional statements also require aws:RequestedRegion to be one of AllowedRegions.
@@ -35,10 +35,10 @@ Neither template grants iam:ListRoles, cognito-idp, account:ListRegions, or secr
 | Where | Actions | Resource |
 | --- | --- | --- |
 | EKS. Managed policy ImagePullPolicy, attached to each role in ImagePullRoleNames. Those are the EC2 node roles or the Fargate execution roles, not the pod role. | ecr:GetAuthorizationToken | * |
-| Same EKS policy | ecr:BatchCheckLayerAvailability, ecr:GetDownloadUrlForLayer, ecr:BatchGetImage | PublisherRepositoryArn. The README sets arn:aws:ecr:us-east-1:732029699072:repository/ecr-awsaiworkloadconnectorsvc. |
+| Same EKS policy | ecr:BatchCheckLayerAvailability, ecr:GetDownloadUrlForLayer, ecr:BatchGetImage | PublisherRepositoryArn. The README sets `arn:aws:ecr:us-east-1:<REVA_ECR_ACCOUNT_ID>:repository/ecr-awsaiworkloadconnectorsvc`. |
 | ECS task execution role, inline policy CrossAccountECRPullAndSecretRead, plus AmazonECSTaskExecutionRolePolicy | ecr:GetAuthorizationToken, BatchCheckLayerAvailability, GetDownloadUrlForLayer, BatchGetImage | * for the pull actions. logs:CreateLogStream and logs:PutLogEvents come from the AWS managed execution policy, on /ecs/reva-agentcore-discovery. |
 
-The customer policy is only half of a cross-account pull. The repository policy in account 732029699072 must allow the same actions for the node role or the ECS task execution role. Send Reva that role ARN. The customer stack does not change the publisher repository.
+The customer policy is only half of a cross-account pull. The repository policy in the Reva publisher account (`<REVA_ECR_ACCOUNT_ID>`) must allow the same actions for the node role or the ECS task execution role. Send Reva that role ARN. The customer stack does not change the publisher repository.
 
 ## Trust policies
 

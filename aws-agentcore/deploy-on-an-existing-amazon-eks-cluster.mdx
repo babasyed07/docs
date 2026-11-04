@@ -1,20 +1,19 @@
 ---
 title: "Deploy on an Existing Amazon EKS Cluster"
 ---
-
-Use this section with agentcoreeks.zip. The stack does not create a cluster. It creates an IRSA pod role, a Secrets Manager secret, a read-only discovery policy, a token-read policy, and an ECR pull policy on the node roles you name.
+Use this page with agentcoreeks.zip. The stack does not create an EKS cluster. Instead, it creates an IRSA pod role, a Secrets Manager secret, a read-only discovery policy, a token-read policy, and an ECR pull policy for the node roles you specify.
 
 ## How the pieces fit
 
-- Pod IAM role. The service account reva-agentcore assumes it with a web-identity token from the cluster OIDC provider. The trust policy allows that one service account in the one namespace you set.
+- Pod IAM role. The reva-agentcore service account assumes this role using a web-identity token from the cluster OIDC provider. The trust policy allows only that service account in the namespace you specify.
 
-- Secrets Manager. The secret holds the Reva API token. The container reads it with the pod role. The token is not stored in Helm values.
+- Secrets Manager. The secret holds the Reva API token. The container reads it using the pod role. The token is not stored in the Helm values.
 
-- Node pull access. The node IAM role, or the Fargate pod execution role, pulls the image. The pull policy is attached to those roles, not to the pod role.
+- Node pull access. The node IAM role, or the Fargate pod execution role, pulls the image. The pull policy is attached to these roles, not to the pod role.
 
 ## Deploy the permissions stack
 
-Deploy customer-eks-permissions.json in the account and region of the EKS cluster. The namespace you pass here must be the namespace you later pass to Helm. The README example uses rtg. The template default is reva-agentcore. Pick one and use it in both places. The service account name in the stack, in the chart, and in customer-values.yaml is reva-agentcore.
+Deploy customer-eks-permissions.json in the account and region where the EKS cluster runs. The namespace you specify here must match the namespace you later specify in Helm. The README example uses rtg, while the template default is reva-agentcore. Choose one and use it in both places. The service account name must be reva-agentcore in the stack, chart, and customer-values.yaml.
 
 ```bash
 CLUSTER_NAME="<YOUR_EKS_CLUSTER_NAME>"
@@ -39,26 +38,26 @@ aws cloudformation deploy \
     KubernetesNamespace="$NAMESPACE" \
     ServiceAccountName="$SERVICE_ACCOUNT" \
     ImagePullRoleNames="$NODE_ROLE_NAMES" \
-    PublisherRepositoryArn="arn:aws:ecr:us-east-1:732029699072:repository/ecr-awsaiworkloadconnectorsvc" \
+    PublisherRepositoryArn="arn:aws:ecr:us-east-1:<REVA_ECR_ACCOUNT_ID>:repository/ecr-awsaiworkloadconnectorsvc" \
     TokenSecretName="reva/${CLUSTER_NAME}/store-token" \
     AllowedRegions="us-east-1,us-west-2"
 ```
 
-AllowedRegions is the list of regions where the IAM role may call the regional discovery APIs. As shipped, the CloudFormation template defaults this parameter to us-east-1 and us-east-2. If the parameter is left unset, those are the only two regions the role can use for Bedrock, AgentCore, Lambda, the agent registry, and CloudTrail. Change AllowedRegions to the regions the customer wants to grant permission for, and set it to the same regions entered on the integration form. Do not replace the default with every AWS region. A region that is not in this list is denied, even if the integration form names it. IAM reads stay global and are not limited by this list. Add every node role the pod can be scheduled on, comma-separated, in ImagePullRoleNames. Do not put the IRSA role in that list.
+AllowedRegions is the list of regions in which the IAM role may call the regional discovery APIs. By default, the CloudFormation template sets this parameter to us-east-1 and us-east-2. If you leave the parameter unset, the role can use Bedrock, AgentCore, Lambda, the agent registry, and CloudTrail only in those two regions. Change AllowedRegions to the regions the customer wants to permit, and set it to the same regions entered on the integration form. Do not replace the default with every AWS region. Requests to regions outside this list are denied, even if those regions are specified on the integration form. IAM reads remain global and are not limited by this list. In ImagePullRoleNames, provide every node role on which the pod can be scheduled, separated by commas. Do not include the IRSA role in this list.
 
-Register the cluster IAM OIDC provider before you deploy the stack. OidcProviderHostPath is the issuer host and path with https:// removed and with no trailing slash.
+Register the cluster's IAM OIDC provider before deploying the stack. OidcProviderHostPath is the issuer host and path with https:// removed and no trailing slash.
 
-Narrow the two patterns when you do not want the role to read every role and every function:
+Narrow the two patterns if you do not want the role to read every role and function:
 
-- AgentRoleNamePattern defaults to *. Example of a tighter value: AmazonBedrockAgentCore* or agentcore/*.
+- AgentRoleNamePattern defaults to *. For example, use AmazonBedrockAgentCore* or agentcore/* as a narrower value.
 
-- FunctionNamePattern defaults to *. Example: agentcore-*.
+- FunctionNamePattern defaults to *. For example, use agentcore-*.
 
-- EnableModelCallCorrelation defaults to false. Set it to true only if you want cloudtrail:LookupEvents so the connector can associate agents with the models they call.
+- EnableModelCallCorrelation defaults to false. Set it to true only if you want to grant cloudtrail:LookupEvents so the connector can associate agents with the models they call.
 
-- Leave ExistingTokenSecretArn empty to let the stack create the secret. Set it, and leave TokenSecretName unused, when the secret already exists. The stack does not modify an existing secret.
+- Leave ExistingTokenSecretArn empty to let the stack create the secret. If the secret already exists, set this parameter and leave TokenSecretName unused. The stack does not modify an existing secret.
 
-- Set TokenSecretKmsKeyArn when the secret must use a customer-managed key. The pod role then receives kms:Decrypt only through Secrets Manager and only for that secret.
+- Set TokenSecretKmsKeyArn if the secret must use a customer-managed key. The pod role then receives kms:Decrypt permission only through Secrets Manager and only for that secret.
 
 Read the outputs you need for Helm:
 
@@ -70,11 +69,11 @@ TOKEN_SECRET_ARN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME"
   --query "Stacks[0].Outputs[?OutputKey=='TokenSecretArn'].OutputValue | [0]" --output text)
 ```
 
-The stack also outputs DiscoveryPolicyArn, TokenReadPolicyArn, and ImagePullPolicyArn. ImagePullPolicyArn is attached to the node roles. The other two are attached to the pod role.
+The stack also outputs DiscoveryPolicyArn, TokenReadPolicyArn, and ImagePullPolicyArn. ImagePullPolicyArn is attached to the node roles, while the other two are attached to the pod role.
 
 ## Put the Reva token in the secret
 
-A new secret is created with a generated placeholder in the JSON field STORE_API_TOKEN. Replace it with the OAuth Token copied in section [4.4](/aws-agentcore/create-the-connector-in-the-reva-console#open-the-integration). The value must be a JSON object. The field name must stay STORE_API_TOKEN unless you also set STORE_TOKEN_SECRET_KEY to a different field name.
+A new secret is created with a generated placeholder in the JSON field STORE_API_TOKEN. Replace it with the OAuth Token copied in Open the integration. The value must be a JSON object. Keep the field name as STORE_API_TOKEN unless you also set STORE_TOKEN_SECRET_KEY to a different field name.
 
 ```bash
 aws secretsmanager put-secret-value \
@@ -91,13 +90,13 @@ Edit customer-values.yaml:
 
 - serviceAccount.roleArn is the PodRoleArn output.
 
-- secrets.tokenArn is the TokenSecretArn output. The chart writes this into the container as REVA_TOKEN_ARN.
+- secrets.tokenArn is the TokenSecretArn output. The chart writes this value into the container as REVA_TOKEN_ARN.
 
 - env.REVA_API_BASE_URL and env.SERVICE_DATAINGESTIONREST_URL are the tenant API host. The file ships with https://api.reva.ai.
 
-- Add STORE_TOKEN_SECRET_ARN under env, set to the same TokenSecretArn. The connector reads the token from that variable. If you omit it, the process looks for a secret named store/secrets and the import fails.
+- Add STORE_TOKEN_SECRET_ARN under env and set it to the same TokenSecretArn. The connector reads the token using this variable.
 
-The env block in customer-values.yaml needs this entry in addition to the values already in the file:
+The env block in customer-values.yaml needs the following entry in addition to the values already in the file:
 
 ```bash
 env:
@@ -109,7 +108,7 @@ env:
   AGENTCORE_STATE_MODE: "ephemeral"
 ```
 
-Set STORE_TOKEN_SECRET_KEY in the same env block only when the JSON field is not STORE_API_TOKEN. When the variable is unset, the connector reads the field STORE_API_TOKEN. Use your own secret by setting STORE_TOKEN_SECRET_ARN to that secret’s ARN and STORE_TOKEN_SECRET_KEY to the field that holds the token. The pod role must be allowed to call secretsmanager:GetSecretValue on that ARN. Passing an existing ARN as ExistingTokenSecretArn at deploy time is the way to do that without editing the policy afterwards.
+Set STORE_TOKEN_SECRET_KEY in the same env block only if the JSON field is not named STORE_API_TOKEN. If the variable is unset, the connector reads the STORE_API_TOKEN field. To use your own secret, set STORE_TOKEN_SECRET_ARN to that secret's ARN and STORE_TOKEN_SECRET_KEY to the field containing the token. The pod role must have permission to call secretsmanager:GetSecretValue on that ARN. Passing an existing ARN as ExistingTokenSecretArn at deployment time grants this access without requiring you to edit the policy afterward.
 
 ```bash
 helm upgrade --install reva-agentcore ./chart \
@@ -117,7 +116,7 @@ helm upgrade --install reva-agentcore ./chart \
   --values customer-values.yaml
 ```
 
-The release runs one replica and uses the Recreate strategy. The service account name in the chart is reva-agentcore. The pod runs as UID 10001, with a read-only root filesystem, and it does not mount the Kubernetes API token. Requests are 100m CPU and 128Mi memory. Limits are 1 CPU and 512Mi.
+The release runs one replica and uses the Recreate strategy. The service account name in the chart is reva-agentcore. The pod runs as UID 10001, with a read-only root filesystem, and does not mount the Kubernetes API token. Requests are 100m CPU and 128Mi memory. Limits are 1 CPU and 512Mi.
 
 ## Check the pod
 
@@ -126,4 +125,4 @@ kubectl get pods -n rtg
 kubectl -n rtg logs deployment/reva-agentcore --tail=100
 ```
 
-A healthy start logs that the connector is listening on :8055. If the pod cannot pull the image, the node role is missing from ImagePullRoleNames, or the publisher repository policy does not allow that role. If the pod starts and the import returns unauthorized, the secret still has the placeholder or STORE_TOKEN_SECRET_ARN does not point at it.
+A healthy start logs that the connector is listening on :8055. If the pod cannot pull the image, either the node role is missing from ImagePullRoleNames or the publisher repository policy does not allow that role. If the pod starts but the import returns unauthorized, the secret still contains the placeholder, or STORE_TOKEN_SECRET_ARN does not point to the correct secret.

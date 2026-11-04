@@ -1,6 +1,7 @@
 ---
 title: "Setup Checklist"
 ---
+Use this checklist to confirm that setup is complete before running the first import. It summarizes the steps described on the previous pages, grouped by where each step is performed.
 
 ## In the Reva console
 
@@ -8,9 +9,9 @@ title: "Setup Checklist"
 
 1. Select AWS AI Workload Discovery.
 
-1. Enter the name and description. Set Deployment Type to External.
+1. Enter a name and description. Set Deployment Type to External.
 
-1. Enter the AWS account ID of the ECR image account, and the regions to scan.
+1. Optionally enter the AWS account ID of the ECR image account, and specify the regions to scan.
 
 1. Click Next, then Activate.
 
@@ -22,28 +23,28 @@ title: "Setup Checklist"
 
 ## In the customer AWS account
 
-1. Allow outbound HTTPS from the pod or task to the Reva API and to the AWS endpoints in section [3](/aws-agentcore/network-access-requirements).
+1. Allow outbound HTTPS from the pod or task to the Reva API and the AWS endpoints listed in [Network Access Requirements](/aws-agentcore/network-access-requirements).
 
-1. Confirm the publisher repository policy allows the node role or the ECS task execution role to pull ecr-awsaiworkloadconnectorsvc.
+1. Confirm that the publisher repository policy allows the node role or ECS task execution role to pull ecr-awsaiworkloadconnectorsvc.
 
-1. Deploy the CloudFormation template from the zip. On EKS, set the OIDC provider, the namespace, the service account, the node roles, and AllowedRegions. On ECS, set the VPC, the subnets, and RevaApiBaseUrl.
+1. Deploy the CloudFormation template from the zip. For EKS, configure the OIDC provider, namespace, service account, node roles, and AllowedRegions. For ECS, configure the VPC, subnets, and RevaApiBaseUrl.
 
-1. Replace the placeholder in the token secret with the OAuth Token, in the JSON field STORE_API_TOKEN.
+1. Replace the placeholder in the token secret with the OAuth Token in the JSON field STORE_API_TOKEN.
 
-1. On EKS, set serviceAccount.roleArn, secrets.tokenArn, and env.STORE_TOKEN_SECRET_ARN, then install the Helm chart in the same namespace the stack trusts.
+1. On EKS, set serviceAccount.roleArn, secrets.tokenArn, and env.STORE_TOKEN_SECRET_ARN, then install the Helm chart in the same namespace trusted by the stack.
 
-1. On ECS, force a new deployment after the secret is updated.
+1. On ECS, force a new deployment after updating the secret.
 
-1. If you use your own secret, set STORE_TOKEN_SECRET_ARN and, when the field name is not STORE_API_TOKEN, STORE_TOKEN_SECRET_KEY. Grant GetSecretValue on that ARN.
+1. If you use your own secret, set STORE_TOKEN_SECRET_ARN and, if the field name is not STORE_API_TOKEN, set STORE_TOKEN_SECRET_KEY. Grant GetSecretValue permission on that ARN.
 
 1. Call http://localhost:8055/initImport with the domain and username headers.
 
-1. Confirm HTTP 202, then confirm the entities in the connector logs and in the Reva ingestion logs.
+1. Confirm that the response is HTTP 202, then verify the entities in the connector logs and the Reva ingestion logs.
 
 ## Reva
 
-1. Provides the tenant console URL and the API base URL that goes into REVA_API_BASE_URL.
+1. Provides the tenant console URL and the API base URL used for REVA_API_BASE_URL.
 
-1. Publishes the connector image in 732029699072, repository ecr-awsaiworkloadconnectorsvc, and adds the customer pull role to that repository policy.
+1. Publishes the connector image in its publisher account (`<REVA_ECR_ACCOUNT_ID>`), in the ecr-awsaiworkloadconnectorsvc repository, and adds the customer pull role to the repository policy.
 
 1. Issues the OAuth Token when the integration is activated.

@@ -1,0 +1,34 @@
+---
+title: "Overview"
+description: "Setup, permissions, and network requirements for the SharePoint Data Discovery connector (Microsoft SharePoint Online and OneDrive for Business)."
+---
+This document is intended for the team that creates the SharePoint Data Discovery integration in Reva and the Microsoft 365 and Entra ID administrators who grant the connector read access to the customer tenant. It covers the Entra ID setup steps, the console setup steps, the Microsoft Graph permissions and the calls that use each permission, the network paths used by the connector, and how to verify an import.
+
+The SharePoint connector discovers sites, document libraries, folders, and files in a customer Microsoft 365 tenant and sends their metadata to Reva. It reads names, paths, sizes, dates, owners, sharing details, permissions, and sensitivity and retention labels through Microsoft Graph. It never opens or downloads file contents. In the internal deployment described here, the connector runs in Reva and authenticates to the customer tenant as an app registered by the customer in Microsoft Entra ID.
+
+## What it discovers
+
+| Entity | What it is | Read from |
+| --- | --- | --- |
+| Workspace | A SharePoint site, or a user's OneDrive (`isPersonal` true) | `GET /sites/getAllSites` |
+| Repository | A document library inside a site | `GET /sites/{site-id}/drives` |
+| Folder | A folder inside a library | `GET /drives/{drive-id}/root/delta` |
+| File | A document. Metadata only, never the contents | The same delta feed, plus per-file details sent through `POST /$batch` |
+
+In Reva, these entities appear under **Document Assets**. Each Folder and File references its Workspace, Repository, and parent Folder. Every person or group is recorded using its Microsoft Entra ID object ID.
+
+## Security summary
+
+**Read-only, metadata only.** Every Microsoft Graph call is a GET, with two exceptions that do not modify anything: `POST /$batch`, which carries only GET requests, and `POST …/extractSensitivityLabels`, which returns the labels assigned to a file. Microsoft notes that this call may refresh SharePoint's own stored record of the label; it does not change the file, its label, or its sharing settings. No call reads `/content`.
+
+**The permissions are tenant-wide.** `Sites.Read.All` and `Files.Read.All` are application permissions. They allow the app to read every site and every file in the tenant, including file contents, even though the connector reads metadata only. Treat the client secret as a credential with that level of access.
+
+**One credential.** The client secret is entered once on the integration form. Reva stores it as a secret field and displays it masked. The connector uses it only to request Graph access tokens from `login.microsoftonline.com`. Reva does not hold a user password or use a user sign-in.
+
+**Scope is the customer's.** **Sites to scan** limits an import to the listed site URLs. If the field is blank, every site is included, including OneDrive. The Graph permissions still cover the entire tenant; the list limits what the connector reads, not what the app could read.
+
+**No inbound path.** Nothing is installed in the customer network, and Reva does not connect into it. All traffic is outbound HTTPS from Reva to Microsoft's public endpoints.
+
+**Group.Read.All.** This permission is used only to read site owners and the sensitivity label assigned to each site's Microsoft 365 group.
+
+**What Reva keeps.** Reva stores the entity metadata in the store associated with the connection. The connector also maintains run state on its own disk, including run records, checkpoints, and batches waiting to be sent. This allows an interrupted import to resume within 24 hours.
