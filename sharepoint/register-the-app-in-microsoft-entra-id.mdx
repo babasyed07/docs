@@ -1,0 +1,102 @@
+---
+title: "Register the App in Microsoft Entra ID"
+---
+
+The customer's Microsoft 365 administrator does this once per tenant, before the integration is created in Reva.
+
+## Create the app registration
+
+1. Open **https://entra.microsoft.com** and go to **Identity → Applications → App registrations → + New registration**.
+2. Name: for example `reva-sharepoint-connector`.
+3. Supported account types: **Accounts in this organizational directory only** (single tenant).
+4. Redirect URI: leave empty. Click **Register**.
+
+## Copy the two IDs
+
+On the app's **Overview** page, copy **Application (client) ID** and **Directory (tenant) ID**. Both go on the integration form in section [5.2](/sharepoint/create-the-integration-in-the-reva-console#enter-the-connection).
+
+## Add the Microsoft Graph permissions and grant consent
+
+1. Open **API permissions → + Add a permission → Microsoft Graph → Application permissions**. Choose Application permissions, not Delegated.
+2. Select `Sites.Read.All`, `Files.Read.All` and `Group.Read.All`. Click **Add permissions**.
+3. Click **Grant admin consent for &lt;tenant name&gt;** and confirm. Every row must show a green tick and "Granted for &lt;tenant name&gt;".
+
+## Create the client secret
+
+1. Open **Certificates & secrets → Client secrets → + New client secret**.
+2. Enter a description, for example `reva-connector`, and choose an expiry. Click **Add**.
+3. Copy the **Value** column at once. It is shown only once. Do not copy the Secret ID.
+4. Record the expiry date. The connector stops working when the secret expires (section [11](/sharepoint/credentials-summary)).
+
+Do not send the secret by e-mail or chat. Enter it directly on the integration form.
+
+## Turn on sensitivity labels in Microsoft Purview (for the Governance fields)
+
+The **Governance** section of a file in Access Explorer (Sensitivity Label Id, Sensitivity Label Name and Label Assignment Method) is filled only when the file carries a Microsoft Purview sensitivity label. This is not a Microsoft Graph permission: `Files.Read.All` from section [4.3](/sharepoint/register-the-app-in-microsoft-entra-id#add-the-microsoft-graph-permissions-and-grant-consent) already lets the connector read labels. What is needed is that the tenant has labels, publishes them, and applies them to files. Without labels, Governance shows only **Is Malware**. The import still succeeds either way.
+
+<Frame caption="Figure 1. Governance with a sensitivity label applied to the file.">
+  <img src="/images/sharepoint-governance-with-label.png" alt="Governance fields with a sensitivity label applied" />
+</Frame>
+
+<Frame caption="Figure 2. Governance for a file with no sensitivity label: only Is Malware.">
+  <img src="/images/sharepoint-governance-no-label.png" alt="Governance fields with only Is Malware" />
+</Frame>
+
+### Before you start
+
+| Need | Details |
+| --- | --- |
+| Licence | A plan that includes sensitivity labels, such as Microsoft 365 Business Premium, E3 or E5. Each user who applies labels needs a licence. |
+| Role | Global Administrator, Compliance Administrator or Information Protection Administrator, signed in to **https://purview.microsoft.com**. |
+| Graph permission | None extra. `InformationProtectionPolicy.Read.All` is not needed: the label name comes from each file's own sensitivityLabel property. |
+
+### Step 1. Let SharePoint and OneDrive process labels
+
+1. Open **https://purview.microsoft.com** and go to **Solutions → Information Protection → Sensitivity labels**.
+2. If a banner says the organization has not turned on the ability to process content in Office online files with encrypted sensitivity labels, click **Turn on now** and confirm. No banner means it is already on.
+3. Wait up to about 1 hour for it to take effect.
+
+### Step 2. Create the labels
+
+1. On **Sensitivity labels**, click **+ Create a label**.
+2. Enter a name and a display name, for example `Public`, `Internal`, `Confidential` and `Restricted`.
+3. Scope: choose **Files & other data assets**.
+4. Protection settings: leave them off for an ordinary label. To make a label encrypt files, choose **Control access** and give the right users or groups access.
+5. Finish the wizard and click **Create label**. Repeat for each label.
+
+### Step 3. Publish the labels
+
+1. Go to **Information Protection → Publishing policies** (sometimes called **Label policies**) and click **+ Publish label**.
+2. Choose the labels to publish.
+3. Users and groups: choose **All**, or the people who should be able to apply labels.
+4. Default label: choose **None**, or a default label if every new file should get one.
+5. Name the policy, for example `Company labels`, and click **Submit**.
+6. Wait. Published labels can take **up to 24 hours** to appear in SharePoint, OneDrive and Office.
+
+### Step 4. Apply a label to files
+
+1. In SharePoint, open the document library and select a file.
+2. Open the **Details** pane (the i icon), find **Sensitivity**, and choose a label. If there is no Sensitivity field or the list is empty, the labels are not published yet; wait and try again.
+3. Users can also choose a label in Word, Excel or PowerPoint from **Home → Sensitivity**.
+
+Labels work on Office files and PDFs. Some file types, such as plain text files, cannot carry one, so they never show Governance details.
+
+### Step 5. Run Sync in Reva
+
+No change is needed in Reva. The next Sync (section [6.3](/sharepoint/test-and-run-the-import#sync)) reads the labels. Open the file in Access Explorer and check the Governance section.
+
+### How long each step takes
+
+| Step | Wait before it works |
+| --- | --- |
+| Step 1. Let SharePoint and OneDrive process labels | Up to about 1 hour |
+| Step 3. Publish the labels | Up to 24 hours |
+| Step 4. Apply a label | Immediate; Reva shows it after the next Sync |
+
+### What the Label Assignment Method means
+
+| Value | Meaning |
+| --- | --- |
+| `standard` | Applied as a default label or by an app, not chosen by a person. |
+| `privileged` | Chosen by a person, for example from the Details pane or the Sensitivity button. |
+| `auto` | Applied by an auto-labelling policy in Microsoft Purview. |

@@ -1,0 +1,60 @@
+---
+title: "Permissions the Templates Grant"
+---
+
+These are the permissions in customer-eks-permissions.json and reva-agentcore-ecs-fargate.json. Both policies are read-only. Replace * in AgentRoleNamePattern or FunctionNamePattern only when you have set those parameters. The EKS regional statements also require aws:RequestedRegion to be one of AllowedRegions.
+
+## Discovery permissions
+
+Attached to the EKS pod role as the managed policy RevaDiscoveryReadOnlyPolicy, and to the ECS task role as the inline policy RevaAgentCoreDiscoveryReadOnly.
+
+| Statement | Actions | Resource | Why |
+| --- | --- | --- | --- |
+| Bedrock agent inventory | bedrock:ListAgents, GetAgent, ListAgentVersions, GetAgentVersion, ListAgentAliases, GetAgentAlias, ListAgentCollaborators, ListAgentActionGroups | * | Classic Bedrock agents, versions, aliases, collaborators, and action groups. |
+| AgentCore runtimes | bedrock-agentcore:ListAgentRuntimes, GetAgentRuntime, ListAgentRuntimeVersions, ListAgentRuntimeEndpoints, GetAgentRuntimeEndpoint, ListHarnesses, GetHarness, ListHarnessVersions, ListHarnessEndpoints, GetHarnessEndpoint | * | AgentCore runtimes, endpoints, and harnesses. |
+| AgentCore gateways | bedrock-agentcore:ListGateways, GetGateway, ListGatewayTargets, GetGatewayTarget | * | Gateways and the tools attached to them. On EKS these actions are their own statement. On ECS they are in the runtime statement. |
+| AgentCore identities | bedrock-agentcore:ListWorkloadIdentities, ListOauth2CredentialProviders, GetOauth2CredentialProvider | * | Workload identities and OAuth credential-provider metadata. This does not return an OAuth token value. |
+| Agent registry | agent-registry:ListRegistries, GetRegistry, ListRegistryRecords, GetRegistryRecord, ListDiscoverableRegistryRecords, GetDiscoverableRegistryRecord | * | Registry records for the agents in the account. |
+| Model catalog | bedrock:ListFoundationModels, GetFoundationModel, ListInferenceProfiles, GetInferenceProfile, ListProvisionedModelThroughputs, GetProvisionedModelThroughput, ListCustomModels, GetCustomModel, ListImportedModels, GetImportedModel, and the bedrock-mantle List and Get actions for projects and models | * | Resolve the models an agent is configured to use. |
+| Lambda configuration | lambda:GetFunctionConfiguration | EKS: functions matching FunctionNamePattern in us-east-1 and us-east-2 only. ECS: the same pattern in every region. | Read the role and configuration of a function behind a gateway target. lambda:GetFunction is not granted, so the deployment package is not downloaded. |
+| IAM role reads | iam:GetRole, ListRolePolicies, GetRolePolicy, ListAttachedRolePolicies | `arn:aws:iam::<account>:role/<AgentRoleNamePattern>` | Read the trust policy and identity of roles the agents use. Names outside the pattern are denied. |
+| Policy documents | iam:GetPolicy, iam:GetPolicyVersion | Customer managed policies in this account, and AWS managed policies | Read the policy body so a role’s permissions are reported from the actual grant. |
+| Model-call correlation | cloudtrail:LookupEvents | * , and only on EKS when EnableModelCallCorrelation is true | Optional. Off by default. The ECS template does not include this action. |
+
+Neither template grants iam:ListRoles, cognito-idp, account:ListRegions, or secretsmanager:GetSecretValue on customer application secrets. Roles that do not match AgentRoleNamePattern are not readable. On EKS, AllowedRegions defaults to us-east-1 and us-east-2. The customer changes that parameter to the regions they want to permit, rather than granting the discovery actions in every region. The EKS Lambda statement is also limited to us-east-1 and us-east-2 even when AllowedRegions lists other regions. Functions in any other region are not readable until that resource list is extended.
+
+## Token secret permissions
+
+| Where | Actions | Resource |
+| --- | --- | --- |
+| EKS pod role, managed policy TokenReadPolicy. ECS task role, inline policy RevaSecretsManagerTokenRead. ECS task execution role also has this read. | secretsmanager:GetSecretValue, secretsmanager:DescribeSecret | The secret the stack created, or ExistingTokenSecretArn when you passed one. |
+| EKS pod role, only when TokenSecretKmsKeyArn is set | kms:Decrypt, with kms:ViaService set to Secrets Manager in the stack region and the encryption context set to this secret ARN | The customer-managed key ARN. |
+
+## Image pull permissions
+
+| Where | Actions | Resource |
+| --- | --- | --- |
+| EKS. Managed policy ImagePullPolicy, attached to each role in ImagePullRoleNames. Those are the EC2 node roles or the Fargate execution roles, not the pod role. | ecr:GetAuthorizationToken | * |
+| Same EKS policy | ecr:BatchCheckLayerAvailability, ecr:GetDownloadUrlForLayer, ecr:BatchGetImage | PublisherRepositoryArn. The README sets arn:aws:ecr:us-east-1:732029699072:repository/ecr-awsaiworkloadconnectorsvc. |
+| ECS task execution role, inline policy CrossAccountECRPullAndSecretRead, plus AmazonECSTaskExecutionRolePolicy | ecr:GetAuthorizationToken, BatchCheckLayerAvailability, GetDownloadUrlForLayer, BatchGetImage | * for the pull actions. logs:CreateLogStream and logs:PutLogEvents come from the AWS managed execution policy, on /ecs/reva-agentcore-discovery. |
+
+The customer policy is only half of a cross-account pull. The repository policy in account 732029699072 must allow the same actions for the node role or the ECS task execution role. Send Reva that role ARN. The customer stack does not change the publisher repository.
+
+## Trust policies
+
+| Role | Who can assume it | Condition |
+| --- | --- | --- |
+| EKS pod role, created when TargetRoleName is empty | sts:AssumeRoleWithWebIdentity by the cluster OIDC provider | The token audience is sts.amazonaws.com and the subject is `system:serviceaccount:<namespace>:<service-account>`. Any other namespace or service account is denied. If you pass TargetRoleName, the stack attaches the policies to that role and does not change its trust policy. That trust policy must already allow this service account. |
+| ECS task role and task execution role | sts:AssumeRole by ecs-tasks.amazonaws.com | Standard ECS task trust. No external ID. |
+
+## What is intentionally absent
+
+| Not granted | Effect |
+| --- | --- |
+| Any Create, Put, Update, Delete, or Invoke on Bedrock, AgentCore, Lambda, or IAM | The connector cannot change the account it scans. |
+| secretsmanager:GetSecretValue on * | Application secrets and agent credential values stay unreadable. Only the Reva token secret is allowed. |
+| bedrock-agentcore:GetResourceOauth2Token | OAuth tokens held by AgentCore credential providers are not retrieved. |
+| lambda:GetFunction | Function code and environment variables are not downloaded. GetFunctionConfiguration is enough for the execution role. |
+| iam:ListRoles | The template reads roles by name pattern. It does not list every role in the account. |
+| cloudtrail:LookupEvents on ECS, and on EKS unless enabled | Observed model-call correlation stays off. |
+| ecr:PutImage or any repository write | The pull roles cannot push an image or change the publisher repository. |

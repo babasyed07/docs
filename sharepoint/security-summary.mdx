@@ -1,0 +1,17 @@
+---
+title: "Security Summary"
+---
+
+**Read-only, metadata only.** Every Microsoft Graph call is a GET, with two exceptions that do not change anything: `POST /$batch`, which only carries GET requests, and `POST …/extractSensitivityLabels`, which returns the labels on a file. Microsoft notes that this call may refresh SharePoint's own stored record of the label; it does not change the file, its label or its sharing. No call reads `/content`.
+
+**The permissions are tenant-wide.** `Sites.Read.All` and `Files.Read.All` are application permissions. They allow the app to read every site and every file in the tenant, including file contents, even though the connector reads metadata only. Treat the client secret as a credential with that reach.
+
+**One credential.** The client secret is entered once on the integration form. Reva stores it as a secret field and shows it masked. The connector uses it only to request Graph access tokens from `login.microsoftonline.com`. Reva does not hold a user password or a user sign-in.
+
+**Scope is the customer's.** **Sites to scan** limits an import to the listed site URLs. Blank means every site, including OneDrive. The Graph permissions still cover the whole tenant; the list limits what the connector reads, not what the app could read.
+
+**No inbound path.** Nothing is installed in the customer network and Reva does not connect into it. All traffic is outbound HTTPS from Reva to Microsoft's public endpoints.
+
+**Group.Read.All.** Used only to read site owners and the sensitivity label on each site's Microsoft 365 group.
+
+**What Reva keeps.** The entity metadata, in the store that belongs to the connection. The connector also keeps run state on its own disk (run records, checkpoints, and batches waiting to be sent), so an interrupted import can resume within 24 hours.

@@ -1,0 +1,12 @@
+---
+title: "What Each Import Records"
+---
+
+| Entity | Attributes |
+| --- | --- |
+| Workspace | name, url, description, hostname, createdAt, lastModifiedAt, isPersonal, owners, associatedGroup, sensitivityLabelName, nativeType (`site`, `personalSite`), externalId, tenantId, dataSource |
+| Repository | name, url, description, nativeType (`documentLibrary`, `business`, …), createdAt, lastModifiedAt, createdBy, workspace, quotaUsed, quotaTotal, externalId, tenantId, dataSource |
+| Folder | name, path, url, childCount, size, createdAt, lastModifiedAt, createdBy, lastModifiedBy, workspace, repository, parentFolder, isShared, externalId, tenantId, dataSource |
+| File | name, extension, mimeType, path, url, size, contentHash, versionCount, createdBy, createdAt, lastModifiedBy, lastModifiedAt, workspace, repository, parentFolder, isShared, sharedBy, sharedAt, sharingLinks, hasAnonymousLink, hasExternalAccess, readers, editors, owners, readerGroups, editorGroups, ownerGroups, sensitivityLabelId, sensitivityLabelName, labelAssignmentMethod, retentionLabel, customMetadata, isMalware, externalId, tenantId, dataSource |
+
+A detail the connector could not read is left out, never sent as false. `isShared` is true only for a sharing link or a direct, non-inherited grant, the same rule as SharePoint's Has access panel. `customMetadata` holds the columns the customer added to the library, as a JSON object. `labelAssignmentMethod` is `standard`, `privileged` (chosen by a person) or `auto` (applied by an auto-labelling policy).

@@ -1,0 +1,19 @@
+---
+title: "Purpose and Scope"
+description: "Setup, permissions, and network requirements for the SharePoint Data Discovery connector (Microsoft SharePoint Online and OneDrive for Business)."
+---
+
+This document is for the team that creates the SharePoint Data Discovery integration in Reva and for the Microsoft 365 and Entra ID administrators who give the connector read access to the customer tenant. It lists the Entra ID steps, the console steps, the Microsoft Graph permissions and the calls each one is used for, the network paths the connector uses, and how to check an import.
+
+The SharePoint connector discovers sites, document libraries, folders and files in a customer Microsoft 365 tenant and sends their metadata to Reva. It reads names, paths, sizes, dates, owners, sharing, permissions, and sensitivity and retention labels through Microsoft Graph. It never opens or downloads the contents of a file. In the internal deployment described here, the connector runs in Reva and signs in to the customer tenant as an app that the customer registers in Microsoft Entra ID.
+
+## What it discovers
+
+| Entity | What it is | Read from |
+| --- | --- | --- |
+| Workspace | A SharePoint site, or a user's OneDrive (`isPersonal` true) | `GET /sites/getAllSites` |
+| Repository | A document library inside a site | `GET /sites/{site-id}/drives` |
+| Folder | A folder inside a library | `GET /drives/{drive-id}/root/delta` |
+| File | A document. Metadata only, never the contents | The same delta feed, plus per-file details sent through `POST /$batch` |
+
+In Reva these appear under **Document Assets**. Each Folder and File refers to its Workspace, Repository and parent Folder, and every person or group is recorded by its Microsoft Entra ID object id.

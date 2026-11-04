@@ -1,0 +1,90 @@
+---
+title: "Deploy on Amazon ECS Fargate"
+---
+
+Use this section with agentcoreecs.zip. One CloudFormation stack creates the secret, the task execution role, the task role, a log group, a security group, an ECS cluster, a task definition, and a Fargate service. You supply a VPC and subnets. The stack does not create a VPC.
+
+## How the pieces fit
+
+- Task role. Read-only discovery, plus secretsmanager:GetSecretValue and secretsmanager:DescribeSecret on the token secret.
+
+- Task execution role. Pulls the image from the publisher ECR repository and writes CloudWatch Logs. It also has the Amazon managed policy AmazonECSTaskExecutionRolePolicy.
+
+- Secrets Manager. Same token secret contract as EKS. The task definition sets STORE_TOKEN_SECRET_ARN to the secret the stack creates.
+
+## Deploy the stack
+
+The subnets need a route to the Reva API and to the AWS endpoints in section [3](/aws-agentcore/network-access-requirements). Use public subnets with AssignPublicIp ENABLED, or private subnets with a NAT gateway and AssignPublicIp DISABLED.
+
+```bash
+STACK_NAME="reva-agentcore-ecs"
+REGION="<YOUR_AWS_REGION>"
+VPC_ID="<YOUR_VPC_ID>"
+SUBNET_IDS="<SUBNET_1>,<SUBNET_2>"
+ASSIGN_PUBLIC_IP="ENABLED"
+
+aws cloudformation deploy \
+  --stack-name "$STACK_NAME" \
+  --region "$REGION" \
+  --template-file reva-agentcore-ecs-fargate.json \
+  --capabilities CAPABILITY_IAM \
+  --parameter-overrides \
+    VpcId="$VPC_ID" \
+    SubnetIds="$SUBNET_IDS" \
+    AssignPublicIp="$ASSIGN_PUBLIC_IP" \
+    RevaApiBaseUrl="https://api.reva.ai"
+```
+
+Optional parameters, with their defaults:
+
+- TokenSecretName defaults to reva/agentcore/store-token.
+
+- AgentRoleNamePattern defaults to *. Tighten it the same way as on EKS.
+
+- FunctionNamePattern defaults to *. The Lambda permission uses that pattern in every region.
+
+Read the outputs:
+
+```bash
+TOKEN_SECRET_ARN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" \
+  --query "Stacks[0].Outputs[?OutputKey=='TokenSecretArn'].OutputValue | [0]" --output text)
+
+TASK_EXECUTION_ROLE_ARN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" \
+  --query "Stacks[0].Outputs[?OutputKey=='TaskExecutionRoleArn'].OutputValue | [0]" --output text)
+```
+
+The stack also outputs ClusterName, ServiceName, and TaskRoleArn. The cluster is reva-agentcore-cluster and the service is reva-agentcore-service. Give the publisher account the task execution role ARN so that account can allow ecr:BatchGetImage on ecr-awsaiworkloadconnectorsvc. The customer stack cannot edit the publisher repository policy.
+
+## Put the Reva token in the secret
+
+The secret is created with a placeholder. The task definition already sets STORE_TOKEN_SECRET_ARN to this secret, and the connector reads the JSON field STORE_API_TOKEN. Update the secret, then start a new deployment so the running task picks it up.
+
+```bash
+aws secretsmanager put-secret-value \
+  --region "$REGION" \
+  --secret-id "$TOKEN_SECRET_ARN" \
+  --secret-string '{"STORE_API_TOKEN":"<PASTE_THE_OAUTH_TOKEN>"}'
+
+aws ecs update-service \
+  --cluster reva-agentcore-cluster \
+  --service reva-agentcore-service \
+  --force-new-deployment \
+  --region "$REGION"
+```
+
+To use a secret you created yourself, set the task environment variable STORE_TOKEN_SECRET_ARN to that secret’s ARN. If the JSON field is not named STORE_API_TOKEN, also set STORE_TOKEN_SECRET_KEY to the field name. The task role needs secretsmanager:GetSecretValue and secretsmanager:DescribeSecret on that ARN. Changing the task definition is a new revision, then a new deployment.
+
+## Check the service
+
+```bash
+aws ecs list-tasks --cluster reva-agentcore-cluster --region "$REGION"
+aws logs tail /ecs/reva-agentcore-discovery --follow --region "$REGION"
+```
+
+A healthy start looks like this:
+
+```bash
+{"level":"INFO","msg":"aws-aiworkload-connector listening","addr":":8055","version":"dev"}
+```
+
+The task is 256 CPU units and 512 MiB, desired count 1, network mode awsvpc. Logs are kept for 30 days in /ecs/reva-agentcore-discovery.

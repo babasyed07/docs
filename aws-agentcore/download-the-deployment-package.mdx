@@ -1,0 +1,19 @@
+---
+title: "Download the Deployment Package"
+---
+
+On Integration Details, open Download. The menu lists three packages. Download the one that matches the compute you will use.
+
+<Frame caption="Figure 6. Download menu: Deploy as ECS, Deploy as EC2, and Deploy as EKS.">
+  <img src="/images/aws-agentcore-download-menu-for-ecs-ec2-and-eks.png" alt="Download menu for ECS, EC2, and EKS" />
+</Frame>
+
+| Menu item | Zip | What is inside |
+| --- | --- | --- |
+| Deploy as EKS | agentcoreeks.zip | README_eks.md, customer-eks-permissions.json, customer-values.yaml, and the Helm chart under chart/. |
+| Deploy as ECS | agentcoreecs.zip | README_ecs.md and reva-agentcore-ecs-fargate.json. |
+| Deploy as EC2 | agentcoreec2.zip | README and the CloudFormation template for the EC2 deployment. The zip is complete. After the stack is up, use sections [8](/aws-agentcore/secrets-manager-and-the-api-token) and [9](/aws-agentcore/start-discovery) for the token and the import. |
+
+Unzip the package in the account and region where the connector will run. The README in the zip is the command sequence. The sections below are that sequence, plus the permissions and the token steps the templates implement. Do the token update before the first import. The secret is created with a placeholder, and a placeholder is not a Reva credential.
+
+The image the packages run is 732029699072.dkr.ecr.us-east-1.amazonaws.com/ecr-awsaiworkloadconnectorsvc, tag v2.28.0-main-3a8feb39. The container listens on port 8055.

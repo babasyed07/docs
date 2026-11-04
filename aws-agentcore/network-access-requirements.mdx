@@ -1,0 +1,39 @@
+---
+title: "Network Access Requirements"
+---
+
+The connector needs outbound HTTPS (TCP 443). It does not need an inbound path from the internet or from Reva. If the pod or task runs in a private subnet, that subnet needs a NAT gateway, or VPC endpoints, for every destination below. Without a path to the Reva API, discovery can read AWS and then fail when it tries to deliver the result.
+
+## Reva destinations
+
+| Destination | Hostname | Connects from | Purpose |
+| --- | --- | --- | --- |
+| Reva console | The tenant console, for example customer.dev.reva.ai (HTTPS, TCP 443) | Browsers of the people who create the integration | Create the AI Workload integration, copy the OAuth token, and download the deployment zip. |
+| Reva API | The value of REVA_API_BASE_URL. The packages default to api.reva.ai (HTTPS, TCP 443). | The connector pod or ECS task | Load this integration’s configuration, then push discovered entities. The connector calls POST /ingestion/v1/getExternalConnectorDetails with the token as a bearer credential. |
+
+Set REVA_API_BASE_URL to the API host Reva gives you for the tenant. On ECS this is the CloudFormation parameter RevaApiBaseUrl. On EKS it is env.REVA_API_BASE_URL in customer-values.yaml. The same value is written to SERVICE_DATAINGESTIONREST_URL.
+
+Console sign-in uses Amazon Cognito. If a web proxy restricts AWS domains, also allow the Cognito endpoints the console uses. Reva confirms the tenant hostname and the sign-in domain when the tenant is created.
+
+## AWS destinations
+
+| Destination | Used by | Purpose |
+| --- | --- | --- |
+| api.ecr.us-east-1.amazonaws.com and 732029699072.dkr.ecr.us-east-1.amazonaws.com | EKS node role, or the ECS task execution role | Pull the private image ecr-awsaiworkloadconnectorsvc. Layer downloads also need the Amazon S3 endpoint ECR uses in us-east-1. |
+| bedrock, bedrock-agentcore, and agent-registry endpoints in each region being scanned | Pod role or ECS task role | Read agents, gateways, tools, identities, and the model catalog. |
+| `lambda.<region>.amazonaws.com` | Pod role or ECS task role | Read the configuration of Lambda functions behind gateway targets. The function code and environment are not read. |
+| iam.amazonaws.com | Pod role or ECS task role | Read IAM roles and the policy documents attached to them. IAM is a global endpoint and is not limited by region. |
+| `secretsmanager.<region>.amazonaws.com` | Pod role or ECS task role | Read the Reva token secret at startup and when an import starts. The region is the region in the secret ARN. |
+| `sts.<region>.amazonaws.com` | Pod or task | Assume the IRSA role (EKS) or the task role (ECS). |
+| `logs.<region>.amazonaws.com` | ECS task execution role | Write the connector log group /ecs/reva-agentcore-discovery. On EKS, logs stay in the cluster log pipeline. |
+| `cloudtrail.<region>.amazonaws.com` | EKS pod role, and only when model-call correlation is enabled | Optional. Links agents to the models they call. Off by default. |
+
+## Port 8055
+
+The connector listens on TCP 8055 inside the pod or task. That port is how an operator starts an import. It is not a Reva callback.
+
+- EKS. The Helm chart does not create a Kubernetes Service (service.enabled is false). Call http://localhost:8055/initImport with kubectl exec. The port is not published on a load balancer.
+
+- ECS. The template creates a security group that allows TCP 8055 from 0.0.0.0/0 and allows all egress. Restrict the ingress CIDR to the operator network or to a bastion before you use the stack in an account that treats 0.0.0.0/0 as unacceptable. Leaving the task with no path to port 8055 is fine if imports are started with ECS Exec against localhost.
+
+VPC endpoints, if you use them instead of a NAT gateway, must cover ECR (api and dkr), S3, Secrets Manager, STS, IAM, CloudWatch Logs, Bedrock, Bedrock AgentCore, Lambda, and the Reva API. The Reva API is not an AWS service, so it still needs NAT or an egress proxy.

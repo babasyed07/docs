@@ -1,0 +1,24 @@
+---
+title: "Setup Checklist"
+---
+
+## In the customer Microsoft 365 tenant
+
+1. Register a single-tenant app in Entra ID.
+2. Copy the Application (client) ID and the Directory (tenant) ID.
+3. Add the Application permissions `Sites.Read.All`, `Files.Read.All` and `Group.Read.All`.
+4. Grant admin consent. Every row shows a green tick.
+5. Create a client secret, copy its Value, and record the expiry date.
+6. If app sign-ins or SharePoint access are limited by IP address, allow Reva's outbound addresses.
+7. For the Governance fields: in Microsoft Purview, turn on label processing, create and publish sensitivity labels, wait up to 24 hours, and apply them to files (section [4.5](/sharepoint/register-the-app-in-microsoft-entra-id#turn-on-sensitivity-labels-in-microsoft-purview-for-the-governance-fields)).
+
+## In the Reva console
+
+1. Open Integrations → + Integration → Document Assets → SharePoint Data Discovery.
+2. Enter the name and description. Set Deployment to Internal.
+3. Enter the tenant ID, the client ID, the client secret, and the sites to scan.
+4. Click Next, then Activate.
+5. Open the SharePoint tile → Details, and click the connection.
+6. Click Test, then Sync.
+7. Check that the import status is Completed and that fetched equals ingested in View details.
+8. Open Access Explorer and check the Document Assets card.

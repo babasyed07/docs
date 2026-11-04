@@ -1,0 +1,19 @@
+---
+title: "Security Summary"
+---
+
+- Read-only discovery. The IAM policies in both templates allow List, Get, and Describe actions on Bedrock, AgentCore, the agent registry, Lambda configuration, and IAM role policies. They do not allow writes, invokes, or deletes.
+
+- One secret value. The pod or task role may call secretsmanager:GetSecretValue on the single Reva token secret this deployment creates or names. It may not read other secrets.
+
+- Short-lived AWS credentials. On EKS the pod assumes an IAM role through the cluster OIDC provider (IRSA). The trust policy allows only one Kubernetes namespace and one service account. On ECS the task uses its task role. Neither package puts long-lived AWS keys in the container.
+
+- The Reva token is a credential. Copy it from the integration details page and store it in Secrets Manager. Rotate it with Regenerate Key in the console, then update the secret.
+
+- Scope is the customer’s. Regions on the integration form limit what is scanned. The EKS CloudFormation template defaults AllowedRegions to us-east-1 and us-east-2. Change that list to the regions the customer wants to permit. Do not grant the discovery actions in every region. AgentRoleNamePattern and FunctionNamePattern limit which IAM roles and Lambda functions can be read. Narrow both patterns when the account should not be scanned with *.
+
+- No inbound path from Reva. Reva does not connect to the VPC. All Reva traffic is outbound HTTPS from the pod or task. The connector listens on port 8055 only so an operator can start an import.
+
+- Image pull is cross-account and pull-only. Nodes or the ECS execution role may pull one private ECR repository in the Reva publisher account. The customer stack does not change that repository’s policy. The publisher account must allow the customer pull role.
+
+- Optional CloudTrail reads. On EKS, cloudtrail:LookupEvents is off unless EnableModelCallCorrelation is true. The ECS template does not grant CloudTrail.
