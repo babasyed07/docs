@@ -1,0 +1,35 @@
+---
+title: "Test and Run the Import"
+---
+## Open the connection
+
+1. On **Integrations**, open the **SharePoint** tile and select **Details**.
+2. **Active Integrations** lists the connections. Click the name of the connection you created.
+
+<Frame caption="Figure 6. SHAREPOINT Details. Each active connection has Sync and a menu.">
+  <img src="/images/sharepoint-sharepoint-details.png" alt="SHAREPOINT Details with an active connection" />
+</Frame>
+
+## Test
+
+**Test** checks the connection. The connector requests a token using the client ID and secret, then reads `GET /v1.0/sites/root`. An incorrect or expired secret returns an Entra ID error, such as `AADSTS7000215: Invalid client secret provided`. If a permission has not received admin consent, the request returns 403 and identifies `Sites.Read.All and Files.Read.All`.
+
+## Sync
+
+**Sync** starts an import. Imports also run automatically according to a schedule. Only one import can run per connection at a time. If another request arrives while an import is running, it is rejected rather than queued.
+
+When the import finishes, Integration Details displays the status and the counts for each entity type.
+
+<Frame caption="Figure 7. Integration Details after a successful import: the status and how many of each entity type were imported.">
+  <img src="/images/sharepoint-integration-details-import.png" alt="Integration Details showing a completed import" />
+</Frame>
+
+Click **View details** to open the run record. It contains the following fields:
+
+| Field | Meaning |
+| --- | --- |
+| connectionId, runId | The connection ID and the ID of this import. |
+| status | `pending`, `running`, `succeeded`, `failed` or `cancelled`. |
+| progress total / fetched / ingested | Items found, items read, and items accepted by Reva. A healthy run ends with all three counts equal. |
+| resources | One row each for sites, libraries, folders, and files, in that order, because parent entities are sent before their children. |
+| error | Empty on success. On failure, contains the reason, such as an Entra ID error or a 403 response identifying the missing permission. |

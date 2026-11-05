@@ -1,0 +1,22 @@
+---
+title: "Start Discovery"
+---
+An import reads the token, retrieves this integration's configuration from Reva, scans the regions specified on the form, and pushes the discovered entities to Reva. Start the import from inside the pod or task using port 8055.
+
+```bash
+curl --location 'http://localhost:8055/initImport' \
+--header 'domain: {your domain}' \
+--header 'username: {username}'
+```
+
+On EKS, run the following command from a workstation with kubectl:
+
+```bash
+kubectl exec -it deployment/reva-agentcore -n rtg -- \
+  wget -S -qO- --header="domain: {your domain}" --header="username: {username}" \
+  http://localhost:8055/initImport
+```
+
+A successful call returns HTTP 202 Accepted, along with a runId, a connectionId, and the status pending. HTTP 401 indicates that the token is missing, is still set to the placeholder, or no longer matches the token shown in the console. HTTP 409 indicates that an import is already running for this connection. Wait for the current import to finish. The connector does not queue additional runs.
+
+When the import finishes, the connector pushes the entities to Reva. Verify this in both the connector logs and the Reva ingestion logs. On ECS, the connector log group is /ecs/reva-agentcore-discovery. On EKS, use kubectl logs. A subsequent Sync initiated from the connector row in the console is separate from this initial import. Use initImport for the external connector because this is the path that reads the token from Secrets Manager and retrieves the configuration for this deployment.

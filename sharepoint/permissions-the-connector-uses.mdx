@@ -1,0 +1,41 @@
+---
+title: "Permissions the Connector Uses"
+---
+## Microsoft Graph application permissions
+
+| Permission | Required | Used for | Without it |
+| --- | --- | --- | --- |
+| `Sites.Read.All` | Yes | Listing sites and their libraries, running the Test probe, and reading each site's drive owner. | Test and import fail with 403. |
+| `Files.Read.All` | Yes | Traversing folders and files, and reading each file's permissions, sensitivity label, retention label, versions, and custom columns. | The import fails with 403. |
+| `Group.Read.All` | Yes | Reading site owners and the sensitivity label assigned to the site's Microsoft 365 group. | Site owners and site labels are missing, with a warning on the run. |
+
+## Calls and the permission each one needs
+
+| Call | Permission | Fills |
+| --- | --- | --- |
+| `GET /sites/root?$select=id` | Sites.Read.All | Test only |
+| `GET /sites/getAllSites` | Sites.Read.All | Workspace |
+| `GET /sites/{id}/drives` | Sites.Read.All | Repository |
+| `GET /sites/{id}/drive?$select=id,owner` | Sites.Read.All | Workspace associatedGroup |
+| `GET /drives/{id}/root?$select=id` and `GET /drives/{id}/root/delta` | Files.Read.All | Folder and File |
+| `GET /drives/{d}/items/{i}/permissions` | Files.Read.All | readers, editors, owners and their group sets, sharingLinks, hasAnonymousLink, hasExternalAccess, isShared |
+| `GET /drives/{d}/items/{i}?$select=id,sensitivityLabel` | Files.Read.All | sensitivityLabelId, sensitivityLabelName |
+| `POST /drives/{d}/items/{i}/extractSensitivityLabels` | Files.Read.All | labelAssignmentMethod |
+| `GET /drives/{d}/items/{i}/retentionLabel` | Files.Read.All | retentionLabel |
+| `GET /drives/{d}/items/{i}/versions?$select=id` | Files.Read.All | versionCount |
+| `GET /drives/{d}/items/{i}/listItem/fields` | Files.Read.All | customMetadata |
+| `GET /groups/{id}?$select=id,assignedLabels` | Group.Read.All | Workspace sensitivityLabelName |
+| `GET /groups/{id}/owners/microsoft.graph.user?$select=id` | Group.Read.All | Workspace owners |
+
+Per-file calls are sent in batches of 20 through `POST /$batch`. If a call in a batch is throttled, it waits for its own `Retry-After` duration before being retried.
+
+## What is intentionally absent
+
+| Not requested | Effect |
+| --- | --- |
+| Any ReadWrite or FullControl permission | The connector cannot modify sites, files, sharing settings, or labels. |
+| Delegated permissions | No user signs in. The connector runs as the app. |
+| Reads of `/content` | File contents are never downloaded. |
+| `InformationProtectionPolicy.Read.All` | Not needed. Label names come from each file's own sensitivityLabel property. |
+| `User.Read.All`, `Directory.Read.All` | People are recorded by Entra ID object id. |
+| `Sites.Selected` | Not supported yet. The connector lists sites with `getAllSites`, which requires `Sites.Read.All`. |
