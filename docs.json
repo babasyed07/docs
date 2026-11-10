@@ -143,6 +143,12 @@
             ]
           },
           {
+            "group": "Insights",
+            "pages": [
+              "insights-dashboard"
+            ]
+          },
+          {
             "group": "AI Coding Agents",
             "pages": [
               "ai-coding-agents/overview",
@@ -315,7 +321,9 @@
           {
             "group": "Plugins",
             "pages": [
-              "plugins/kong-plugin"
+              "plugins/kong-plugin",
+              "plugins/litellm-plugin",
+              "plugins/copilot-studio-threat-detection"
             ]
           },
           {

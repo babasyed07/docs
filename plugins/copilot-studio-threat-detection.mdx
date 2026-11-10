@@ -1,0 +1,208 @@
+---
+title: "Copilot Studio Threat Detection"
+description: "Register Reva as Microsoft Copilot Studio's Threat Detection Partner, so every tool call an agent attempts is authorized against a Reva policy store before it runs."
+---
+
+The **Reva Copilot Studio Threat Detection** service registers with Microsoft Copilot Studio as a tenant's **Threat Detection Partner**. Before Copilot Studio executes a tool on behalf of an agent, it calls this service, and the service answers allow or block based on Reva policy.
+
+| Detail | Value |
+|:--|:--|
+| Integration point | Power Platform admin center, Threat Detection Partner (tenant-wide) |
+| Scope | One Reva policy store bound per tenant at a time |
+| Primary endpoints | `POST /validate`, `POST /analyze-tool-execution` |
+| Auth | Microsoft Entra ID JWT, in production |
+| Packaging | 9 AWS Lambda functions, Node.js 18+/24.x zip deployments |
+| State | One DynamoDB table |
+
+Registering the Threat Detection Partner binds the whole tenant to one Reva policy store. Every tool call any agent in that tenant attempts is authorized before it runs.
+
+## How It Works
+
+<Steps>
+  <Step title="Register">
+    An administrator registers Reva as the tenant's Threat Detection Partner in the Power Platform admin center, by giving it this service's public HTTPS base URL — the same URL the webhooks are served from. Only one Reva policy store can be bound to a tenant at a time.
+  </Step>
+  <Step title="Validate">
+    Copilot Studio calls the `POST /validate` webhook to validate the registered partner.
+  </Step>
+  <Step title="Decide">
+    Before executing a tool, Copilot Studio calls `POST /analyze-tool-execution` with the specific tool call. The service evaluates it against the bound Reva policy store and returns allow or block.
+  </Step>
+  <Step title="Enforce">
+    Copilot Studio executes the tool only on an allow. A block stops the call before it runs.
+  </Step>
+  <Step title="Observe">
+    The decision is recorded. The remaining Lambda functions export decisions to Datadog, serve an observability dashboard and event feed, and expose runtime endpoints for reading and writing policy.
+  </Step>
+</Steps>
+
+## Functions Reference
+
+Nine Lambda functions, one HTTP method each, all built as ESM (`.mjs`) modules. Each deployment zip has `index.mjs` at its root. All nine use the same handler entry point, `index.handler`.
+
+| Function | HTTP | Purpose |
+|:--|:--|:--|
+| `validate` | `POST /validate` | Copilot Studio's validation webhook. |
+| `analyze-tool-execution` | `POST /analyze-tool-execution` | Allow/block decision for a specific tool call — the enforcement point. |
+| `observability` | `GET /observability` | HTML dashboard. |
+| `observability-events-list` | `GET /observability/events` | Lists recent events. |
+| `observability-events-clear` | `DELETE /observability/events` | Clears recorded events. |
+| `observability-otel-export` | `POST /observability/otel-export` | Exports Reva decision logs through OTLP to a collector, for Datadog. |
+| `config-policy-read` | `GET /config/policy` | Reads the runtime policy. Requires `x-config-token`. |
+| `config-policy-write` | `PUT /config/policy` | Updates the runtime policy. Requires `x-config-token`. |
+
+## Prerequisites
+
+- Node.js 18 or later
+- A DynamoDB table, in the single-table layout below
+- IAM permissions for `dynamodb:GetItem`, `PutItem`, `Query`, `UpdateItem`, and `BatchWriteItem` on that table
+
+## Data Model
+
+One DynamoDB table, partition key `pk` and sort key `sk`. On-demand capacity is sufficient outside heavy production load.
+
+| Item | Keys | Holds |
+|:--|:--|:--|
+| Policy | `pk = APP`, `sk = POLICY` | `blockedTerms`, `blockedToolNames`, `updatedAt` |
+| Sequence | `pk = APP`, `sk = _META` | `eventSeq` — maintained automatically |
+| Event | `pk = EVENT`, `sk = <sortable>#<uuid>` | The observability payload for one recorded event, plus `id` and `timestamp` |
+
+## Configuration Reference
+
+Every field below is an environment variable set on the Lambda. Each one is also documented per-function in the repository's `envars.md`.
+
+### Storage
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `DYNAMODB_TABLE_NAME` | string | **required**, except on `observability` | The single DynamoDB table this deployment uses |
+
+#### DYNAMODB_TABLE_NAME
+
+Required on every function except `observability`, which serves HTML only and makes no DynamoDB calls.
+
+```bash
+DYNAMODB_TABLE_NAME=reva-threat-detection
+```
+
+### Authentication
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `ENTRA_TENANT_ID` | string | **required in production** | Microsoft Entra tenant to validate tokens against |
+| `ENTRA_AUDIENCE` | string | **required in production** | Expected token audience |
+| `ENTRA_ISSUER` | string | tenant default | Overrides the expected issuer |
+| `ENTRA_JWKS_URI` | string | tenant default | Overrides the JWKS URL |
+| `ALLOW_INSECURE_LOCAL_AUTH` | boolean | off | Development only: static or no auth |
+| `AUTH_TOKEN` | string | — | Bearer token expected when `ALLOW_INSECURE_LOCAL_AUTH=true` |
+
+#### ENTRA_TENANT_ID and ENTRA_AUDIENCE
+
+Required in production. Together, these turn on Microsoft Entra JWT auth — set the tenant and the expected token audience.
+
+```bash
+ENTRA_TENANT_ID=<your-entra-tenant-id>
+ENTRA_AUDIENCE=<expected-token-audience>
+```
+
+#### ENTRA_ISSUER and ENTRA_JWKS_URI
+
+Optional overrides for the expected token issuer and the JWKS URL, if they differ from Entra's defaults for the tenant.
+
+#### ALLOW_INSECURE_LOCAL_AUTH and AUTH_TOKEN
+
+Development only. `ALLOW_INSECURE_LOCAL_AUTH=true` switches to static or no auth; `AUTH_TOKEN` is then the bearer token the function expects.
+
+<Warning>
+  Never set `ALLOW_INSECURE_LOCAL_AUTH=true` on a deployment that's reachable from outside your own machine.
+</Warning>
+
+### Policy
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `BLOCKED_TERMS` | string | — | Comma-separated seed policy terms |
+| `BLOCKED_TOOL_NAMES` | string | — | Comma-separated seed policy tool names |
+| `CONFIG_API_TOKEN` | string | **required** on policy and export endpoints | Must match the caller's `x-config-token` header |
+
+#### BLOCKED_TERMS and BLOCKED_TOOL_NAMES
+
+Comma-separated seed policy, used only to initialize the DynamoDB policy row when none exists yet. Once that row exists, use the `/config/policy` endpoints below to change it.
+
+```bash
+BLOCKED_TERMS=delete production,drop table
+BLOCKED_TOOL_NAMES=send_email,execute_payment
+```
+
+#### CONFIG_API_TOKEN
+
+Required on `config-policy-read`, `config-policy-write`, and `observability-otel-export`. Must match the caller's `x-config-token` header exactly.
+
+```bash
+CONFIG_API_TOKEN=<token>
+```
+
+<Warning>
+  This token gates both reading and writing the live policy, so treat it as a production secret.
+</Warning>
+
+### Observability
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `OBS_MAX_EVENTS` | integer | `200` | Maximum events returned by the event feed |
+| `REVA_DECISION_LOG_QUERY_URL` | string | — | Decision log endpoint queried by the export function |
+| `OTEL_COLLECTOR_OTLP_HTTP_URL` | string | — | OTLP collector endpoint decisions are forwarded to |
+| `REVA_DECISION_LOG_BODY_JSON` | string | demo filters | Optional JSON filter body for the decision log query |
+| `PUBLIC_API_BASE` | string | — | Full base URL, used by the dashboard |
+
+#### OBS_MAX_EVENTS
+
+Maximum events returned by the event feed. Defaults to 200.
+
+#### REVA_DECISION_LOG_QUERY_URL and OTEL_COLLECTOR_OTLP_HTTP_URL
+
+Used only by `observability-otel-export`: the Reva decision log endpoint to query, and the OTLP collector endpoint to forward decisions to.
+
+```bash
+REVA_DECISION_LOG_QUERY_URL=https://api.example.reva.ai/api/v1/logs/decision/query
+OTEL_COLLECTOR_OTLP_HTTP_URL=https://your-collector/v1/logs
+```
+
+<Note>
+  The collector itself is not part of this service — it's hosted separately, and this Lambda only calls it.
+</Note>
+
+#### REVA_DECISION_LOG_BODY_JSON
+
+Optional JSON filter body for the decision log query, overriding the default demo filters.
+
+#### PUBLIC_API_BASE
+
+Set on `observability`: the full base URL, including stage, with no trailing slash — so its dashboard can reach `/observability/events` when the routes aren't same-origin relative paths.
+
+```bash
+PUBLIC_API_BASE=https://abc123.execute-api.us-east-1.amazonaws.com/prod
+```
+
+## API Gateway
+
+Map routes to the matching Lambda through an HTTP API or REST API. Preserve the `Authorization` and `x-ms-correlation-id` headers, and do not rewrite the paths for `/validate` or `/analyze-tool-execution`.
+
+Add `POST /observability/otel-export` for the Datadog export path. If the dashboard is served from a different origin, configure CORS on the API, and return HTTP 204 for an `OPTIONS` preflight on that route — the Lambda itself implements `OPTIONS`.
+
+## Packaging
+
+Each function is built from this directory with `./build.sh`, which installs production dependencies and writes `dist/<name>.zip` with `index.mjs` at the zip root. To build a function manually instead, assemble a folder containing a copy of the right `handlers/<name>.mjs` as `index.mjs`, alongside `shared/` and `node_modules/`, then zip those three at the folder root. Either way, upload the zip and set the handler to `index.handler`, on Node.js 18 or later, or 24.x.
+
+## Verify the Install
+
+After deploying, run the included smoke test from the service directory with `AUTH_TOKEN` (or a bearer Entra JWT) and, if testing the policy endpoints, `CONFIG_API_TOKEN` set. It defaults to your deployed API, or point it elsewhere by overriding `BASE_URL`.
+
+## Installing the Service
+
+The from-scratch setup — hosting, the Entra ID app registration, binding the service in the Power Platform admin center, verifying the registration, and troubleshooting `AADSTS` errors — lives in the service's own `INSTALL.md` and isn't duplicated here.
+
+## Get the Plugin
+
+The service is in [lambdas/copilot-threat-detection-service](https://gitlab.com/reva.ai/development/pm_demo/-/tree/main/lambdas/copilot-threat-detection-service), in the `pm_demo` repository.
