@@ -12,7 +12,7 @@ Every agent action is authorized by the [Reva Trust Guardian](/ai-workload-secur
 | **Python SDK** | You control the agent's code (LangChain, LangGraph, CrewAI, custom services). | Available |
 | **Evaluation API** | You can add an HTTP/REST step but not embed the SDK (low-code platforms, gateways, other languages). | Available |
 | **Java SDK** | JVM services that want the same decorator + proxy model. | Coming soon |
-| **Kong plugin** | Enforce at the Kong API gateway, with no app changes. | Coming soon |
+| **Kong AI Gateway policy** | Enforce at Kong AI Gateway, with no app changes. | Coming soon |
 | **Istio plugin** | Enforce in the Istio service mesh, with no app changes. | Coming soon |
 
 ## Python SDK
@@ -33,7 +33,7 @@ When you can't embed the SDK, call the Trust Guardian's **Evaluation API** where
 
 ## Gateway & Mesh Plugins
 
-To govern traffic at the infrastructure layer instead of in code, Reva is building **Kong** (API gateway) and **Istio** (service mesh) plugins, plus a **Java SDK** for JVM services — all coming soon.
+To govern traffic at the infrastructure layer instead of in code, Reva is building **Kong** (AI Gateway) and **Istio** (service mesh) plugins, plus a **Java SDK** for JVM services — all coming soon.
 
 <Card title="Native Plugins" icon="puzzle-piece" href="/ai-workload-native-plugins">
   Kong, Istio, and the Java SDK — coming soon.
