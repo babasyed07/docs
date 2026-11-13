@@ -13,7 +13,6 @@ Unlike request-level filtering, the policy evaluates the **delegation chain**. T
 | Version | `2.0.0` |
 | Requires | Kong AI Gateway 2.2 or later |
 | Runs as | a streaming or an installed AI Custom Policy |
-| Evaluates at | `POST /pdp/ai/access/ai/evaluation` on your Reva host |
 | Attaches to | the whole gateway, or an AI Model, AI Consumer, or AI Consumer Group |
 
 Because enforcement lives in the gateway, the application holds no model key and no policy credential. It can only reach a model, a tool, or another agent *through* Kong AI Gateway, so authorization cannot be bypassed by the caller.
@@ -26,7 +25,7 @@ Because enforcement lives in the gateway, the application holds no model key and
                      │   policies + guardrails       │
                      └──────────────────────────────┘
                                     ▲
-                  POST /pdp/ai/access/ai/evaluation
+                                    │ allow / deny
                                     │
   Caller ──▶  Kong AI Gateway  ───────────────▶  Model / MCP server / Agent
              reva-ai-runtime-authorization        (upstream, only on allow)
@@ -51,7 +50,7 @@ On every request:
     An allow proxies the request upstream and attaches a transaction token for the next hop. Anything else ends the request with `deny_status`, unless `monitor_mode` is on.
   </Step>
   <Step title="Summarize the turn">
-    When the first call of a trace completes, the policy posts a best-effort summary of the turn to the Trust Guardian so later turns can be evaluated against it. A streamed response is passed through as it is produced and is not summarized.
+    When the first call of a turn completes, the policy reports the turn to the Trust Guardian so later turns of the chat can be evaluated against it. A streamed response is passed through as it is produced and is not reported.
   </Step>
 </Steps>
 
@@ -236,13 +235,13 @@ Each hop passes on the transaction token it received. The policy issues a new on
 
 #### How the policy tells the first call from a later one
 
-A call that carries no `X-Transaction-Token` is the first call of a turn. A call that carries one is a later hop. The Trust Guardian draws the same line: a transaction token exists only because an earlier call was evaluated and allowed.
+A call that carries no `X-Transaction-Token` is the first call of a turn. A call that carries one is a later hop. A transaction token exists only because an earlier call was evaluated and allowed.
 
 | | First call of a turn | Later hop |
 |:--|:--|:--|
-| Identifies the user | `subject` and `principal` from the JWT | none sent; Reva takes the agent and the user from the token |
-| Thread id | sent, when `session_key` finds one | not sent; Reva joins the call to its thread through the trace id |
-| Summary of the turn | posted when the call completes, unless the response is streamed | not posted |
+| Carries `X-Transaction-Token` | no | yes |
+| The user | read from the `Authorization` JWT | taken from the transaction token |
+| Thread id | read from the place `session_key` names | not needed |
 
 #### If a header is missing
 
@@ -252,7 +251,7 @@ None of these produces an error in your application. The turn just becomes harde
 |:--|:--|
 | `Authorization` | The call is refused with `401` and the reason `missing Authorization bearer token`. Reva is not called. |
 | `traceparent` | The policy creates a new trace, so Reva cannot link the call to the turn it belongs to. |
-| `X-Transaction-Token` on a later hop | The call is evaluated as a first call made by the user, not as a nested hop made by the agent. Its thread id is sent again, so a different id would record it under another thread. |
+| `X-Transaction-Token` on a later hop | The call is treated as the first call of a new turn made by the user, not as a later hop made by the agent. |
 | the thread id on the first call | The turn has no thread id, so Reva cannot join it to earlier turns of the chat. |
 
 #### Token lifetime
@@ -266,10 +265,10 @@ A Reva policy matches the resource the policy sends. Register your models, MCP s
 | Call | Action | Resource in Reva | Where it comes from |
 |:--|:--|:--|:--|
 | Model | `invokeModel` | `Model::"gpt-4o"` | the `model` field of the request body |
-| Tool | `invokeTool` | `Tool::"ticketing-mcp/open_ticket"` | the tool name from `params.name`, joined to the MCP server whose base URL matches the gateway entity's upstream URL |
+| Tool | `invokeTool` | `Tool::"ticketing-mcp/open_ticket"` | the tool name from `params.name`, prefixed with the name of the MCP server registered in Reva for the entity's upstream URL |
 | Agent | `invokeAgent` | `Agent::"https://ticketing-agent.example.com"` | the upstream URL of the gateway entity, as `protocol://host[:port]` |
 
-- **MCP servers.** Register each MCP server in Reva with the same base URL as its upstream on the gateway. The policy sends the tool name and that URL; the Trust Guardian resolves the URL to the MCP server and names the tool `<mcp server>/<tool>`.
+- **MCP servers.** Register each MCP server in Reva with the same base URL as its upstream on the gateway. Reva then names each of its tools `<mcp server>/<tool>`.
 - **Agents.** An agent is identified by its upstream URL alone — never a path, and never the path the caller used. Two agents are two upstreams on two hosts.
 - **Models.** A request with no usable `model` is reported as `unknown-model`, which no policy matches, so it shows up in the decision log rather than passing silently.
 
@@ -288,8 +287,6 @@ Every field is set under the AI Policy's `config`. `auth_token` is the only requ
 #### reva_host
 
 Host or base URL of your Reva tenant, for example `api.example.reva.ai`. A host-only value is called over HTTPS; a full URL such as `https://api.example.reva.ai` is used as given, and trailing slashes are trimmed.
-
-The policy evaluates every call at `/pdp/ai/access/ai/evaluation` on this host. The path is not configurable.
 
 <Warning>
   An empty value falls back to `api.reva.ai`. If your tenant is on another host, an empty or mistyped `reva_host` sends evaluations to the wrong place and every call is refused with `authorization service unavailable`.
@@ -411,14 +408,12 @@ The user's token is forwarded to the Trust Guardian with every evaluation, so gr
 
 | Field | Type | Default | Purpose |
 |:------|:-----|:--------|:--------|
-| `prompt_key` | string | `content` | Field carrying the prompt text in the evaluation request |
+| `prompt_key` | string | `content` | Name of the field that carries the prompt text to Reva |
 | `session_key` | string | `X-Reva-Session-Id` | Header or body field carrying the chat or thread id |
 
 #### prompt_key
 
-Names the field carrying the prompt text in the evaluation request. Defaults to `content`.
-
-The policy places the prompt under this key and tells the Trust Guardian where to find it. Change it only when your Reva policies were authored against a different field name; the two must match.
+Name of the field that carries the prompt text to Reva. Defaults to `content`. Change it only when your Reva policies were authored against a different field name; the two must match.
 
 What is sent as the prompt:
 
@@ -453,23 +448,17 @@ A first call that carries nothing at that name has no thread id, so the Trust Gu
 { "session_key": "params.message.contextId" }
 ```
 
-### Data Plane State and Diagnostics
+### Turns and Diagnostics
 
 | Field | Type | Default | Purpose |
 |:------|:-----|:--------|:--------|
-| `hop_ttl` | integer | `3600` | Seconds an unfinished turn is remembered |
+| `hop_ttl` | integer | `3600` | Seconds an unfinished turn is kept open |
 | `forward_traceparent` | boolean | `true` | Pass `traceparent` to the upstream |
 | `debug` | boolean | `false` | Log extra diagnostics |
 
 #### hop_ttl
 
-How long, in seconds, a data plane node remembers which call started a turn when that call never finishes. Defaults to `3600`; accepts `60` to `86400`.
-
-The node notes the first call of each trace so that only that call summarizes the turn. The note is removed as soon as the call completes; `hop_ttl` only clears one left behind by a crash or a refused call. Set it comfortably longer than your slowest agent turn.
-
-<Note>
-  This note is local to one data plane node and needs nothing declared for it. Send the hops of a trace through the same node, and avoid configuration changes while turns are in flight.
-</Note>
+How long, in seconds, the policy keeps a turn open when its first call never finishes. Defaults to `3600`; accepts `60` to `86400`. Set it comfortably longer than your slowest agent turn.
 
 #### forward_traceparent
 
@@ -479,7 +468,7 @@ Turn it off only if an upstream rejects trace headers.
 
 #### debug
 
-Log extra diagnostics at `notice` level: the reason a request was **skipped** — proxied without being evaluated — and each turn summary as it is sent. Defaults to `false`.
+Log extra diagnostics at `notice` level, including the reason a request was **skipped** — proxied without being evaluated. Defaults to `false`.
 
 Use it when a call you expected to be evaluated is passing through untouched. Leave it off in production.
 
@@ -508,62 +497,21 @@ An agent call is any A2A request that sends a message to an agent. The policy ev
 
 - **HTTP+JSON** is recognized by the end of the path, so a version or tenant prefix such as `/v1/message:send` or `/acme/message:send` is fine. The body is the request itself, `{"message": {...}}`, with no JSON-RPC envelope.
 - **Media type.** A body is read as JSON for any JSON media type, including `application/a2a+json`, which A2A 1.0 recommends for HTTP+JSON.
-- **Streamed responses** are passed through as they are produced. The policy does not buffer them, so the turn is not summarized to the Trust Guardian. The evaluation of the call itself is unchanged.
+- **Streamed responses** are passed through as they are produced, and the call is still evaluated before it is sent. The turn is not reported to the Trust Guardian when the stream ends.
 - **Not evaluated:** requests that read or manage tasks (`tasks/*`, `GetTask`, `CancelTask`, `SubscribeToTask`, and the push-notification configuration methods), agent-card requests, the gRPC binding, and JSON-RPC batches.
 
 ## What Reva Sees
 
-For each evaluated call the policy sends one request to `/pdp/ai/access/ai/evaluation`.
+For each evaluated call the Trust Guardian receives:
 
-| Header | Value |
+| What | Value |
 |:--|:--|
-| `X-API-Token` | `Bearer` plus `auth_token` |
-| `Authorization` | The end user's JWT, as received |
-| `X-Transaction-Token` | The token from the previous hop, when the request carried one |
-| `X-Reva-Thread-Id` | The thread id, on the first call of a turn, when one was found |
-| `traceparent` | The inbound trace context, or one created for this turn |
-
-The first call of a turn, from a user to an agent:
-
-```json
-{
-  "content": "Open a ticket for my duplicate charge",
-  "rtg/a2a": {
-    "action":   { "name": "invokeAgent" },
-    "resource": { "type": "Agent",
-                  "id": "https://billing-support-agent.example.com",
-                  "endpoint": "https://billing-support-agent.example.com" },
-    "subject":   { "type": "User", "id": "alice" },
-    "principal": { "type": "User", "id": "alice" },
-    "transmission": { "promptKey": "content", "role": "agent",
-                      "content": "Open a ticket for my duplicate charge" },
-    "threadId": "471e538c-bcda-4690-81d4-efbba8573e20",
-    "session":  { "id": "471e538c-bcda-4690-81d4-efbba8573e20" }
-  }
-}
-```
-
-A nested tool call made later in the same turn, carrying the transaction token:
-
-```json
-{
-  "content": "summary=Duplicate charge issue, customer_id=alice",
-  "rtg/a2a": {
-    "action":   { "name": "invokeTool" },
-    "resource": { "type": "Tool", "id": "open_ticket",
-                  "endpoint": "https://ticketing-mcp.example.com" },
-    "transmission": { "promptKey": "content", "role": "agent",
-                      "content": "summary=Duplicate charge issue, customer_id=alice" }
-  }
-}
-```
-
-What each part carries:
-
-- **`content`** — the prompt, under the key named by `prompt_key`. It is repeated in `transmission.content`.
-- **`resource`** — what is being called. Tool and agent calls also carry `endpoint`, the upstream URL of the gateway entity.
-- **`subject` and `principal`** — the user, on the first call of a turn only. A nested hop sends neither.
-- **`threadId` and `session.id`** — the thread id, on the first call of a turn only, when one was found.
+| Action | `invokeModel`, `invokeTool` or `invokeAgent` |
+| Resource | the model, tool or agent being called, as described in [Model Your Gateway in Reva](#model-your-gateway-in-reva) |
+| User | the user named by the `Authorization` JWT |
+| Prompt | the text described under [`prompt_key`](#prompt_key) |
+| Thread id | the chat id, on the first call of a turn, when one was found |
+| Trace id | the trace id from `traceparent` |
 
 On an allow, the Trust Guardian returns a transaction token. The gateway adds it to the upstream request as `X-Transaction-Token`, and the upstream forwards it on its own calls.
 
@@ -575,7 +523,7 @@ A refused call ends at the gateway with `deny_status` and `deny_message`, and th
 |:--|:--|:--|
 | `deny_status` | `authorization denied by policy`, or the reason Reva returned | Reva evaluated the call and refused it |
 | `deny_status` | `authorization service unavailable` | No decision was obtained from the Trust Guardian |
-| `deny_status` | `could not build authorization request` | The policy could not encode the evaluation request |
+| `deny_status` | `could not build authorization request` | The policy could not build the request to the Trust Guardian |
 | `401` | `missing Authorization bearer token` | No bearer token was presented |
 | `401` | `Authorization bearer token is not a JWT` | A bearer was presented but could not be decoded |
 | `401` | `jwt claim ... is empty` | The JWT decoded, but `jwt_user_claim` held no value |
@@ -672,8 +620,6 @@ The response says `authorization service unavailable` and the data plane log sho
 
 - Confirm every agent forwards `traceparent` and `X-Transaction-Token` unchanged.
 - Confirm the first call of every turn carries the same thread id for a chat, at the header or body field that [`session_key`](#session_key) names.
-- Send the hops of a trace through the same data plane node.
-
 ### MCP calls fail with "Session terminated"
 
 - Keep `request_buffering` enabled on the route — the policy reads the request body.
