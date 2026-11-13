@@ -3,7 +3,7 @@ title: "Kong AI Gateway Policy"
 description: "Authorize every model, tool, and agent call passing through Kong AI Gateway against a Reva policy store — with no application changes."
 ---
 
-**Reva AI Runtime Authorization** is an AI Custom Policy for **Kong AI Gateway**. Every OpenAI-style model call, MCP tool call, and A2A agent call that passes through the gateway is evaluated by the [Reva Trust Guardian](/ai-workload-security-overview) before it reaches an upstream, and a denied call never leaves the gateway.
+**Reva AI Runtime Authorization** is an AI Custom Policy for **Kong AI Gateway**. Every OpenAI-style model call, MCP tool call, and A2A agent call that passes through the gateway is evaluated by the Reva Trust Guardian before it reaches an upstream, and a denied call never leaves the gateway.
 
 Unlike request-level filtering, the policy evaluates the **delegation chain**. The hops of one agent turn share a trace id and the turns of one chat share a thread id, so a Reva policy can be written against what an agent is doing across a conversation rather than against a single request in isolation.
 
@@ -528,15 +528,15 @@ A refused call ends at the gateway with `deny_status` and `deny_message`, and th
 | `401` | `Authorization bearer token is not a JWT` | A bearer was presented but could not be decoded |
 | `401` | `jwt claim ... is empty` | The JWT decoded, but `jwt_user_claim` held no value |
 
-Applications should surface these differently: a policy denial has a matching row in the [decision logs](/decision-logs), the others have none. The `401` refusals are raised before Reva is called, so they are unaffected by `fail_open`, `monitor_mode`, or `deny_status`.
+Applications should surface these differently: a policy denial has a matching row in the decision logs, the others have none. The `401` refusals are raised before Reva is called, so they are unaffected by `fail_open`, `monitor_mode`, or `deny_status`.
 
 ## Guardrails
 
-Policies are not the only thing that can refuse a call. A policy store can also carry [guardrails](/guardrails/overview) — content-level evaluators such as intent-drift detection and jailbreak or prompt-injection checks, configured in the Reva console rather than here.
+Policies are not the only thing that can refuse a call. A policy store can also carry guardrails — content-level evaluators such as intent-drift detection and jailbreak or prompt-injection checks, configured in the Reva console rather than here.
 
 **Nothing in this policy configures them, and nothing needs to.** Guardrails run inside the same evaluation, and their verdict is folded into the single decision the gateway receives. From the gateway's point of view a guardrail denial is indistinguishable from a policy denial: same status, same `reason`, same fail-closed behavior.
 
-The [decision logs](/decision-logs) record evaluated policies and evaluated guardrails separately, so an operator can see which of the two refused a request. If a call is being blocked and no policy explains it, look at the guardrails before changing policy.
+The decision logs record evaluated policies and evaluated guardrails separately, so an operator can see which of the two refused a request. If a call is being blocked and no policy explains it, look at the guardrails before changing policy.
 
 ## Verify the Setup
 
@@ -568,7 +568,7 @@ The [decision logs](/decision-logs) record evaluated policies and evaluated guar
     ```
   </Step>
   <Step title="Check the decision">
-    Each evaluated call is logged on the data plane, and each decision appears in the Reva [decision logs](/decision-logs):
+    Each evaluated call is logged on the data plane, and each decision appears in the Reva decision logs:
 
     ```
     [reva-ai-runtime-authorization] evaluating invokeModel gpt-4o payload={...}
@@ -632,7 +632,7 @@ The response says `authorization service unavailable` and the data plane log sho
     Attach the policy with `monitor_mode: true`. Nothing is blocked; the log and the decision log show what *would* have been refused.
   </Step>
   <Step title="Tune policy">
-    Work through the would-be denials in the [decision logs](/decision-logs) until the verdicts match your intent.
+    Work through the would-be denials in the decision logs until the verdicts match your intent.
   </Step>
   <Step title="Enforce">
     Set `monitor_mode: false` and leave `fail_open: false`.
@@ -669,11 +669,5 @@ The response says `authorization service unavailable` and the data plane log sho
   </Card>
   <Card title="Developer Settings" icon="key" href="/ai-workload-developer-settings">
     Where to find the token the gateway presents.
-  </Card>
-  <Card title="Guardrails" icon="shield" href="/guardrails/overview">
-    Content-level checks that run in the same evaluation.
-  </Card>
-  <Card title="Decision Logs" icon="list-check" href="/decision-logs">
-    Every allow and deny the gateway produced.
   </Card>
 </CardGroup>
