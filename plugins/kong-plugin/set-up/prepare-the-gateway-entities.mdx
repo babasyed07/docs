@@ -1,0 +1,11 @@
+---
+title: "Step 3: Prepare the Gateway Entities"
+description: "Set Up: request buffering, MCP response buffering, and authenticating callers."
+---
+
+Each upstream you want governed is an entity on the gateway: a model, an MCP server, or an agent. The policy needs two things from them.
+
+- **Request buffering stays on.** The policy reads the request body, so `request_buffering` must be enabled on the routes it covers. It is on by default.
+- **MCP responses are not buffered.** MCP servers stream over SSE, so `response_buffering` must be disabled on MCP routes.
+
+Authenticate callers before their requests reach the policy, for example with a key or OpenID Connect policy. This policy decodes the user's JWT to read claims but does **not** verify its signature.

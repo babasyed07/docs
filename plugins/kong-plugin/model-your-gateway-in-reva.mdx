@@ -1,0 +1,16 @@
+---
+title: "Model Your Gateway in Reva"
+description: "Register your models, MCP servers, and agents so the resources a Reva policy matches line up with what the gateway reports."
+---
+
+A Reva policy matches the resource the policy sends. Register your models, MCP servers, and agents in the policy store so they line up with what the gateway reports.
+
+| Call | Action | Resource in Reva | Where it comes from |
+|:--|:--|:--|:--|
+| Model | `invokeModel` | `Model::"gpt-4o"` | the `model` field of the request body |
+| Tool | `invokeTool` | `Tool::"ticketing-mcp/open_ticket"` | the tool name from `params.name`, prefixed with the name of the MCP server registered in Reva for the entity's upstream URL |
+| Agent | `invokeAgent` | `Agent::"https://ticketing-agent.example.com"` | the upstream URL of the gateway entity, as `protocol://host[:port]` |
+
+- **MCP servers.** Register each MCP server in Reva with the same base URL as its upstream on the gateway. Reva then names each of its tools `<mcp server>/<tool>`.
+- **Agents.** An agent is identified by its upstream URL alone — never a path, and never the path the caller used. Two agents are two upstreams on two hosts.
+- **Models.** A request with no usable `model` is reported as `unknown-model`, which no policy matches, so it shows up in the decision log rather than passing silently.

@@ -1,0 +1,30 @@
+---
+title: "How a Call Is Classified"
+description: "How the policy classifies a request from its body, with no path prefixes."
+---
+
+The policy does not use path prefixes. It classifies from the request body, in this order:
+
+| Request | Action | Evaluated |
+|:--|:--|:--|
+| JSON-RPC `tools/call` | `invokeTool` | Yes |
+| JSON-RPC `message/send`, `message/stream`, `SendMessage` or `SendStreamingMessage`, or an HTTP+JSON `POST` to `…/message:send` or `…/message:stream` | `invokeAgent` | Yes |
+| Any other JSON-RPC method | — | No, proxied untouched |
+| OpenAI `messages` array | `invokeModel` | Yes |
+| Anything else | — | No, proxied untouched |
+
+Of the MCP methods only `tools/call` is evaluated; discovery calls such as `initialize` and `tools/list` pass through.
+
+### A2A requests
+
+An agent call is any A2A request that sends a message to an agent. The policy evaluates it in both protocol versions and both bindings:
+
+| Operation | JSON-RPC method, 0.3 | JSON-RPC method, 1.0 | HTTP+JSON path ends with | Response |
+|:--|:--|:--|:--|:--|
+| Send a message | `message/send` | `SendMessage` | `/message:send` | one reply |
+| Send a message, streamed | `message/stream` | `SendStreamingMessage` | `/message:stream` | server-sent events |
+
+- **HTTP+JSON** is recognized by the end of the path, so a version or tenant prefix such as `/v1/message:send` or `/acme/message:send` is fine. The body is the request itself, `{"message": {...}}`, with no JSON-RPC envelope.
+- **Media type.** A body is read as JSON for any JSON media type, including `application/a2a+json`, which A2A 1.0 recommends for HTTP+JSON.
+- **Streamed responses** are passed through as they are produced, and the call is still evaluated before it is sent. The turn is not reported to the Trust Guardian when the stream ends.
+- **Not evaluated:** requests that read or manage tasks (`tasks/*`, `GetTask`, `CancelTask`, `SubscribeToTask`, and the push-notification configuration methods), agent-card requests, the gRPC binding, and JSON-RPC batches.

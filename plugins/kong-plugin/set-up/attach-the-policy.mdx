@@ -1,0 +1,41 @@
+---
+title: "Step 2: Attach the Policy"
+description: "Set Up: create an AI Policy of type reva-ai-runtime-authorization, global or scoped."
+---
+
+Create an AI Policy whose type is `reva-ai-runtime-authorization`. Only `auth_token` is required; set `reva_host` unless your tenant is on `api.reva.ai`.
+
+<CodeGroup>
+```json Global
+{
+  "name": "reva-runtime-authorization",
+  "type": "reva-ai-runtime-authorization",
+  "global": true,
+  "config": {
+    "reva_host": "api.example.reva.ai",
+    "auth_token": "{vault://env/reva-ai-runtime-authorization-token}"
+  }
+}
+```
+
+```bash Konnect API
+curl -X POST "https://<region>.api.konghq.com/v1/ai-gateways/<ai-gateway-id>/policies" \
+  -H "Authorization: Bearer $KONNECT_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "name": "reva-runtime-authorization",
+    "type": "reva-ai-runtime-authorization",
+    "global": true,
+    "config": {
+      "reva_host": "api.example.reva.ai",
+      "auth_token": "{vault://env/reva-ai-runtime-authorization-token}"
+    }
+  }'
+```
+</CodeGroup>
+
+A **global** policy covers every model, MCP server, and agent on the gateway, which is what you want when the gateway is the only way to reach them. To govern part of your traffic instead, leave `global` off and reference the policy from the entity it should cover.
+
+<Warning>
+  Leave the policy's **Condition** empty. A condition that names a variable the data plane does not know stops the whole configuration from syncing, and Konnect then shows the node as **Sync pending**.
+</Warning>

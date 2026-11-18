@@ -1,0 +1,303 @@
+---
+title: "LiteLLM Plugin"
+description: "Authorize every model, tool, and agent call passing through a LiteLLM proxy against a Reva policy store — with no application changes."
+---
+
+The **Reva LiteLLM Guardrail** is a custom guardrail that enforces Reva policy at the **LiteLLM proxy**. Every model call, MCP tool call, and A2A agent call that passes through the proxy is evaluated by the Reva PDP before it reaches an upstream, and a denied call never leaves the proxy.
+
+The guardrail also evaluates multi-turn conversations as a whole. Calls that belong to the same thread are correlated and evaluated together, so a policy can be written against what an agent is actually doing across a conversation rather than against a single request in isolation.
+
+| Detail | Value |
+|:--|:--|
+| Plugin type | LiteLLM `CustomGuardrail` |
+| Installed as | `reva_auth_hook.py`, dropped in next to the proxy's config file |
+| Hooks registered | `pre_call` (model and A2A calls), `pre_mcp_call` (MCP tools) |
+| Identity source | Configurable: request metadata by default, or the LiteLLM virtual key when set to ignore caller-asserted identity |
+| Verified against | LiteLLM 1.88.0 |
+
+By default, identity is resolved from metadata on the request. Configuring the guardrail to resolve identity from the LiteLLM virtual key instead means a caller cannot assert its own identity to the PDP — that mode is the one to use where the caller should not be trusted. The guardrail also distinguishes a policy denial from a PDP fault: an unreachable PDP or a credentials problem returns a distinct error, never shown to the caller as a deny.
+
+## How It Works
+
+```
+  Caller ──▶  LiteLLM Proxy  ──────────────────▶  Model / MCP server / Agent
+             reva_auth_hook                        (upstream, only on allow)
+                     │
+                     ▼
+     ┌──────────────────────────────┐
+     │   Reva Trust Guardian (PDP)   │
+     │   policies + guardrails       │
+     └──────────────────────────────┘
+```
+
+On every call:
+
+<Steps>
+  <Step title="Classify the call">
+    `pre_call` handles model calls and A2A agent calls. `pre_mcp_call` handles MCP tool calls. Each call is mapped to a Reva action — `invokeModel`, `invokeTool`, or `invokeAgent` — and a resource.
+  </Step>
+  <Step title="Resolve identity">
+    By default, the caller's identity is read from request metadata. The guardrail can instead be configured to read it from the LiteLLM virtual key, ignoring any identity the caller asserts itself.
+  </Step>
+  <Step title="Correlate the conversation">
+    Calls belonging to the same thread are evaluated together, so the PDP sees a multi-turn conversation rather than an isolated request.
+  </Step>
+  <Step title="Evaluate">
+    The guardrail asks the Reva PDP for a decision on the call.
+  </Step>
+  <Step title="Enforce">
+    An allow lets the call through. A deny returns HTTP 403 with the policy's reason. A PDP fault — unreachable, bad credentials, and similar — returns a distinct HTTP 503, and is never presented as a deny. Fail-open or fail-closed behavior on a PDP fault is configurable.
+  </Step>
+</Steps>
+
+Every response carries `X-Reva-Decision` and `X-Reva-Trace-Id` headers, so a call can be traced back to the decision that produced it in the Reva decision log. Chat routes also carry `X-Reva-Thread-Id` when a thread was resolved.
+
+## Package Contents
+
+| File | What it is |
+|:--|:--|
+| `reva_auth_hook.py` | The guardrail. Turns each call into a Reva evaluation and allows or denies on the verdict. |
+| `litellm_config.example.yaml` | A minimal proxy config: the two `guardrails:` registrations (`pre_call`, `pre_mcp_call`), one model, one MCP server. |
+| `test_reva_auth_hook.py` | An offline contract test — what the hook sends the PDP and answers the caller. No network, no proxy required. |
+| `requirements.txt` | Pins `litellm[proxy]==1.88.0`. |
+| `.env.example` | The plugin's environment variables, as a template. |
+
+The shipped `reva_auth_hook.py` still carries logic specific to Reva's own demo environments — inlined team entitlements and mock risk-scoring metadata. It only takes effect against a policy store modeled the same way, so it's inert against a standard deployment, but worth knowing it's there before relying on the file as a clean reference implementation.
+
+## Install Into an Existing Proxy
+
+<Steps>
+  <Step title="Drop in the hook">
+    Place `reva_auth_hook.py` next to your LiteLLM config. LiteLLM imports the guardrail module from the config's own directory.
+  </Step>
+  <Step title="Register both guardrails">
+    Add both `guardrails:` registrations from `litellm_config.example.yaml`. `pre_call` covers model and A2A calls; `pre_mcp_call` covers MCP tools. One does not cover the other — both are required for full coverage.
+  </Step>
+  <Step title="Set the Reva environment variables">
+    At minimum, `REVA_PDP_URL`, `REVA_POLICYSTORE_ID`, and `REVA_AUTH_TOKEN`. See Configuration Reference below, or `.env.example`.
+  </Step>
+  <Step title="Start the proxy">
+    Start LiteLLM as usual, pointed at the config containing the guardrail registrations.
+  </Step>
+</Steps>
+
+## How a Call Is Classified
+
+| Call | LiteLLM route / `call_type` | Reva action | Resource |
+|:--|:--|:--|:--|
+| Model | `/chat/completions` — `acompletion`, `atext_completion` | `invokeModel` | `Model` (provider prefix stripped) |
+| MCP tool | `/mcp-rest/tools/call` — `call_mcp_tool` | `invokeTool` | `Tool` `<server>/<tool>` |
+| A2A agent | `/a2a/{agent}` — `asend_message` | `invokeAgent` | `Agent` (from `REVA_A2A_AGENT_MAP`, else the name after `a2a_agent/`) |
+| MCP tool on the streamable `/mcp` route | synthetic dispatch only | — | Refused with HTTP 503 `unsupported_route` by default: LiteLLM hands the hook no user, agent, or thread on that route. `REVA_MCP_STREAMABLE=allow` lets it through unevaluated, with a warning. |
+
+`/v1/responses` and `/v1/messages` are not gated yet.
+
+## Thread Continuity
+
+A thread id is resolved in this order, first match wins:
+
+1. `X-Reva-Thread-Id` header
+2. `metadata.thread_id`, then `metadata.threadId`
+3. `x-litellm-session-id` header
+4. The A2A message's `contextId`
+5. `metadata.session_id` — unless an `x-litellm-trace-id` header is present, since LiteLLM copies a trace id into that field
+
+The transport session id (`mcp-session-id`) and the traceparent are never used for this: a trace is one message, a thread is the conversation. A resolved id outside `[A-Za-z0-9._:@-]{1,128}` is skipped.
+
+Once resolved, the thread id is sent to the PDP as the `X-Reva-Thread-Id` header, `session.id`, and `threadId`/`thread_id` at the top level. On a tool hop, it is also added as `inputValues.thread_id`/`threadId` — on a copy of the arguments, not the originals the tool actually receives. It is sent the same value, several ways, since which field the decision log reads from is still being finalized on Reva's side, and it is never sent inside `context`. Without a resolvable thread, nothing thread-related is sent and `session.id` is a per-call id.
+
+To pass the thread id on to an MCP server as well, list it in that server's `extra_headers` config. Never list `authorization` there.
+
+## When a Call Is Refused
+
+| Outcome | Status | Body `error` | Headers |
+|:--|:--|:--|:--|
+| Allow | 200 | — | `X-Reva-Decision: allow`, trace id, thread id on chat routes |
+| Policy deny | **403** | `reva_deny` plus the policy's reason | `X-Reva-Decision: deny`, trace id, thread id |
+| Fault — no decision reached | **503** | `reva_unavailable` plus a `fault` code | `x-should-retry: false`, `X-Reva-Decision: fault`, trace id, thread id |
+
+`x-should-retry: false` stops the OpenAI SDK from automatically replaying the 503.
+
+## Configuration Reference
+
+Every field below is an environment variable, read the same way `.env.example` documents it.
+
+### Connection
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `REVA_PDP_URL` | string | **required** | PDP host, or a full evaluation URL |
+| `REVA_EVAL_PATH` | string | schema-dependent | Path appended when `REVA_PDP_URL` is a bare host |
+| `REVA_POLICYSTORE_ID` | string | **required** | Policy store to evaluate against |
+| `REVA_AUTH_TOKEN` | string | **required** | Bearer token presented to the PDP on every evaluation |
+
+#### REVA_PDP_URL
+
+The PDP host, or a full URL. A path already ending in `/evaluation` is used as given; otherwise `REVA_EVAL_PATH` is appended.
+
+```bash
+REVA_PDP_URL=https://api.example.reva.ai
+```
+
+#### REVA_EVAL_PATH
+
+Default `/pdp/v2/ai/evaluation` under the `agent_v5` schema, `/pdp/access/v1/evaluation` under `vanilla`. Appended to `REVA_PDP_URL` only when that's a bare host — a full URL in `REVA_PDP_URL` is used as given, and this variable has no effect.
+
+#### REVA_POLICYSTORE_ID
+
+Sent as the `policyStoreId` header on every evaluation request.
+
+```bash
+REVA_POLICYSTORE_ID=<your-policy-store-id>
+```
+
+#### REVA_AUTH_TOKEN
+
+The runtime PDP OAuth token. `Bearer ` is added automatically if missing.
+
+```bash
+REVA_AUTH_TOKEN=<token>
+```
+
+<Warning>
+  This is a bearer credential with policy-evaluation rights. Treat it like any other plaintext secret: keep `.env` out of source control, and prefer your platform's secrets manager over a literal value in production.
+</Warning>
+
+### Enforcement
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `REVA_HOOK_MODE` | string | `enforce` | `log` evaluates but never blocks |
+| `REVA_FAIL_MODE` | string | `closed` while enforcing | `open` lets a PDP fault through |
+| `REVA_PDP_TIMEOUT` | float | `5.0` | Time budget for the whole PDP call, retries included |
+| `REVA_PDP_RETRIES` | integer | `1` | Retries on transport errors and 408/425/429/5xx with no decision |
+
+#### REVA_HOOK_MODE
+
+Default `enforce`. Set to `log` to evaluate every call but let it through regardless of the decision — useful for rolling out a new policy store without risking a bad config blocking traffic.
+
+```bash
+REVA_HOOK_MODE=log
+```
+
+<Note>
+  `REVA_HOOK_MODE` decides whether a decision is enforced at all. `REVA_FAIL_MODE` decides what happens when no decision could be reached. They are independent.
+</Note>
+
+#### REVA_FAIL_MODE
+
+Defaults to `closed` while enforcing. Set to `open` to let a PDP fault through instead of blocking on it. Never applies to an actual policy deny — that's always enforced regardless of this setting.
+
+```bash
+REVA_FAIL_MODE=open
+```
+
+#### REVA_PDP_TIMEOUT and REVA_PDP_RETRIES
+
+`REVA_PDP_TIMEOUT` (default `5.0`) is the time budget for the whole PDP call, including retries. `REVA_PDP_RETRIES` (default `1`) retries transport errors and 408/425/429/5xx responses that carry no decision — never a decision itself, and never a refused credential.
+
+```bash
+REVA_PDP_TIMEOUT=5.0
+REVA_PDP_RETRIES=1
+```
+
+### Identity
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `REVA_SCHEMA_MODE` | string | `vanilla` | Evaluation contract: `vanilla` or `agent_v5` |
+| `REVA_PRINCIPAL_SOURCE` | string | `metadata` | Where identity is resolved from |
+| `REVA_ALLOW_CALLER_BYPASS` | boolean | off | Let a caller skip Reva entirely |
+
+#### REVA_SCHEMA_MODE
+
+Default `vanilla`, the original `CallModel`/`InvokeTool` contract, unchanged. Set to `agent_v5` for the AI Evaluation contract, which adds thread and A2A support.
+
+```bash
+REVA_SCHEMA_MODE=agent_v5
+```
+
+#### REVA_PRINCIPAL_SOURCE
+
+Default `metadata` — identity comes from metadata on the request itself. Set to `key` to resolve user, team, and agent from the LiteLLM virtual key instead, ignoring any identity the caller asserts: `metadata.reva_user_id`, `reva_team`, and `reva_tier` if present, else `user_id` and `team_alias`, plus the key's own `agent_id`. A master key is refused in this mode.
+
+```bash
+REVA_PRINCIPAL_SOURCE=key
+```
+
+<Warning>
+  Use `key` wherever the caller should not be trusted to name its own identity — that's the only mode here a caller cannot talk its way around.
+</Warning>
+
+#### REVA_ALLOW_CALLER_BYPASS
+
+Off by default. Honours `metadata.reva_in_loop=false` to skip Reva entirely for that call. Intended for demo use, not a production bypass.
+
+### Routing and Response
+
+| Field | Type | Default | Purpose |
+|:--|:--|:--|:--|
+| `REVA_RESPONSE_HEADERS` | boolean | on | Add the `X-Reva-*` headers to the response |
+| `REVA_MCP_STREAMABLE` | string | `deny` | Behavior on the streamable `/mcp` route |
+| `REVA_A2A_AGENT_MAP` | string | — | Maps A2A target names to Reva agent resources |
+| `REVA_AGENT_ID` | string | — | Fallback subject when a request names no agent |
+| `REVA_GATEWAY_ID` | string | `litellm` | Stamped into `context.gateway` |
+
+#### REVA_RESPONSE_HEADERS
+
+On by default. Controls whether the `X-Reva-*` headers are added to the response.
+
+#### REVA_MCP_STREAMABLE
+
+Default `deny`. Set to `allow` to let streamable `/mcp` tool calls through unevaluated, with a warning logged.
+
+```bash
+REVA_MCP_STREAMABLE=allow
+```
+
+<Note>
+  This only affects the streamable `/mcp` route. `pre_call` and `pre_mcp_call` evaluate exactly as configured elsewhere, regardless of this setting.
+</Note>
+
+#### REVA_A2A_AGENT_MAP
+
+A `name=entity-id,…` list for resolving A2A targets to Reva agent resources.
+
+```bash
+REVA_A2A_AGENT_MAP=billing-agent=agent-42,support-agent=agent-7
+```
+
+#### REVA_AGENT_ID and REVA_GATEWAY_ID
+
+`REVA_AGENT_ID` is a fallback subject used when a request names no agent. `REVA_GATEWAY_ID` (default `litellm`) is stamped into `context.gateway` on every evaluation request.
+
+## Verify the Install
+
+<Steps>
+  <Step title="Run the offline contract test">
+    `test_reva_auth_hook.py` checks what the hook sends the PDP and what it answers the caller, with no network and no running proxy. All checks passing exits `0`.
+  </Step>
+  <Step title="Start the proxy with the Reva environment set">
+    Fill in the store id and token from `.env.example`, then start the proxy against `litellm_config.example.yaml`.
+  </Step>
+  <Step title="Make a call and check the response">
+    An allowed call returns 200 with an `X-Reva-Decision: allow` header and an `X-Reva-Trace-Id`. Look that trace id up in the Reva decision log to confirm the call was actually evaluated.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+| `fault` value | What it means |
+|:--|:--|
+| `credentials` | The PDP rejected the gateway's own token — for example, a token for the wrong evaluation API version was used. |
+| `unavailable` | The PDP returned a server error, or returned a decision explicitly marked unavailable. |
+| `unreachable` | The PDP could not be reached at all. |
+| `not_configured` | The guardrail is missing required configuration, such as `REVA_PDP_URL` or `REVA_POLICYSTORE_ID`. |
+| `unverified_principal` | The call's identity could not be resolved under the configured `REVA_PRINCIPAL_SOURCE`. |
+| `unsupported_route` | The call came in on a route the guardrail cannot evaluate — for example, a tool call on the streamable `/mcp` route, which carries no user, agent, or thread context. |
+
+A `fault` is always distinct from a policy deny, regardless of which of these caused it.
+
+## Get the Plugin
+
+The plugin is in [reva-litellm-plugin](https://gitlab.com/reva.ai/development/pm_demo/-/tree/main/reva-litellm-plugin), in the `pm_demo` repository.

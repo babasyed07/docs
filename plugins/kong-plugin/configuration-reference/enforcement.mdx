@@ -1,0 +1,54 @@
+---
+title: "Enforcement"
+description: "Configuration Reference: the fields that decide what happens on a refusal or an outage."
+---
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `monitor_mode` | boolean | `false` | Evaluate and log, but never block |
+| `fail_open` | boolean | `false` | Proxy when no decision could be obtained |
+| `deny_status` | integer | `403` | HTTP status returned on a refusal |
+| `deny_message` | string | `Blocked by Reva` | Message returned on a refusal |
+
+#### monitor_mode
+
+Evaluate every call and log the verdict, but never block. Defaults to `false`.
+
+This is the natural first step of a rollout: attach the policy to real traffic, see what *would* have been refused, then turn it off to enforce. A would-be denial is logged at `warn`:
+
+```
+[reva-ai-runtime-authorization] MONITOR would deny invokeTool open_ticket for alice:
+           authorization denied by policy (proxying anyway)
+```
+
+<Note>
+  `monitor_mode` decides what to do with a decision Reva **gave**. `fail_open` decides what to do when Reva could not be **reached**. They are independent.
+</Note>
+
+#### fail_open
+
+Proxy the request when the Trust Guardian cannot be reached or returns no decision. Defaults to `false`, so an outage refuses calls rather than passing them unevaluated.
+
+The policy allows 5 seconds per evaluation attempt and makes up to three attempts, so `fail_open` only comes into play once all of those have failed.
+
+Setting it to `true` proxies unauthorized agentic traffic during an outage and should be a deliberate, documented choice.
+
+#### deny_status
+
+HTTP status returned when a call is refused, either by policy or because no decision could be obtained. Defaults to `403`; any value from `100` to `599` is accepted.
+
+Change it when a client library treats `403` specially and you would rather it saw a different status for a policy refusal.
+
+<Note>
+  The `401` refusals the policy raises **before** calling Reva — a missing token, an unusable JWT — keep their own status. `deny_status` does not apply to them.
+</Note>
+
+#### deny_message
+
+Message returned to the caller in the response body when a call is refused. Defaults to `Blocked by Reva`. The specific `reason` is returned alongside it:
+
+```json
+{ "message": "Blocked by Reva", "reason": "authorization denied by policy" }
+```
+
+Unlike `deny_status`, this message also applies to the pre-evaluation `401` refusals.

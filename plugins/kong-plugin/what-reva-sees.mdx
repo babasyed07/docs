@@ -1,0 +1,18 @@
+---
+title: "What Reva Sees"
+description: "The action, resource, user, prompt, and context the Trust Guardian receives for each evaluated call."
+---
+
+For each evaluated call the Trust Guardian receives:
+
+| What | Value |
+|:--|:--|
+| Action | `invokeModel`, `invokeTool` or `invokeAgent` |
+| Resource | the model, tool or agent being called, as described in [Model Your Gateway in Reva](/plugins/kong-plugin/model-your-gateway-in-reva) |
+| User | the user named by the `Authorization` JWT |
+| Prompt | the text described under [`prompt_key`](/plugins/kong-plugin/configuration-reference/payload#prompt_key) |
+| Context | the name/value pairs described under [Context Variables](/plugins/kong-plugin/context-variables) |
+| Thread id | the chat id, on the first call of a turn, when one was found |
+| Trace id | the trace id from `traceparent` |
+
+On an allow, the Trust Guardian returns a transaction token. The gateway adds it to the upstream request as `X-Transaction-Token`, and the upstream forwards it on its own calls.

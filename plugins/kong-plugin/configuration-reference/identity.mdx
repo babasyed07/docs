@@ -1,0 +1,38 @@
+---
+title: "Identity"
+description: "Configuration Reference: how the policy resolves the calling user."
+---
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `jwt_user_claim` | string | `sub` | JWT claim identifying the user |
+| `jwt_groups_claim` | string | `groups` | JWT claim holding the user's group memberships |
+
+#### jwt_user_claim
+
+JWT claim read from the inbound `Authorization: Bearer` token to identify the user. Defaults to `sub`. Common alternatives are `preferred_username` and `cognito:username`.
+
+- **Nested claims** use a dotted path: `user.id`.
+- **Colon-style keys** such as `cognito:username` are a single claim name, not a path.
+- The policy **decodes** the JWT payload; it does not verify the signature. Authenticate callers before their requests reach it.
+
+On the first call of a turn, this user is sent as both `subject` and `principal`. On a nested hop — one that carries an `X-Transaction-Token` — the policy sends neither, and the Trust Guardian takes the calling agent and the user from the token.
+
+A missing token, an unreadable JWT, or an empty claim is refused with `401` before Reva is called. There is no header fallback: the user comes from the token, or the request does not proceed.
+
+```json
+{ "jwt_user_claim": "preferred_username" }
+```
+
+#### jwt_groups_claim
+
+JWT claim holding the user's group memberships, read from the same token. Defaults to `groups`.
+
+| Identity provider | Typical value |
+|:--|:--|
+| Generic OIDC | `groups` |
+| RBAC-style tokens | `roles` |
+| Keycloak | `realm_access.roles` |
+| Amazon Cognito | `cognito:groups` |
+
+The user's token is forwarded to the Trust Guardian with every evaluation, so group claims travel with it.

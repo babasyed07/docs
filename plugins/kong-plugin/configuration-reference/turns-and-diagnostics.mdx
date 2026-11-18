@@ -1,0 +1,26 @@
+---
+title: "Turns and Diagnostics"
+description: "Configuration Reference: how long an unfinished turn is kept open, trace forwarding, and debug logging."
+---
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `hop_ttl` | integer | `3600` | Seconds an unfinished turn is kept open |
+| `forward_traceparent` | boolean | `true` | Pass `traceparent` to the upstream |
+| `debug` | boolean | `false` | Log extra diagnostics |
+
+#### hop_ttl
+
+How long, in seconds, the policy keeps a turn open when its first call never finishes. Defaults to `3600`; accepts `60` to `86400`. Set it comfortably longer than your slowest agent turn.
+
+#### forward_traceparent
+
+Pass the `traceparent` used for the authorization decision on to the upstream service. Defaults to `true`, so one trace id spans the gateway, your backend, and the Reva decision log.
+
+Turn it off only if an upstream rejects trace headers.
+
+#### debug
+
+Log extra diagnostics at `notice` level, including the reason a request was **skipped** — proxied without being evaluated — and the names of any [context](/plugins/kong-plugin/context-variables) pairs that were left out. Defaults to `false`.
+
+Use it when a call you expected to be evaluated is passing through untouched. Leave it off in production.
