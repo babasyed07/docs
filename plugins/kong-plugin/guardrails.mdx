@@ -1,0 +1,10 @@
+---
+title: "Guardrails"
+description: "How content-level guardrails fold into the same evaluation the policy already makes."
+---
+
+Policies are not the only thing that can refuse a call. A policy store can also carry guardrails — content-level evaluators such as intent-drift detection and jailbreak or prompt-injection checks, configured in the Reva console rather than here.
+
+**Nothing in this policy configures them, and nothing needs to.** Guardrails run inside the same evaluation, and their verdict is folded into the single decision the gateway receives. From the gateway's point of view a guardrail denial is indistinguishable from a policy denial: same status, same `reason`, same fail-closed behavior.
+
+The decision logs record evaluated policies and evaluated guardrails separately, so an operator can see which of the two refused a request. If a call is being blocked and no policy explains it, look at the guardrails before changing policy.

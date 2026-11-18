@@ -1,0 +1,43 @@
+---
+title: "Verify the Setup"
+description: "Confirm the policy is loaded and evaluating calls."
+---
+
+<Steps>
+  <Step title="Send a call with no bearer token">
+    The policy should refuse it itself, which proves it is loaded and running. Use the route of one of your models:
+
+    ```bash
+    curl -i -X POST https://<gateway-host>/<model-route>/chat/completions \
+      -H 'Content-Type: application/json' \
+      -d '{"model":"gpt-4o","messages":[{"role":"user","content":"hi"}]}'
+    ```
+
+    ```
+    HTTP/1.1 401
+    {"message":"Blocked by Reva","reason":"missing Authorization bearer token"}
+    ```
+
+    If another policy authenticates callers on that route, add its credential so the request reaches this one.
+  </Step>
+  <Step title="Repeat with a JWT">
+    Add a bearer token carrying the claim named by `jwt_user_claim`:
+
+    ```bash
+    curl -i -X POST https://<gateway-host>/<model-route>/chat/completions \
+      -H 'Authorization: Bearer <jwt>' \
+      -H 'Content-Type: application/json' \
+      -d '{"model":"gpt-4o","messages":[{"role":"user","content":"hi"}]}'
+    ```
+  </Step>
+  <Step title="Check the decision">
+    Each evaluated call is logged on the data plane, and each decision appears in the Reva decision logs:
+
+    ```
+    [reva-ai-runtime-authorization] evaluating invokeModel gpt-4o payload={...}
+    [reva-ai-runtime-authorization] invokeModel gpt-4o allowed=true status=200 latency_ms=412.3
+    ```
+
+    The first line is logged at `notice` and includes the prompt text. The second is logged at `info`, so set `KONG_LOG_LEVEL=info` to see it.
+  </Step>
+</Steps>

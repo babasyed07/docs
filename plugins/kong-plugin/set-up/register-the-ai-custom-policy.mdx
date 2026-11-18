@@ -1,0 +1,82 @@
+---
+title: "Step 1: Register the AI Custom Policy"
+description: "Set Up: register Reva AI Runtime Authorization as a streaming or installed AI Custom Policy."
+---
+
+Setting up the policy takes four steps: register it as an AI Custom Policy, attach it as an AI Policy, prepare the gateway entities, and make sure your application forwards the right headers.
+
+Kong AI Gateway runs a custom policy in one of two ways. Reva AI Runtime Authorization works with either.
+
+| | Streaming | Installed |
+|:--|:--|:--|
+| Where the code lives | Konnect stores it and sends it to every data plane | You put it on every data plane yourself |
+| Data plane image | Unchanged | Custom image, or LuaRocks install |
+| What Konnect receives | `schema.lua` and `handler.lua` | `schema.lua` only |
+| Updating the policy | Update it in Konnect | Rebuild or reinstall, then restart each node |
+
+<Tabs>
+  <Tab title="Streaming">
+    1. Start every data plane node with these two settings:
+
+       ```bash
+       KONG_CUSTOM_PLUGIN_STREAMING_ENABLED=on
+       KONG_UNTRUSTED_LUA=lax
+       ```
+
+       The first lets the node accept custom policies from Konnect. The second is needed because the policy makes an outbound HTTPS call to the Trust Guardian, which the default `strict` Lua sandbox does not allow.
+
+    2. Create the AI Custom Policy in Konnect, with kongctl, or with the AI Gateway API:
+
+       | Field | Value |
+       |:--|:--|
+       | `name` | `reva-ai-runtime-authorization` |
+       | `type` | `streaming` |
+       | `schema` | the contents of `schema.lua` |
+       | `handler` | the contents of `handler.lua` |
+
+       ```bash Konnect API
+       jq -n --rawfile schema schema.lua --rawfile handler handler.lua \
+         '{name: "reva-ai-runtime-authorization", type: "streaming",
+           display_name: "Reva AI Runtime Authorization",
+           schema: $schema, handler: $handler}' |
+       curl -X POST "https://<region>.api.konghq.com/v1/ai-gateways/<ai-gateway-id>/custom-policies" \
+         -H "Authorization: Bearer $KONNECT_TOKEN" \
+         -H "Content-Type: application/json" \
+         --data @-
+       ```
+  </Tab>
+  <Tab title="Installed (Docker)">
+    1. Build a data plane image that contains the policy, and run every node from it:
+
+       ```docker
+       FROM kong/kong-ai-gateway:2.3.0-distroless
+
+       COPY kong/plugins/reva-ai-runtime-authorization /usr/local/share/lua/5.1/kong/plugins/reva-ai-runtime-authorization
+
+       ENV KONG_PLUGINS=bundled,reva-ai-runtime-authorization
+       ```
+
+    2. Create the AI Custom Policy in Konnect with `name` `reva-ai-runtime-authorization`, `type` `installed`, and `schema` set to the contents of `schema.lua`. Do not send a `handler`.
+  </Tab>
+  <Tab title="Installed (LuaRocks)">
+    1. On every data plane node, install the policy:
+
+       ```bash
+       luarocks install kong-plugin-reva-ai-runtime-authorization-2.1.0-1.all.rock
+       ```
+
+    2. Add it to the `plugins` directive in `kong.conf`, then restart the node:
+
+       ```yaml
+       plugins = bundled,reva-ai-runtime-authorization
+       ```
+
+    3. Create the AI Custom Policy in Konnect with `name` `reva-ai-runtime-authorization`, `type` `installed`, and `schema` set to the contents of `schema.lua`. Do not send a `handler`.
+
+    A code change needs a restart, not only a configuration sync. The gateway loads Lua when a worker starts.
+  </Tab>
+</Tabs>
+
+<Note>
+  The `name` must be `reva-ai-runtime-authorization`, the name declared in the schema. Neither `name` nor `type` can be changed after the AI Custom Policy is created.
+</Note>

@@ -1,0 +1,48 @@
+---
+title: "Troubleshooting"
+description: "Common failure modes for the Kong AI Gateway policy and how to diagnose them."
+---
+
+### The data plane shows "Sync pending"
+
+The data plane rejected the configuration, so nothing you changed in Konnect is live.
+
+- Check the data plane log for the rejected field. A `config` field the schema does not define is reported as `unknown field`; this happens when the AI Custom Policy's schema was updated but an existing AI Policy still carries fields from the earlier schema. Remove them from the policy's `config`.
+- Clear the policy's **Condition** if it names a variable the data plane does not support.
+
+### Every call is refused with "authorization service unavailable"
+
+No decision is reaching the gateway. The data plane log names the cause:
+
+| Log line | Cause |
+|:--|:--|
+| `no decision (RTG returned HTTP 404)` | `reva_host` points at a host that does not serve the evaluation path. Check for an empty or mistyped value. |
+| `no decision (RTG returned HTTP 401: ...)` | `auth_token` was rejected, the user's token is not a well-formed JWT, or a forwarded transaction token has expired. The message names the header that failed. |
+| `RTG call attempt N failed` | The data plane cannot reach the Reva host. Check outbound HTTPS. |
+
+A genuine policy denial always has a row in the decision log. These do not.
+
+### A call late in a turn is refused
+
+The response says `authorization service unavailable` and the data plane log shows `HTTP 401: ... X-Transaction-Token validation failed`. The transaction token the agent forwarded has expired. This happens when an agent takes a long time between receiving a request and making its next call. Shorten the delay — for example by keeping services warm — rather than retrying with the same token.
+
+### The policy is not found, or requests fail with 500
+
+- **Streaming:** start every data plane node with `KONG_CUSTOM_PLUGIN_STREAMING_ENABLED=on` and `KONG_UNTRUSTED_LUA=lax`.
+- **Installed:** put `handler.lua` and `schema.lua` on **every** data plane node, and make sure `KONG_PLUGINS` includes `reva-ai-runtime-authorization`. Konnect only holds the schema.
+- **Installed:** restart the node after a code change.
+
+### Calls are proxied without being evaluated
+
+- Turn on `debug`; a skipped request logs the reason.
+- Only MCP `tools/call`, A2A send-message requests (see [A2A requests](/plugins/kong-plugin/how-a-call-is-classified#a2a-requests)), and OpenAI-style `messages` requests are evaluated. Task requests, agent-card requests, and JSON-RPC batches pass through.
+- Confirm the policy is attached to the entity the call is routed to, or is global.
+
+### Turns are not joined into one conversation
+
+- Confirm every agent forwards `traceparent` and `X-Transaction-Token` unchanged.
+- Confirm the first call of every turn carries the same thread id for a chat, at the header or body field that [`session_key`](/plugins/kong-plugin/configuration-reference/payload#session_key) names.
+### MCP calls fail with "Session terminated"
+
+- Keep `request_buffering` enabled on the route — the policy reads the request body.
+- Disable `response_buffering` — MCP streams over SSE.

@@ -1,0 +1,62 @@
+---
+title: "Step 4: Forward the Headers From Your Application"
+description: "Set Up: the headers every agent must forward so the policy can join the hops of one turn."
+---
+
+The policy can join the hops of one turn only if every service in the chain passes on what it received. Each agent must send these headers, spelled as shown, on every call it makes through the gateway: to a model, to an MCP server, and to another agent.
+
+| Header | Send it | What it does |
+|:--|:--|:--|
+| `Authorization: Bearer <JWT>` | on every call | Names the user. The policy decodes it and reads [`jwt_user_claim`](/plugins/kong-plugin/configuration-reference/identity#jwt_user_claim). Forward the end user's token unchanged; a service token in its place attributes the call to the service. A call without it is refused with `401`. |
+| `traceparent` | on every call | The W3C trace context. Its 32-character trace id is what makes separate calls one turn. The first service starts one for each user message, and every later call forwards it unchanged. If it is missing the policy creates one, and Reva cannot link the call to the turn it belongs to. |
+| `X-Transaction-Token` | on every call after the first | The Trust Guardian issues it when it allows a call, and the policy adds it to the request it sends upstream. Forward it exactly as received on every call that follows. Its presence tells the policy that the call is a later hop. |
+| the thread id, at the place [`session_key`](/plugins/kong-plugin/configuration-reference/payload#session_key) names (default: the header `X-Reva-Session-Id`) | on the first call of a turn only | Groups the turns of one chat. Later hops do not need it. |
+
+For one turn, the calls carry:
+
+```
+user  ->  agent A     Authorization: Bearer <JWT>
+                      traceparent: 00-<trace id>-<span id>-01
+                      X-Reva-Session-Id: <chat id>         (named by session_key)
+
+agent A  ->  agent B  Authorization: Bearer <JWT>          (the same token)
+                      traceparent: 00-<trace id>-<span id>-01   (the same trace id)
+                      X-Transaction-Token: <token>         (from the request A received)
+
+agent B  ->  model    Authorization: Bearer <JWT>
+                      traceparent: 00-<trace id>-<span id>-01
+                      X-Transaction-Token: <token>         (from the request B received)
+```
+
+`X-Reva-Session-Id` is only the default name. The thread id is read from whatever [`session_key`](/plugins/kong-plugin/configuration-reference/payload#session_key) names: a header of another name, or a field in the JSON body such as `params.message.contextId`. Send it where that setting points.
+
+Each hop passes on the transaction token it received. The policy issues a new one for every call it allows and puts it on the upstream request, so the value an agent forwards is always the one on the request it was just handed.
+
+<Warning>
+  An agent that drops `X-Transaction-Token` makes its next call look like a first call made by the user. An agent that drops `traceparent` splits one turn into several. Both weaken what a Reva policy can see, without producing an error. An agent that drops `Authorization` is refused.
+</Warning>
+
+#### How the policy tells the first call from a later one
+
+A call that carries no `X-Transaction-Token` is the first call of a turn. A call that carries one is a later hop. A transaction token exists only because an earlier call was evaluated and allowed.
+
+| | First call of a turn | Later hop |
+|:--|:--|:--|
+| Carries `X-Transaction-Token` | no | yes |
+| The user | read from the `Authorization` JWT | taken from the transaction token |
+| Thread id | read from the place `session_key` names | not needed |
+
+#### If a header is missing
+
+None of these produces an error in your application. The turn just becomes harder for Reva to follow.
+
+| Missing | What happens |
+|:--|:--|
+| `Authorization` | The call is refused with `401` and the reason `missing Authorization bearer token`. Reva is not called. |
+| `traceparent` | The policy creates a new trace, so Reva cannot link the call to the turn it belongs to. |
+| `X-Transaction-Token` on a later hop | The call is treated as the first call of a new turn made by the user, not as a later hop made by the agent. |
+| the thread id on the first call | The turn has no thread id, so Reva cannot join it to earlier turns of the chat. |
+
+#### Token lifetime
+
+A transaction token is short-lived, and Reva sets the lifetime for your deployment. A service that waits too long between receiving a request and making its next call, for example behind a slow model or a cold start, finds the token expired. Reva then refuses the call: the response carries `authorization service unavailable`, and the data plane log shows `X-Transaction-Token validation failed`. Keep the time between hops short rather than retrying with the same token.

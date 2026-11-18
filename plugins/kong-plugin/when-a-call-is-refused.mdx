@@ -1,0 +1,17 @@
+---
+title: "When a Call Is Refused"
+description: "The statuses and reasons the policy returns, and which ones reach the decision logs."
+---
+
+A refused call ends at the gateway with `deny_status` and `deny_message`, and the upstream is never contacted. The body carries a `reason` naming the specific case:
+
+| Status | Reason | Meaning |
+|:--|:--|:--|
+| `deny_status` | `authorization denied by policy`, or the reason Reva returned | Reva evaluated the call and refused it |
+| `deny_status` | `authorization service unavailable` | No decision was obtained from the Trust Guardian |
+| `deny_status` | `could not build authorization request` | The policy could not build the request to the Trust Guardian |
+| `401` | `missing Authorization bearer token` | No bearer token was presented |
+| `401` | `Authorization bearer token is not a JWT` | A bearer was presented but could not be decoded |
+| `401` | `jwt claim ... is empty` | The JWT decoded, but `jwt_user_claim` held no value |
+
+Applications should surface these differently: a policy denial has a matching row in the decision logs, the others have none. The `401` refusals are raised before Reva is called, so they are unaffected by `fail_open`, `monitor_mode`, or `deny_status`.

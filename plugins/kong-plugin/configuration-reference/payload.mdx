@@ -1,0 +1,46 @@
+---
+title: "Payload"
+description: "Configuration Reference: where the policy reads the prompt text and the chat or thread id."
+---
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `prompt_key` | string | `content` | Name of the field that carries the prompt text to Reva |
+| `session_key` | string | `X-Reva-Session-Id` | Header or body field carrying the chat or thread id |
+
+#### prompt_key
+
+Name of the field that carries the prompt text to Reva. Defaults to `content`. Change it only when your Reva policies were authored against a different field name; the two must match.
+
+What is sent as the prompt:
+
+| Call | Prompt |
+|:--|:--|
+| Model | The text of the **last user message** in `messages`. A message whose `content` is an array of parts has its text parts joined; image and audio parts are not sent. |
+| Tool | The tool arguments, as `name=value` pairs. |
+| Agent | The message's `parts` (`params.message.parts`, or `message.parts` over HTTP+JSON), joined with newlines: each text part's `text`, and each data part as its JSON text, up to 8192 bytes. File parts are not sent. |
+
+#### session_key
+
+Where the policy reads the chat or thread id, which groups separate turns into one conversation. Defaults to `X-Reva-Session-Id`. The name is only a label: it can be any header name or body field your application already uses.
+
+The policy looks at this name and nowhere else, in this order:
+
+1. A request **header** with this name.
+2. The JSON **body**. A name with dots is a path from the root of the body, so `params.thread_id` is `body.params.thread_id`. A name without dots is a field at the top of the body.
+
+| Your application sends the chat id as | Set `session_key` to |
+|:--|:--|
+| the header `X-Reva-Session-Id` | `X-Reva-Session-Id` (the default) |
+| another header | its name, for example `X-Acme-Conversation-Id` |
+| an A2A `contextId`, over JSON-RPC | `params.message.contextId` |
+| an A2A `contextId`, over HTTP+JSON | `message.contextId` |
+| a field of your own in the body | its path, for example `params.thread_id` |
+
+The thread id is read and sent to Reva on the **first call of a turn only**. Later hops carry the transaction token and are joined to the thread through the trace, so a different value on a later hop is ignored.
+
+A first call that carries nothing at that name has no thread id, so the Trust Guardian cannot join it to earlier turns. Making every message of a chat carry the same value is the single highest-value change a calling application can make.
+
+```json
+{ "session_key": "params.message.contextId" }
+```

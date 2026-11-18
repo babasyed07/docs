@@ -29,6 +29,10 @@
     {
       "source": "/ai-coding-agents/workspace-settings/plan-and-users/remove-a-member",
       "destination": "/ai-coding-agents/workspace-settings/basic-info"
+    },
+    {
+      "source": "/plugins/kong-plugin",
+      "destination": "/plugins/kong-plugin/overview"
     }
   ],
   "navigation": {
@@ -321,7 +325,44 @@
           {
             "group": "Plugins",
             "pages": [
-              "plugins/kong-plugin",
+              {
+                "group": "Kong AI Gateway Policy",
+                "expanded": true,
+                "pages": [
+                  "plugins/kong-plugin/overview",
+                  "plugins/kong-plugin/before-you-begin",
+                  {
+                    "group": "Set Up",
+                    "expanded": true,
+                    "pages": [
+                      "plugins/kong-plugin/set-up/register-the-ai-custom-policy",
+                      "plugins/kong-plugin/set-up/attach-the-policy",
+                      "plugins/kong-plugin/set-up/prepare-the-gateway-entities",
+                      "plugins/kong-plugin/set-up/forward-the-headers-from-your-application"
+                    ]
+                  },
+                  "plugins/kong-plugin/model-your-gateway-in-reva",
+                  {
+                    "group": "Configuration Reference",
+                    "expanded": true,
+                    "pages": [
+                      "plugins/kong-plugin/configuration-reference/connection",
+                      "plugins/kong-plugin/configuration-reference/enforcement",
+                      "plugins/kong-plugin/configuration-reference/identity",
+                      "plugins/kong-plugin/configuration-reference/payload",
+                      "plugins/kong-plugin/configuration-reference/turns-and-diagnostics"
+                    ]
+                  },
+                  "plugins/kong-plugin/how-a-call-is-classified",
+                  "plugins/kong-plugin/context-variables",
+                  "plugins/kong-plugin/what-reva-sees",
+                  "plugins/kong-plugin/when-a-call-is-refused",
+                  "plugins/kong-plugin/guardrails",
+                  "plugins/kong-plugin/verify-the-setup",
+                  "plugins/kong-plugin/troubleshooting",
+                  "plugins/kong-plugin/a-rollout-that-works"
+                ]
+              },
               "plugins/litellm-plugin",
               "plugins/copilot-studio-threat-detection"
             ]

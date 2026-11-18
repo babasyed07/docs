@@ -1,0 +1,44 @@
+---
+title: "Connection"
+description: "Configuration Reference: the fields that connect the policy to your Reva tenant."
+---
+
+Every field is set under the AI Policy's `config`. `auth_token` is the only required field.
+
+| Field | Type | Default | Purpose |
+|:------|:-----|:--------|:--------|
+| `reva_host` | string | `api.reva.ai` | Host or base URL of your Reva tenant |
+| `auth_token` | string | **required** | Token the gateway presents to the Trust Guardian |
+| `ssl_verify` | boolean | `true` | Verify the Trust Guardian's TLS certificate |
+
+#### reva_host
+
+Host or base URL of your Reva tenant, for example `api.example.reva.ai`. A host-only value is called over HTTPS; a full URL such as `https://api.example.reva.ai` is used as given, and trailing slashes are trimmed.
+
+<Warning>
+  An empty value falls back to `api.reva.ai`. If your tenant is on another host, an empty or mistyped `reva_host` sends evaluations to the wrong place and every call is refused with `authorization service unavailable`.
+</Warning>
+
+```json
+{ "reva_host": "api.example.reva.ai" }
+```
+
+#### auth_token
+
+Token the gateway presents to the Trust Guardian on every evaluation. Copy it from the policy store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime).
+
+The field is **referenceable**. In production, give it a vault reference rather than a literal, so the secret never appears in a configuration export.
+
+```json
+{ "auth_token": "{vault://env/reva-ai-runtime-authorization-token}" }
+```
+
+<Warning>
+  This token is a secret with policy-evaluation rights. Never commit or log it. Rotate it from the same Settings panel if it is exposed.
+</Warning>
+
+#### ssl_verify
+
+Verify the TLS certificate presented by the Trust Guardian. Defaults to `true`.
+
+Turn it off **only** against a test instance with a self-signed certificate. With it off, the gateway cannot tell your Trust Guardian from anything that can intercept the connection.

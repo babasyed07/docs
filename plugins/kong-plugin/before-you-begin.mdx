@@ -1,0 +1,16 @@
+---
+title: "Before You Begin"
+description: "What you need before setting up the Reva AI Runtime Authorization policy on Kong AI Gateway."
+---
+
+You need:
+
+- **Kong AI Gateway 2.2 or later**, with a Konnect control plane and at least one data plane node.
+- **The policy files**, `schema.lua` and `handler.lua`, or the packed `.rock` that contains them. Contact [info@reva.ai](mailto:info@reva.ai) to obtain them.
+- **A Reva policy store** with the models, MCP servers, and agents you want to govern, and policies that permit the calls you expect. See [Model your gateway in Reva](/plugins/kong-plugin/model-your-gateway-in-reva).
+- **An authorization token** for the Trust Guardian, from the policy store's [Settings → Connect to Reva Trust Guardian](/ai-workload-developer-settings#connect-your-agents-at-runtime).
+- **Outbound HTTPS** from every data plane node to your Reva host.
+
+<Note>
+  The policy sends no policy store field of its own. The token decides which policy store a call is evaluated against, so use the token issued by the **policy store you want the gateway evaluated against**.
+</Note>

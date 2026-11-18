@@ -1,0 +1,49 @@
+---
+title: "A Rollout That Works"
+description: "A four-step rollout from observe-only to full enforcement, plus a production example configuration."
+---
+
+<Steps>
+  <Step title="Observe">
+    Attach the policy with `monitor_mode: true`. Nothing is blocked; the log and the decision log show what *would* have been refused.
+  </Step>
+  <Step title="Tune policy">
+    Work through the would-be denials in the decision logs until the verdicts match your intent.
+  </Step>
+  <Step title="Enforce">
+    Set `monitor_mode: false` and leave `fail_open: false`.
+  </Step>
+  <Step title="Harden">
+    Authenticate callers in front of the policy, and move `auth_token` into a vault reference.
+  </Step>
+</Steps>
+
+```json Production example
+{
+  "reva_host": "api.example.reva.ai",
+  "auth_token": "{vault://env/reva-ai-runtime-authorization-token}",
+  "ssl_verify": true,
+  "monitor_mode": false,
+  "fail_open": false,
+  "deny_status": 403,
+  "deny_message": "Blocked by Reva",
+  "jwt_user_claim": "sub",
+  "jwt_groups_claim": "groups",
+  "prompt_key": "content",
+  "session_key": "X-Reva-Session-Id",
+  "hop_ttl": 3600,
+  "forward_traceparent": true,
+  "debug": false
+}
+```
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Connect Your Agents" icon="plug" href="/ai-workload-integration-options">
+    Compare the SDK, the Evaluation API, and gateway enforcement.
+  </Card>
+  <Card title="Developer Settings" icon="key" href="/ai-workload-developer-settings">
+    Where to find the token the gateway presents.
+  </Card>
+</CardGroup>
